@@ -1,0 +1,17 @@
+.page-container {
+    padding: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    color: #71717a;
+    font-size: 14px;
+}

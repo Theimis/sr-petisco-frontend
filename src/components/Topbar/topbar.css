@@ -1,0 +1,151 @@
+.topbar {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 28px;
+
+    padding: 18px 22px;
+
+    background: rgba(24, 24, 27, 0.85);
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 22px;
+
+    backdrop-filter: blur(10px);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.topbar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.topbar-left h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+}
+
+.topbar-left span {
+    color: #71717a;
+    font-size: 14px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.search-box {
+    width: 280px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: #18181b;
+
+    border: 1px solid #27272a;
+
+    border-radius: 14px;
+
+    padding: 0 14px;
+
+    color: #71717a;
+}
+
+.search-box input {
+    flex: 1;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: white;
+    font-size: 14px;
+}
+
+.search-box input::placeholder {
+    color: #71717a;
+}
+
+.topbar-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 14px;
+
+    border: 1px solid #27272a;
+
+    background: #18181b;
+
+    color: #a1a1aa;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.topbar-icon:hover {
+    background: #27272a;
+    color: white;
+}
+
+.user-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 6px 10px;
+
+    background: #18181b;
+
+    border: 1px solid #27272a;
+
+    border-radius: 14px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(135deg, #dc2626, #7f1d1d);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info strong {
+    color: white;
+    font-size: 14px;
+}
+
+.user-info span {
+    color: #71717a;
+    font-size: 12px;
+}

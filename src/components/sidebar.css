@@ -1,0 +1,131 @@
+.menu-link {
+    text-decoration: none;
+}
+
+.sidebar {
+    width: 270px;
+    height: 100vh;
+    background: linear-gradient(180deg, #111827, #0f172a);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    padding: 24px 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    color: white;
+
+    overflow-y: auto;
+}
+
+
+
+/* LOGO */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 35px;
+}
+
+.logo-circle {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+    color: white;
+
+    box-shadow: 0 0 18px rgba(124, 58, 237, 0.35);
+}
+
+
+
+/* MENU BASE */
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    /* 👈 ESSENCIAL */
+}
+
+/* BOTÕES */
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.menu-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.menu-link:hover {
+    background: rgba(124, 58, 237, 0.12);
+    color: white;
+}
+
+.menu-link.active {
+    background: linear-gradient(90deg, #7c3aed, #6d28d9);
+    color: white;
+    box-shadow: 0 0 18px rgba(124, 58, 237, 0.25);
+}
+
+/* SCROLL BONITO */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(220, 38, 38, 0.4);
+    border-radius: 20px;
+}
+
+/* ANIMAÇÃO */
+.menu-link {
+    transition: all 0.25s ease;
+}
+
+/* LOGO */
+.sidebar-logo h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sidebar-logo span {
+    color: #71717a;
+    font-size: 12px;
+}
+
+.menu-section {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #71717a;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    padding-left: 14px;
+    text-transform: uppercase;
+}

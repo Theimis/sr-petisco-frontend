@@ -1,0 +1,30 @@
+.sales-chart-card {
+    background: linear-gradient(145deg, #18181b, #111111);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 24px;
+    margin-top: 24px;
+}
+
+.sales-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.sales-chart-header h3 {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.sales-chart-header p {
+    color: #71717a;
+    font-size: 14px;
+}
+
+.sales-chart-header h2 {
+    color: #8b5cf6;
+    font-size: 28px;
+}
