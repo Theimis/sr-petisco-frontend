@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import { Layout } from "../components/Layout";
 
@@ -14,7 +14,8 @@ export function AppRoutes() {
         <Routes>
 
             {/* LOGIN */}
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login />} />
 
             {/* SISTEMA */}
             <Route
@@ -65,3 +66,4 @@ export function AppRoutes() {
         </Routes>
     );
 }
+
