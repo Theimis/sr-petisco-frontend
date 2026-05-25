@@ -20,10 +20,13 @@ export function Login() {
                 senha,
             });
 
+
             localStorage.setItem(
                 "token",
-                response.data.token
+                response.data.data.token
             );
+
+
 
             toast.success(
                 "Usuário conectado com sucesso!"

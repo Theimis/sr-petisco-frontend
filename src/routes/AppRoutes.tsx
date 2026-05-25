@@ -1,3 +1,5 @@
+import { ProtectedRoute } from "./ProtectedRoute";
+
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import { Layout } from "../components/Layout";
@@ -17,49 +19,63 @@ export function AppRoutes() {
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
 
-            {/* SISTEMA */}
+            {/* DASHBOARD */}
             <Route
                 path="/dashboard"
                 element={
-                    <Layout>
-                        <Dashboard />
-                    </Layout>
+                    <ProtectedRoute>
+                        <Layout>
+                            <Dashboard />
+                        </Layout>
+                    </ProtectedRoute>
                 }
             />
 
+            {/* PRODUTOS */}
             <Route
                 path="/produtos"
                 element={
-                    <Layout>
-                        <Produtos />
-                    </Layout>
+                    <ProtectedRoute>
+                        <Layout>
+                            <Produtos />
+                        </Layout>
+                    </ProtectedRoute>
                 }
             />
 
+            {/* INSUMOS */}
             <Route
                 path="/insumos"
                 element={
-                    <Layout>
-                        <Insumos />
-                    </Layout>
+                    <ProtectedRoute>
+                        <Layout>
+                            <Insumos />
+                        </Layout>
+                    </ProtectedRoute>
                 }
             />
 
+            {/* TRANSFORMADOS */}
             <Route
                 path="/transformados"
                 element={
-                    <Layout>
-                        <Transformados />
-                    </Layout>
+                    <ProtectedRoute>
+                        <Layout>
+                            <Transformados />
+                        </Layout>
+                    </ProtectedRoute>
                 }
             />
 
+            {/* FICHAS */}
             <Route
                 path="/fichas"
                 element={
-                    <Layout>
-                        <Fichas />
-                    </Layout>
+                    <ProtectedRoute>
+                        <Layout>
+                            <Fichas />
+                        </Layout>
+                    </ProtectedRoute>
                 }
             />
 

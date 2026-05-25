@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+
 import {
     LayoutDashboard,
     Package,
@@ -8,11 +9,21 @@ import {
     Wallet,
     BarChart3,
     ShoppingCart,
+    LogOut,
 } from "lucide-react";
 
 import "./sidebar.css";
 
 export function Sidebar() {
+
+    const navigate = useNavigate();
+
+    function logout() {
+
+        localStorage.removeItem("token");
+
+        navigate("/login");
+    }
 
     return (
         <aside className="sidebar">
@@ -93,9 +104,17 @@ export function Sidebar() {
                     Relatórios
                 </NavLink>
 
+                {/* LOGOUT */}
+                <button
+                    className="menu-link logout-button"
+                    onClick={logout}
+                >
+                    <LogOut size={18} />
+                    Sair
+                </button>
+
             </nav>
 
         </aside>
     );
 }
-

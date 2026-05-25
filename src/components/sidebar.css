@@ -57,10 +57,10 @@
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    /* 👈 ESSENCIAL */
+    height: 100%;
 }
+
+
 
 /* BOTÕES */
 .menu-link {
@@ -128,4 +128,16 @@
     margin-bottom: 10px;
     padding-left: 14px;
     text-transform: uppercase;
+}
+
+.logout-button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    margin-top: auto;
 }
