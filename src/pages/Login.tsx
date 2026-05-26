@@ -22,6 +22,12 @@ export function Login() {
 
 
             localStorage.setItem(
+                "usuario",
+                JSON.stringify(response.data.data.usuario)
+            );
+
+
+            localStorage.setItem(
                 "token",
                 response.data.data.token
             );

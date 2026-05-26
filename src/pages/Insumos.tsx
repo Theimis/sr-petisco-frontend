@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { api } from "../services/api";
 
 export function Insumos() {
-    const [nome, setNome] = useState("");
-    const [categoria, setCategoria] = useState("");
-    const [fornecedor, setFornecedor] = useState("");
-    const [unidade, setUnidade] = useState("");
-    const [qtdBruta, setQtdBruta] = useState("");
-    const [qtdLiquida, setQtdLiquida] = useState("");
-    const [valorTotal, setValorTotal] = useState("");
-
     const [insumos, setInsumos] = useState<any[]>([]);
-    const [mostraFormulario, setMostrarFormulario] = useState(false);
-    const [editandoId, setEditandoId] = useState<string | null>(null);
+    const [pesquisa, setPesquisa] = useState("");
+    const [filtroTipo, setFiltroTipo] = useState("todos");
+
+    const insumosFiltrados = insumos.filter((insumo) => {
+
+        const matchPesquisa =
+            insumo.nome
+                ?.toLowerCase()
+                .includes(pesquisa.toLowerCase());
+
+        const matchTipo =
+            filtroTipo === "todos"
+                ? true
+                : insumo.tipo === filtroTipo;
+
+        return matchPesquisa && matchTipo;
+    });
 
     async function carregarInsumos() {
         try {
@@ -34,107 +40,22 @@ export function Insumos() {
         carregarInsumos();
     }, []);
 
-    async function criarInsumo() {
-        try {
-            await api.post("/insumos", {
-                nome,
-                categoria,
-                fornecedor: fornecedor || undefined,
-                unidade,
-                qtdBruta: Number(qtdBruta),
-                qtdLiquida: Number(qtdLiquida || qtdBruta),
-                valorTotal: Number(valorTotal),
-            });
 
-            await carregarInsumos();
+    // async function deletarInsumo(id: string) {
+    //      try {
+    //         await api.delete(`/insumos/${id}`);
 
-            toast.success("Insumo criado com sucesso!");
+    //         toast.success("Insumo deletado!");
+    //
+    //         await carregarInsumos();
 
-            limparFormulario();
+    //    } catch (error) {
 
-        } catch (error: any) {
+    //      toast.error("Erro ao deletar insumo");
 
-            toast.error("Erro ao criar insumo");
-
-            console.error(
-                "Erro ao criar insumo:",
-                error.response?.data || error
-            );
-        }
-    }
-
-    async function atualizarInsumo() {
-        try {
-            await api.put(`/insumos/${editandoId}`, {
-                nome,
-                categoria,
-                fornecedor,
-                unidade,
-                qtdBruta: Number(qtdBruta),
-                qtdLiquida: Number(qtdLiquida),
-                valorTotal: Number(valorTotal),
-            });
-
-            toast.success("Insumo atualizado!");
-
-            await carregarInsumos();
-
-            limparFormulario();
-
-        } catch (error: any) {
-
-            toast.error("Erro ao atualizar insumo");
-
-            console.error(
-                error.response?.data || error
-            );
-        }
-    }
-
-    async function deletarInsumo(id: string) {
-        try {
-            await api.delete(`/insumos/${id}`);
-
-            toast.success("Insumo deletado!");
-
-            await carregarInsumos();
-
-        } catch (error) {
-
-            toast.error("Erro ao deletar insumo");
-
-            console.error(error);
-        }
-    }
-
-    function editarInsumo(insumo: any) {
-        setEditandoId(insumo._id);
-
-        setNome(insumo.nome || "");
-        setCategoria(insumo.categoria || "");
-        setFornecedor(insumo.fornecedor || "");
-        setUnidade(insumo.unidade || "");
-
-        setQtdBruta(String(insumo.qtdBruta || ""));
-        setQtdLiquida(String(insumo.qtdLiquida || ""));
-        setValorTotal(String(insumo.valorTotal || ""));
-
-        setMostrarFormulario(true);
-    }
-
-    function limparFormulario() {
-        setNome("");
-        setCategoria("");
-        setFornecedor("");
-        setUnidade("");
-        setQtdBruta("");
-        setQtdLiquida("");
-        setValorTotal("");
-
-        setEditandoId(null);
-
-        setMostrarFormulario(false);
-    }
+    //      console.error(error);
+    //  }
+    //}
 
     return (
         <div className="page-container">
@@ -178,146 +99,53 @@ export function Insumos() {
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => {
-                            limparFormulario();
-                            setMostrarFormulario(true);
-                        }}
-                        style={buttonStyle}
-                    >
-                        + Novo Insumo
-                    </button>
-                </div>
-
-                {/* FORMULÁRIO */}
-                {mostraFormulario && (
                     <div
                         style={{
-                            background: "#111827",
-                            border: "1px solid #1f2937",
-                            padding: 20,
-                            borderRadius: 16,
-                            marginBottom: 25,
+                            display: "flex",
+                            gap: 12,
+                            alignItems: "center",
                         }}
                     >
-                        <h2 style={{ marginBottom: 20 }}>
-                            {editandoId
-                                ? "Editar Insumo"
-                                : "Novo Insumo"}
-                        </h2>
 
-                        <div
+                        <input
+                            placeholder="Pesquisar insumo..."
+                            value={pesquisa}
+                            onChange={(e) =>
+                                setPesquisa(e.target.value)
+                            }
                             style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                    "repeat(auto-fit, minmax(220px, 1fr))",
-                                gap: 15,
+                                ...inputStyle,
+                                width: 240,
+                            }}
+                        />
+
+                        <select
+                            value={filtroTipo}
+                            onChange={(e) =>
+                                setFiltroTipo(e.target.value)
+                            }
+                            style={{
+                                ...inputStyle,
+                                width: 180,
                             }}
                         >
-                            <input
-                                placeholder="Nome do insumo"
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                                style={inputStyle}
-                            />
+                            <option value="todos">
+                                Todos
+                            </option>
 
-                            <input
-                                placeholder="Categoria"
-                                value={categoria}
-                                onChange={(e) => setCategoria(e.target.value)}
-                                style={inputStyle}
-                            />
+                            <option value="base">
+                                Base
+                            </option>
 
-                            <input
-                                placeholder="Fornecedor"
-                                value={fornecedor}
-                                onChange={(e) => setFornecedor(e.target.value)}
-                                style={inputStyle}
-                            />
+                            <option value="transformado">
+                                Transformado
+                            </option>
+                        </select>
 
-                            <select
-                                value={unidade}
-                                onChange={(e) => setUnidade(e.target.value)}
-                                style={inputStyle}
-                            >
-                                <option value="">
-                                    Selecione unidade
-                                </option>
-
-                                <option value="kg">kg</option>
-                                <option value="g">g</option>
-                                <option value="L">L</option>
-                                <option value="ml">ml</option>
-                                <option value="un">un</option>
-                            </select>
-
-                            <input
-                                type="number"
-                                placeholder="Quantidade Bruta"
-                                value={qtdBruta}
-                                onChange={(e) =>
-                                    setQtdBruta(e.target.value)
-                                }
-                                style={inputStyle}
-                            />
-
-                            <input
-                                type="number"
-                                placeholder="Quantidade Líquida"
-                                value={qtdLiquida}
-                                onChange={(e) =>
-                                    setQtdLiquida(e.target.value)
-                                }
-                                style={inputStyle}
-                            />
-
-                            <input
-                                type="number"
-                                placeholder="Valor Total"
-                                value={valorTotal}
-                                onChange={(e) =>
-                                    setValorTotal(e.target.value)
-                                }
-                                style={inputStyle}
-                            />
-                        </div>
-
-                        <div
-                            style={{
-                                display: "flex",
-                                gap: 15,
-                                marginTop: 25,
-                                flexWrap: "wrap",
-                            }}
-                        >
-                            <button
-                                onClick={
-                                    editandoId
-                                        ? atualizarInsumo
-                                        : criarInsumo
-                                }
-                                style={buttonStyle}
-                            >
-                                {editandoId
-                                    ? "Salvar Alterações"
-                                    : "Salvar Insumo"}
-                            </button>
-
-                            <button
-                                onClick={limparFormulario}
-                                style={{
-                                    ...buttonStyle,
-                                    background:
-                                        "linear-gradient(135deg, #1e293b, #0f172a)",
-                                    boxShadow:
-                                        "0 0 15px rgba(255,255,255,0.08)",
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                        </div>
                     </div>
-                )}
+
+
+                </div>
 
                 {/* TABELA */}
                 <div style={{ marginTop: 20 }}>
@@ -327,7 +155,7 @@ export function Insumos() {
                         style={{
                             display: "grid",
                             gridTemplateColumns:
-                                "2fr 1fr 1fr 1fr 1fr 1fr 220px",
+                                "2fr 1.3fr 1.3fr 1.6fr 1fr 1fr 1fr 1.3fr 140px",
                             background: "#111827",
                             padding: "16px 20px",
                             borderRadius: "14px 14px 0 0",
@@ -337,23 +165,38 @@ export function Insumos() {
                             fontSize: 14,
                         }}
                     >
-                        <span>Nome</span>
-                        <span>Categoria</span>
-                        <span>Fornecedor</span>
-                        <span>Qtd</span>
-                        <span>Unidade</span>
-                        <span>Valor</span>
-                        <span>Ações</span>
+                        <span style={{ textAlign: "left" }}>Nome</span>
+
+
+                        <span style={{ textAlign: "center" }}>Tipo</span>
+
+                        <span style={{ textAlign: "center" }}>Categoria</span>
+
+                        <span style={{ textAlign: "center" }}>Fornecedor</span>
+
+                        <span style={{ textAlign: "center" }}>Rendimento</span>
+
+                        <span style={{ textAlign: "center" }}>Fichas</span>
+
+                        <span style={{ textAlign: "center" }}>Unidade</span>
+
+                        <span style={{ textAlign: "center" }}>Valor Unitário</span>
+
+                        <span style={{ textAlign: "center" }}>Ações</span>
+
                     </div>
 
                     {/* LISTA */}
-                    {insumos.map((insumo) => (
+                    {insumosFiltrados.map((insumo) => (
+
                         <div
                             key={insumo._id}
                             style={{
                                 display: "grid",
                                 gridTemplateColumns:
-                                    "2fr 1fr 1fr 1fr 1fr 1fr 220px",
+                                    "2fr 1.3fr 1.3fr 1.6fr 1fr 1fr 1fr 1.3fr 140px",
+
+
                                 alignItems: "center",
                                 background: "#0f172a",
                                 padding: "18px 20px",
@@ -363,53 +206,57 @@ export function Insumos() {
                         >
                             <strong>{insumo.nome}</strong>
 
-                            <span>{insumo.categoria}</span>
+                            <span style={{ textAlign: "center" }}>
+                                {insumo.tipo || "base"}
+                            </span>
 
-                            <span>
+                            <span style={{ textAlign: "center" }}>
+                                {insumo.categoria}
+                            </span>
+
+                            <span style={{ textAlign: "center" }}>
                                 {insumo.fornecedor || "-"}
                             </span>
 
-                            <span>{insumo.qtdLiquida}</span>
+                            <span style={{ textAlign: "center" }}>
+                                {insumo.qtdLiquida || 0}
+                            </span>
 
-                            <span>{insumo.unidade}</span>
+                            <span style={{ textAlign: "center" }}>
+                                {insumo.fichas || 0}
+                            </span>
 
-                            <span>
+                            <span style={{ textAlign: "center" }}>
+                                {insumo.unidade}
+                            </span>
+
+                            <span style={{ textAlign: "center" }}>
                                 R$ {insumo.valorTotal}
                             </span>
 
                             <div
                                 style={{
                                     display: "flex",
-                                    gap: 10,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    width: "100%",
                                 }}
                             >
+
                                 <button
-                                    onClick={() =>
-                                        editarInsumo(insumo)
-                                    }
                                     style={{
                                         ...buttonStyle,
-                                        padding: "10px",
+                                        padding: "8px 18px",
+                                        minWidth: "80px",
+                                        height: "38px",
                                         background:
                                             "linear-gradient(135deg, #2563eb, #1d4ed8)",
                                         boxShadow: "none",
                                     }}
                                 >
-                                    Editar
+                                    Ver
                                 </button>
 
-                                <button
-                                    onClick={() =>
-                                        deletarInsumo(insumo._id)
-                                    }
-                                    style={{
-                                        ...buttonStyle,
-                                        padding: "10px",
-                                        boxShadow: "none",
-                                    }}
-                                >
-                                    Deletar
-                                </button>
                             </div>
                         </div>
                     ))}

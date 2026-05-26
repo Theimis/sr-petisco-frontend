@@ -1,9 +1,13 @@
+
 import { KPICard } from ".././components/KPICard/KPICard";
 import { SalesChart } from ".././components/Charts/SalesChart";
 import { Topbar } from "../components/Topbar/Topbar";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import "./dashboard.css";
+import { useEffect } from "react";
+
+
 
 import {
     DollarSign,
@@ -35,10 +39,98 @@ export const Dashboard: React.FC = () => {
         "Todos",
     ];
 
+    useEffect(() => {
+        console.log("Período selecionado:", periodo);
+
+        // aqui depois vai vir API
+        // por enquanto só simulação
+
+    }, [periodo]);
+
+
+
+    // 🔥 DADOS CENTRALIZADOS (PRONTO PRA API)
+    const dashboardData = {
+        totalVendas: "R$ 0,00",
+        quantidadeVendas: "0",
+        ticketMedio: "R$ 0,00",
+        estornos: "R$ 0,00",
+
+        recebimentos: [
+            {
+                name: "Dinheiro",
+                percentage: "0%",
+                value: "R$ 0,00",
+                icon: DollarSign,
+                color: "#10b981",
+            },
+            {
+                name: "PIX",
+                percentage: "0%",
+                value: "R$ 0,00",
+                icon: Zap,
+                color: "#f59e0b",
+            },
+            {
+                name: "Crédito",
+                percentage: "0%",
+                value: "R$ 0,00",
+                icon: CreditCard,
+                color: "#7c3aed",
+            },
+            {
+                name: "Débito",
+                percentage: "0%",
+                value: "R$ 0,00",
+                icon: CreditCard,
+                color: "#3b82f6",
+            },
+            {
+                name: "Recebimento on-line",
+                percentage: "0%",
+                value: "R$ 0,00",
+                icon: Globe,
+                color: "#ef4444",
+            },
+        ],
+
+        stats: [
+            {
+                label: "Produtos/Serviços",
+                value: "0",
+                icon: Package,
+                color: "rgba(16, 185, 129, 0.1)",
+                iconColor: "#10b981",
+            },
+            {
+                label: "Clientes",
+                value: "0",
+                icon: Users,
+                color: "rgba(245, 158, 11, 0.1)",
+                iconColor: "#f59e0b",
+            },
+            {
+                label: "Integrações",
+                value: "0",
+                icon: Layers,
+                color: "rgba(59, 130, 246, 0.1)",
+                iconColor: "#3b82f6",
+            },
+            {
+                label: "Estabelecimentos",
+                value: "0",
+                icon: Store,
+                color: "rgba(124, 58, 237, 0.1)",
+                iconColor: "#7c3aed",
+            },
+        ],
+    };
+
+    // 🔥 KPIs DINÂMICOS
     const kpis = [
         {
             title: "Valor das Vendas",
-            value: "R$ 0,00",
+            value: dashboardData.totalVendas,
             change: "0,0%",
             icon: DollarSign,
             color: "#10b981",
@@ -46,7 +138,7 @@ export const Dashboard: React.FC = () => {
         },
         {
             title: "Quantidade de Vendas",
-            value: "0",
+            value: dashboardData.quantidadeVendas,
             change: "0,0%",
             icon: ShoppingCart,
             color: "#3b82f6",
@@ -54,7 +146,7 @@ export const Dashboard: React.FC = () => {
         },
         {
             title: "Ticket Médio",
-            value: "R$ 0,00",
+            value: dashboardData.ticketMedio,
             change: "0,0%",
             icon: TrendingUp,
             color: "#f59e0b",
@@ -62,7 +154,7 @@ export const Dashboard: React.FC = () => {
         },
         {
             title: "Estornos",
-            value: "R$ 0,00",
+            value: dashboardData.estornos,
             change: "0,0%",
             icon: Banknote,
             color: "#ef4444",
@@ -70,89 +162,20 @@ export const Dashboard: React.FC = () => {
         },
     ];
 
-    const receipts = [
-        {
-            name: "Dinheiro",
-            percentage: "0%",
-            value: "R$ 0,00",
-            icon: DollarSign,
-            color: "#10b981",
-        },
-        {
-            name: "PIX",
-            percentage: "0%",
-            value: "R$ 0,00",
-            icon: Zap,
-            color: "#f59e0b",
-        },
-        {
-            name: "Crédito",
-            percentage: "0%",
-            value: "R$ 0,00",
-            icon: CreditCard,
-            color: "#7c3aed",
-        },
-        {
-            name: "Débito",
-            percentage: "0%",
-            value: "R$ 0,00",
-            icon: CreditCard,
-            color: "#3b82f6",
-        },
-        {
-            name: "Recebimento on-line",
-            percentage: "0%",
-            value: "R$ 0,00",
-            icon: Globe,
-            color: "#ef4444",
-        },
-    ];
 
-    const stats = [
-        {
-            label: "Produtos/Serviços",
-            value: "0",
-            icon: Package,
-            color: "rgba(16, 185, 129, 0.1)",
-            iconColor: "#10b981",
-        },
-        {
-            label: "Clientes",
-            value: "0",
-            icon: Users,
-            color: "rgba(245, 158, 11, 0.1)",
-            iconColor: "#f59e0b",
-        },
-        {
-            label: "Integrações",
-            value: "0",
-            icon: Layers,
-            color: "rgba(59, 130, 246, 0.1)",
-            iconColor: "#3b82f6",
-        },
-        {
-            label: "Estabelecimentos",
-            value: "0",
-            icon: Store,
-            color: "rgba(124, 58, 237, 0.1)",
-            iconColor: "#7c3aed",
-        },
-    ];
 
     return (
         <div className="dashboard-container">
 
             <Topbar />
 
-            {/* HEADER */}
             <header className="dashboard-header">
-
                 <div className="filters-group">
                     {periodos.map((p) => (
                         <button
                             key={p}
                             onClick={() => setPeriodo(p)}
-                            className={`filter-btn ${periodo === p ? "active" : ""}`}
+                            className="filter-btn"
                         >
                             {p}
                         </button>
@@ -168,10 +191,8 @@ export const Dashboard: React.FC = () => {
                         <option>Todos os estabelecimentos</option>
                     </select>
                 </div>
-
             </header>
 
-            {/* HERO */}
             <section className="hero-row">
 
                 <motion.div
@@ -208,14 +229,9 @@ export const Dashboard: React.FC = () => {
 
             </section>
 
-            {/* PEDIDOS + METAS */}
             <section className="content-row">
 
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="data-panel"
-                >
+                <motion.div className="data-panel">
                     <div className="panel-header">
                         <h3>Pedidos on-line</h3>
                         <span>Integrações</span>
@@ -233,19 +249,10 @@ export const Dashboard: React.FC = () => {
                             <p>Valor das solicitações</p>
                         </div>
 
-                        <div className="stat-footer-info">
-                            <span>Sobre o faturamento: 0,0%</span>
-                            <span>Dias com pedidos: 0</span>
-                        </div>
-
                     </div>
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="data-panel"
-                >
+                <motion.div className="data-panel">
                     <div className="panel-header">
                         <h3>Acompanhamento das metas</h3>
                     </div>
@@ -253,70 +260,15 @@ export const Dashboard: React.FC = () => {
                     <div className="goals-container">
 
                         <div className="progress-circle">
-
-                            <svg
-                                className="circle-svg"
-                                viewBox="0 0 200 200"
-                            >
-                                <circle
-                                    cx="100"
-                                    cy="100"
-                                    r="90"
-                                    className="circle-bg"
-                                />
-
-                                <circle
-                                    cx="100"
-                                    cy="100"
-                                    r="90"
-                                    className="circle-progress"
-                                    style={{ strokeDashoffset: 565 }}
-                                />
+                            <svg className="circle-svg" viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" className="circle-bg" />
+                                <circle cx="100" cy="100" r="90" className="circle-progress" />
                             </svg>
 
                             <div className="progress-text">
-                                <span className="label">
-                                    Objetivo Alcançado
-                                </span>
-
-                                <span className="value">
-                                    0%
-                                </span>
+                                <span className="label">Objetivo</span>
+                                <span className="value">0%</span>
                             </div>
-
-                        </div>
-
-                        <div className="goal-details">
-
-                            <div className="goal-price-main">
-                                <h5>R$ 0,00</h5>
-                                <p>Meta alcançada</p>
-                            </div>
-
-                            <div className="goal-summary-fatura">
-
-                                <div className="goal-card-mini">
-                                    <h6 className="fatura-val">
-                                        R$ 0,00
-                                    </h6>
-
-                                    <span className="fatura-label">
-                                        Total das metas
-                                    </span>
-                                </div>
-
-                                <div className="goal-card-mini">
-                                    <h6 className="fatura-val">
-                                        R$ 0,00
-                                    </h6>
-
-                                    <span className="fatura-label">
-                                        Total faturado
-                                    </span>
-                                </div>
-
-                            </div>
-
                         </div>
 
                     </div>
@@ -327,10 +279,8 @@ export const Dashboard: React.FC = () => {
             {/* CHARTS */}
             <section className="charts-row">
 
-                {/* RADAR */}
-                {/* RADAR */}
+                {/* RADAR - Vendas por Estabelecimento */}
                 <div className="data-panel">
-
                     <div className="panel-header">
                         <h3>Vendas por Estabelecimento</h3>
                     </div>
@@ -350,10 +300,7 @@ export const Dashboard: React.FC = () => {
                                 />
                             ))}
 
-                            <svg
-                                className="radar-shape"
-                                viewBox="0 0 300 300"
-                            >
+                            <svg className="radar-shape" viewBox="0 0 300 300">
                                 <polygon
                                     points="150,50 235,110 205,220 95,220 65,110"
                                     className="radar-data"
@@ -363,23 +310,20 @@ export const Dashboard: React.FC = () => {
                             <div className="radar-center-glow"></div>
 
                         </div>
-
                         <div className="radar-sales">
                             <span className="dot"></span>
                             <span>Vendas</span>
                         </div>
 
                     </div>
-
                 </div>
-
-                {/* TRIANGLE */}
+                {/* TRIÂNGULO - Operações */}
                 <div className="data-panel">
-
                     <div className="panel-header">
                         <h3>Operações</h3>
                     </div>
 
+                    {/* LEGENDA */}
                     <div className="operations-legend">
 
                         <div className="legend-item">
@@ -398,22 +342,12 @@ export const Dashboard: React.FC = () => {
 
                         <div className="triangle-chart">
 
-                            <div className="triangle-label top">
-                                Manhã
-                            </div>
+                            {/* LABELS DO TRIÂNGULO */}
+                            <div className="triangle-label top">Manhã</div>
+                            <div className="triangle-label left">Tarde</div>
+                            <div className="triangle-label right">Noite</div>
 
-                            <div className="triangle-label left">
-                                Tarde
-                            </div>
-
-                            <div className="triangle-label right">
-                                Noite
-                            </div>
-
-                            <svg
-                                viewBox="0 0 300 260"
-                                className="triangle-svg"
-                            >
+                            <svg viewBox="0 0 300 260" className="triangle-svg">
 
                                 <polygon
                                     points="150,20 280,220 20,220"
@@ -427,43 +361,6 @@ export const Dashboard: React.FC = () => {
 
                                 <polygon
                                     points="150,100 200,180 100,180"
-                                    className="triangle-small"
-                                />
-
-                                <line
-                                    x1="150"
-                                    y1="20"
-                                    x2="150"
-                                    y2="220"
-                                    className="triangle-line"
-                                />
-
-                                <line
-                                    x1="20"
-                                    y1="220"
-                                    x2="280"
-                                    y2="220"
-                                    className="triangle-line"
-                                />
-
-                                <line
-                                    x1="20"
-                                    y1="220"
-                                    x2="150"
-                                    y2="20"
-                                    className="triangle-line"
-                                />
-
-                                <line
-                                    x1="280"
-                                    y1="220"
-                                    x2="150"
-                                    y2="20"
-                                    className="triangle-line"
-                                />
-
-                                <polygon
-                                    points="150,90 210,180 95,180"
                                     className="triangle-data"
                                 />
 
@@ -472,35 +369,27 @@ export const Dashboard: React.FC = () => {
                         </div>
 
                     </div>
-
                 </div>
 
-                {/* RECEBIMENTOS */}
-                <div className="data-panel">
 
+                <div className="data-panel">
                     <div className="panel-header">
                         <h3>Recebimentos</h3>
                     </div>
 
                     <div className="receipts-list">
 
-                        {receipts.map((item, i) => (
+                        {dashboardData.recebimentos.map((item, i) => (
                             <div key={i} className="receipt-item">
-
                                 <div className="receipt-left">
-
                                     <div className="receipt-icon">
-                                        <item.icon
-                                            size={16}
-                                            color={item.color}
-                                        />
+                                        <item.icon size={16} color={item.color} />
                                     </div>
 
                                     <div className="receipt-info">
                                         <h6>{item.name}</h6>
                                         <span>{item.percentage}</span>
                                     </div>
-
                                 </div>
 
                                 <div className="receipt-right">
@@ -508,7 +397,6 @@ export const Dashboard: React.FC = () => {
                                         {item.value}
                                     </span>
                                 </div>
-
                             </div>
                         ))}
 
@@ -518,20 +406,16 @@ export const Dashboard: React.FC = () => {
 
             </section>
 
-            {/* STATS */}
             <section className="stats-bar">
 
-                {stats.map((s, i) => (
+                {dashboardData.stats.map((s, i) => (
                     <div key={i} className="stat-card">
 
                         <div
                             className="stat-icon-circ"
                             style={{ background: s.color }}
                         >
-                            <s.icon
-                                size={20}
-                                color={s.iconColor}
-                            />
+                            <s.icon size={20} color={s.iconColor} />
                         </div>
 
                         <div className="stat-text">
@@ -542,9 +426,11 @@ export const Dashboard: React.FC = () => {
                     </div>
                 ))}
 
+
             </section>
 
             <SalesChart />
+
 
             {/* TABELAS */}
             <section className="tables-section">
@@ -650,5 +536,6 @@ export const Dashboard: React.FC = () => {
             </section>
 
         </div>
+
     );
 };

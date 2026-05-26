@@ -4,6 +4,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    z-index: 1;
+
 
     margin-bottom: 28px;
 
@@ -109,7 +112,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-
+    cursor: pointer;
     padding: 6px 10px;
 
     background: #18181b;
@@ -117,22 +120,6 @@
     border: 1px solid #27272a;
 
     border-radius: 14px;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 50%;
-
-    background: linear-gradient(135deg, #dc2626, #7f1d1d);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: white;
-    font-weight: bold;
 }
 
 .user-info {
@@ -148,4 +135,95 @@
 .user-info span {
     color: #71717a;
     font-size: 12px;
+}
+
+.profile-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 75px;
+    right: 0;
+
+    width: 240px;
+
+    background: #09142b;
+
+    border-radius: 18px;
+
+    padding: 10px;
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.4);
+
+    z-index: 9999;
+
+    animation: dropdownAnimation 0.25s ease;
+}
+
+@keyframes dropdownAnimation {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    color: #dbe4ff;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-icon {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+}
+
+.user-avatar-img {
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid rgba(255, 255, 255, 0.08);
 }
