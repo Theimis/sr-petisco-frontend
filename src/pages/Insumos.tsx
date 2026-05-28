@@ -8,6 +8,10 @@ export function Insumos() {
 
     const [modoEdicao, setModoEdicao] = useState(false);
 
+    const [dadosEditados, setDadosEditados] = useState({
+        nome: "",
+    });
+
 
 
     const [modalAberto, setModalAberto] = useState(false);
@@ -51,10 +55,16 @@ export function Insumos() {
 
     function abrirModal(insumo: any) {
         console.log(insumo);
-        console.log(insumo.transformacao.ingredientes);
+
         setInsumoSelecionado(insumo);
+
+        setDadosEditados({
+            nome: insumo.nome,
+        });
+
         setModalAberto(true);
     }
+
 
 
 
@@ -371,7 +381,29 @@ export function Insumos() {
                                         letterSpacing: "-1px",
                                     }}
                                 >
-                                    {insumoSelecionado?.nome}
+                                    {modoEdicao ? (
+                                        <input
+                                            value={dadosEditados.nome}
+                                            onChange={(e) =>
+                                                setDadosEditados({
+                                                    ...dadosEditados,
+                                                    nome: e.target.value,
+                                                })
+                                            }
+                                            style={{
+                                                width: "100%",
+                                                background: "#0f172a",
+                                                border: "1px solid #334155",
+                                                borderRadius: "12px",
+                                                padding: "12px",
+                                                color: "#fff",
+                                                fontSize: "28px",
+                                                fontWeight: 700,
+                                            }}
+                                        />
+                                    ) : (
+                                        insumoSelecionado?.nome
+                                    )}
                                 </h2>
 
                                 <p
@@ -613,7 +645,7 @@ export function Insumos() {
                                 >
 
                                     <button
-                                        onClick={() => setModoEdicao(true)}
+                                        onClick={() => setModoEdicao(!modoEdicao)}
                                         style={{
                                             background:
                                                 "linear-gradient(135deg, #2563eb, #1d4ed8)",
@@ -659,8 +691,6 @@ export function Insumos() {
         </div>
     );
 }
-
-
 
 const inputStyle: React.CSSProperties = {
     width: "100%",
