@@ -8,9 +8,7 @@ export function Insumos() {
 
     const [modoEdicao, setModoEdicao] = useState(false);
 
-    const [dadosEditados, setDadosEditados] = useState({
-        nome: "",
-    });
+    const [dadosEditados, setDadosEditados] = useState<any>({ nome: "", rendimento: 0, valorTotal: 0, ingredientes: [], });
 
 
 
@@ -54,20 +52,20 @@ export function Insumos() {
     }, []);
 
     function abrirModal(insumo: any) {
-        console.log(insumo);
 
         setInsumoSelecionado(insumo);
 
         setDadosEditados({
-            nome: insumo.nome,
+            nome: insumo.nome || "",
+            rendimento: insumo.rendimento || 0,
+            valorTotal: insumo.valorTotal || 0,
+
+            ingredientes:
+                insumo.transformacao?.ingredientes || [],
         });
 
         setModalAberto(true);
     }
-
-
-
-
 
     // async function deletarInsumo(id: string) {
     //      try {
@@ -452,8 +450,32 @@ export function Insumos() {
                                             fontSize: 22,
                                         }}
                                     >
-                                        {insumoSelecionado?.rendimento || 0}{" "}
-                                        {insumoSelecionado?.unidade}
+                                        {modoEdicao ? (
+                                            <input
+                                                type="number"
+                                                value={dadosEditados.rendimento}
+                                                onChange={(e) =>
+                                                    setDadosEditados({
+                                                        ...dadosEditados,
+                                                        rendimento: e.target.value,
+                                                    })
+                                                }
+                                                style={{
+                                                    width: "120px",
+                                                    background: "#0f172a",
+                                                    border: "1px solid #334155",
+                                                    borderRadius: "10px",
+                                                    padding: "8px",
+                                                    color: "#fff",
+                                                    fontSize: "18px",
+                                                }}
+                                            />
+                                        ) : (
+                                            <>
+                                                {dadosEditados.rendimento}{" "}
+                                                {insumoSelecionado?.unidade}
+                                            </>
+                                        )}
                                     </strong>
                                 </div>
 
@@ -476,8 +498,32 @@ export function Insumos() {
                                             fontFamily: "monospace",
                                         }}
                                     >
-                                        R$ {insumoSelecionado?.valorTotal || "0.00"}
+                                        {modoEdicao ? (
+                                            <input
+                                                type="number"
+                                                value={dadosEditados.valorTotal}
+                                                onChange={(e) =>
+                                                    setDadosEditados({
+                                                        ...dadosEditados,
+                                                        valorTotal: e.target.value,
+                                                    })
+                                                }
+                                                style={{
+                                                    width: "160px",
+                                                    background: "#0f172a",
+                                                    border: "1px solid #334155",
+                                                    borderRadius: "10px",
+                                                    padding: "8px",
+                                                    color: "#10b981",
+                                                    fontSize: "22px",
+                                                    fontWeight: "bold",
+                                                }}
+                                            />
+                                        ) : (
+                                            <>R$ {dadosEditados.valorTotal}</>
+                                        )}
                                     </strong>
+
                                 </div>
                             </div>
 

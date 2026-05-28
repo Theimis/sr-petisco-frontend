@@ -6,9 +6,6 @@ import {
     Beef,
     ClipboardList,
     CookingPot,
-    Wallet,
-    BarChart3,
-    ShoppingCart,
 } from "lucide-react";
 
 import "./sidebar.css";
@@ -73,27 +70,6 @@ export function Sidebar() {
                     <ClipboardList size={18} />
                     Fichas Técnicas
                 </NavLink>
-
-                {/* FINANCEIRO */}
-                <span className="menu-section">
-                    FINANCEIRO
-                </span>
-
-                <NavLink to="/vendas" className="menu-link">
-                    <ShoppingCart size={18} />
-                    Vendas
-                </NavLink>
-
-                <NavLink to="/fluxo-caixa" className="menu-link">
-                    <Wallet size={18} />
-                    Fluxo de Caixa
-                </NavLink>
-
-                <NavLink to="/relatorios" className="menu-link">
-                    <BarChart3 size={18} />
-                    Relatórios
-                </NavLink>
-
 
             </nav>
 
