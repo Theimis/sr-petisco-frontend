@@ -56,9 +56,13 @@ export function Insumos() {
         setInsumoSelecionado(insumo);
 
         setDadosEditados({
-            nome: insumo.nome || "",
-            rendimento: insumo.rendimento || 0,
-            valorTotal: insumo.valorTotal || 0,
+            nome: insumo.nome,
+            categoria: insumo.categoria,
+            unidade: insumo.unidade,
+            qtdBruta: insumo.qtdBruta,
+            qtdLiquida: insumo.qtdLiquida,
+            valorTotal: insumo.valorTotal,
+            rendimento: insumo.rendimento,
 
             ingredientes:
                 insumo.transformacao?.ingredientes || [],
@@ -814,7 +818,10 @@ export function Insumos() {
                                                     `/insumos/${insumoSelecionado._id}`,
                                                     {
                                                         nome: dadosEditados.nome,
-                                                        rendimento: dadosEditados.rendimento,
+                                                        categoria: dadosEditados.categoria,
+                                                        unidade: dadosEditados.unidade,
+                                                        qtdBruta: dadosEditados.qtdBruta,
+                                                        qtdLiquida: dadosEditados.qtdLiquida,
                                                         valorTotal: dadosEditados.valorTotal,
 
                                                         transformacao: {
@@ -845,9 +852,9 @@ export function Insumos() {
 
                                                 alert("Insumo atualizado com sucesso!");
 
-                                            } catch (error) {
+                                            } catch (error: any) {
 
-                                                console.error(error);
+                                                console.log(error.response.data);
 
                                                 alert("Erro ao atualizar insumo");
                                             }
