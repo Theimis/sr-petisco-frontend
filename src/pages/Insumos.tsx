@@ -67,6 +67,10 @@ export function Insumos() {
         setModalAberto(true);
     }
 
+    function imprimirFicha() {
+        window.print();
+    }
+
     // async function deletarInsumo(id: string) {
     //      try {
     //         await api.delete(`/insumos/${id}`);
@@ -346,7 +350,10 @@ export function Insumos() {
                             ✕
                         </button>
 
-                        <div style={{ padding: "34px" }}>
+                        <div
+                            id="area-impressao"
+                            style={{ padding: "34px" }}
+                        >
 
                             {/* CABEÇALHO */}
                             <div style={{ marginBottom: 28 }}>
@@ -563,18 +570,18 @@ export function Insumos() {
                                 </div>
 
                                 {/* INGREDIENTES */}
-                                {insumoSelecionado?.transformacao?.ingredientes?.map(
+                                {dadosEditados?.ingredientes?.map(
                                     (ingrediente: any) => {
 
                                         const ingredienteCompleto =
                                             insumos.find(
                                                 (i: any) =>
                                                     i._id === ingrediente.insumo
-                                            );
+                                            ) || ingrediente;
 
                                         return (
                                             <div
-                                                key={ingrediente._id}
+                                                key={ingrediente._id || ingrediente.insumo}
                                                 style={{
                                                     display: "grid",
                                                     gridTemplateColumns:
@@ -584,26 +591,126 @@ export function Insumos() {
                                                         "1px solid #1e293b",
                                                     alignItems: "center",
                                                     background: "#111827",
+                                                    gap: "12px",
                                                 }}
                                             >
-                                                <span
-                                                    style={{
-                                                        color: "#f8fafc",
-                                                        fontWeight: 600,
-                                                    }}
-                                                >
-                                                    {ingredienteCompleto?.nome || "Ingrediente"}
-                                                </span>
 
-                                                <span
-                                                    style={{
-                                                        textAlign: "center",
-                                                        color: "#cbd5e1",
-                                                    }}
-                                                >
-                                                    {ingrediente.qtdLiquida}
-                                                </span>
+                                                {/* NOME DO INGREDIENTE */}
+                                                {modoEdicao ? (
+                                                    <select
+                                                        value={ingrediente.insumo}
+                                                        onChange={(e) => {
 
+                                                            const novosIngredientes =
+                                                                dadosEditados.ingredientes.map(
+                                                                    (item: any) =>
+
+                                                                        item._id === ingrediente._id
+                                                                            ? {
+                                                                                ...item,
+                                                                                insumo: e.target.value,
+                                                                            }
+                                                                            : item
+                                                                );
+
+                                                            setDadosEditados({
+                                                                ...dadosEditados,
+                                                                ingredientes: novosIngredientes,
+                                                            });
+                                                        }}
+
+                                                        style={{
+                                                            width: "100%",
+                                                            background: "#0f172a",
+                                                            border: "1px solid #334155",
+                                                            borderRadius: "10px",
+                                                            padding: "10px",
+                                                            color: "#fff",
+                                                        }}
+                                                    >
+
+                                                        {insumos.map((insumo: any) => (
+
+                                                            <option
+                                                                key={insumo._id}
+                                                                value={insumo._id}
+                                                            >
+                                                                {insumo.nome}
+                                                            </option>
+
+                                                        ))}
+
+                                                    </select>
+                                                ) : (
+                                                    <span
+                                                        style={{
+                                                            color: "#f8fafc",
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {ingredienteCompleto?.nome || "Ingrediente"}
+                                                    </span>
+                                                )}
+
+                                                {/* QUANTIDADE */}
+                                                <div style={{ textAlign: "center" }}>
+
+                                                    {modoEdicao ? (
+
+                                                        <input
+                                                            type="number"
+                                                            id="btux4s"
+                                                            value={ingrediente.qtdLiquida || ""}
+
+
+
+                                                            onChange={(e) => {
+
+                                                                const novosIngredientes =
+                                                                    dadosEditados.ingredientes.map(
+                                                                        (item: any) =>
+
+                                                                            item._id === ingrediente._id
+                                                                                ? {
+                                                                                    ...item,
+                                                                                    qtdLiquida: Number(e.target.value),
+
+                                                                                }
+                                                                                : item
+                                                                    );
+
+                                                                setDadosEditados({
+                                                                    ...dadosEditados,
+                                                                    ingredientes: novosIngredientes,
+                                                                });
+                                                            }}
+
+                                                            style={{
+                                                                width: "80px",
+                                                                background: "#0f172a",
+                                                                border: "1px solid #334155",
+                                                                borderRadius: "10px",
+                                                                padding: "8px",
+                                                                color: "#fff",
+                                                                textAlign: "center",
+                                                            }}
+                                                        />
+
+                                                    ) : (
+
+                                                        <span
+                                                            style={{
+                                                                color: "#cbd5e1",
+                                                            }}
+                                                        >
+                                                            {ingrediente.qtdLiquida}
+                                                        </span>
+
+                                                    )}
+
+                                                </div>
+
+                                                {/* UNIDADE */}
                                                 <span
                                                     style={{
                                                         textAlign: "center",
@@ -612,6 +719,7 @@ export function Insumos() {
                                                 >
                                                     {ingredienteCompleto?.unidade || "-"}
                                                 </span>
+
                                             </div>
                                         );
                                     }
@@ -647,7 +755,9 @@ export function Insumos() {
                                     }}
                                 >
 
+
                                     <button
+                                        className="no-print" onClick={imprimirFicha}
                                         style={{
                                             background: "#1f2937",
                                             color: "#cbd5e1",
@@ -689,12 +799,66 @@ export function Insumos() {
                                         alignItems: "center",
                                     }}
                                 >
-
                                     <button
-                                        onClick={() => setModoEdicao(!modoEdicao)}
+                                        onClick={async () => {
+
+                                            // ENTRAR EM MODO EDIÇÃO
+                                            if (!modoEdicao) {
+                                                setModoEdicao(true);
+                                                return;
+                                            }
+
+                                            // SALVAR ALTERAÇÕES
+                                            try {
+                                                await api.put(
+                                                    `/insumos/${insumoSelecionado._id}`,
+                                                    {
+                                                        nome: dadosEditados.nome,
+                                                        rendimento: dadosEditados.rendimento,
+                                                        valorTotal: dadosEditados.valorTotal,
+
+                                                        transformacao: {
+                                                            ingredientes: dadosEditados.ingredientes.map(
+                                                                (item: any) => ({
+                                                                    insumo: item.insumo,
+                                                                    qtdLiquida: Number(item.qtdLiquida),
+                                                                })
+                                                            ),
+                                                        },
+                                                    }
+                                                );
+
+                                                // atualiza lista
+                                                await carregarInsumos();
+
+                                                // atualiza item aberto
+                                                setInsumoSelecionado({
+                                                    ...insumoSelecionado,
+                                                    ...dadosEditados,
+                                                    transformacao: {
+                                                        ingredientes: dadosEditados.ingredientes,
+                                                    },
+                                                });
+
+                                                // sai do modo edição
+                                                setModoEdicao(false);
+
+                                                alert("Insumo atualizado com sucesso!");
+
+                                            } catch (error) {
+
+                                                console.error(error);
+
+                                                alert("Erro ao atualizar insumo");
+                                            }
+                                        }}
+
                                         style={{
                                             background:
-                                                "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                                                modoEdicao
+                                                    ? "linear-gradient(135deg, #16a34a, #15803d)"
+                                                    : "linear-gradient(135deg, #2563eb, #1d4ed8)",
+
                                             color: "#fff",
                                             border: "none",
                                             borderRadius: "12px",
@@ -702,32 +866,16 @@ export function Insumos() {
                                             fontSize: 14,
                                             fontWeight: "bold",
                                             cursor: "pointer",
+
                                             boxShadow:
-                                                "0 10px 25px rgba(37,99,235,0.25)",
+                                                modoEdicao
+                                                    ? "0 10px 25px rgba(22,163,74,0.25)"
+                                                    : "0 10px 25px rgba(37,99,235,0.25)",
                                         }}
                                     >
-                                        ✏️ Editar
+                                        {modoEdicao ? "💾 Salvar" : "✏️ Editar"}
                                     </button>
-
-                                    <button
-                                        onClick={() =>
-                                            setModalAberto(false)
-                                        }
-                                        style={{
-                                            background: "transparent",
-                                            color: "#94a3b8",
-                                            border: "none",
-                                            fontSize: 14,
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                            padding: "10px 14px",
-                                        }}
-                                    >
-                                        Fechar
-                                    </button>
-
                                 </div>
-
                             </div>
 
                         </div>

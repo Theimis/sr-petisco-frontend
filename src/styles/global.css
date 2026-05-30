@@ -91,3 +91,86 @@
         opacity: 1;
     }
 }
+
+@media print {
+
+    body {
+        background: white !important;
+    }
+
+    /* ESCONDE O SISTEMA */
+    .sidebar,
+    button,
+    .no-print {
+        display: none !important;
+    }
+
+    /* ÁREA DA IMPRESSÃO */
+    #area-impressao {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 30px !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    /* REMOVE ESTILO ESCURO */
+    #area-impressao div {
+        background: white !important;
+        box-shadow: none !important;
+        border-color: #ccc !important;
+    }
+
+    /* TEXTOS */
+    #area-impressao h1,
+    #area-impressao h2,
+    #area-impressao h3,
+    #area-impressao p,
+    #area-impressao span,
+    #area-impressao strong {
+        color: black !important;
+    }
+
+    /* TABELA */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table th,
+    table td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+        color: black !important;
+    }
+
+    table th {
+        background: #f3f4f6 !important;
+    }
+
+    td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        color: black !important;
+    }
+
+    /* 🔥 CABEÇALHO LIMPO */
+    .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .print-title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .print-subtitle {
+        font-size: 12px;
+        color: #555;
+    }
+}
