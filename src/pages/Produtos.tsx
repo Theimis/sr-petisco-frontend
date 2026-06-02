@@ -1,10 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import {
+    Plus,
+    Search,
+    Filter,
+    Edit3,
+    Trash2,
+    ArrowDownRight,
+    Package,
+    ChevronDown,
+} from "lucide-react";
+import "./produtos.css";
+
+interface Produto {
+    _id: string;
+    nome: string;
+    categoria: string;
+    preco: number;
+    estoque?: number;
+}
 
 export function Produtos() {
-
-    const [produtos, setProdutos] = useState<any[]>([]);
+    const [produtos, setProdutos] = useState<Produto[]>([]);
     const [mostraFormulario, setMostrarFormulario] = useState(false);
     const [editandoId, setEditandoId] = useState<string | null>(null);
 
@@ -19,21 +37,53 @@ export function Produtos() {
     const [preco, setPreco] = useState("");
 
     const [loading, setLoading] = useState(false);
+    const cmvPadrao = 60;
+
+    const categorias = useMemo(() => {
+        const lista = produtos
+            .map((produto) => produto.categoria || "")
+            .filter(Boolean);
+
+        return Array.from(new Set(lista)).sort();
+    }, [produtos]);
+
+    const produtosFiltrados = produtos.filter((produto) => {
+        const nomeMatch = produto.nome
+            .toLowerCase()
+            .includes(busca.toLowerCase());
+
+        const categoriaMatch = categoriaFiltro
+            ? produto.categoria === categoriaFiltro
+            : true;
+
+        return nomeMatch && categoriaMatch;
+    });
+
+    function parsePrecoInput(value: string) {
+        const formatted = value.replace(/\s+/g, "").replace(",", ".");
+        return Number(formatted);
+    }
+
+    function formatCurrency(value: number) {
+        return `R$ ${value.toFixed(2).replace(".", ",")}`;
+    }
+
+    function calcularCusto(precoValue: number) {
+        return precoValue * (cmvPadrao / 100);
+    }
+
+    function calcularMargem(precoValue: number) {
+        return precoValue - calcularCusto(precoValue);
+    }
 
     async function carregarProdutos() {
         try {
             setLoading(true);
-
             const res = await api.get("/produtos");
-
-            setProdutos(
-                Array.isArray(res.data.data)
-                    ? res.data.data
-                    : []
-            );
-
+            setProdutos(Array.isArray(res.data.data) ? res.data.data : []);
         } catch (error) {
             console.error("Erro ao buscar produtos:", error);
+            toast.error("Erro ao carregar lista de produtos.");
         } finally {
             setLoading(false);
         }
@@ -43,32 +93,44 @@ export function Produtos() {
         carregarProdutos();
     }, []);
 
+    function limparFormulario() {
+        setNome("");
+        setCategoria("");
+        setPreco("");
+        setEditandoId(null);
+        setMostrarFormulario(false);
+    }
+
     async function cadastrarProduto() {
+        const precoValor = parsePrecoInput(preco);
+
+        if (!nome.trim()) {
+            toast.error("Por favor, preencha o nome do produto.");
+            return;
+        }
+        if (!categoria.trim()) {
+            toast.error("Por favor, preencha a categoria.");
+            return;
+        }
+        if (!preco || precoValor <= 0 || Number.isNaN(precoValor)) {
+            toast.error("Por favor, insira um preço válido maior que zero.");
+            return;
+        }
+
         try {
-            console.log("DEBUG FRONT STATE:", {
-                nome,
-                categoria,
-                preco
-            });
             setLoading(true);
-            console.log("STATE ATUAL:", { nome, categoria, preco });
             await api.post("/produtos", {
                 nome,
                 categoria,
-                preco,
+                preco: precoValor,
                 estoque: 0,
             });
 
             toast.success("Produto cadastrado com sucesso!");
-
-            setNome("");
-            setCategoria("");
-            setPreco("");
-            setMostrarFormulario(false);
-
+            limparFormulario();
             await carregarProdutos();
-
-        } catch (error: any) {
+        } catch (error) {
+            console.error(error);
             toast.error("Erro ao cadastrar produto!");
         } finally {
             setLoading(false);
@@ -76,28 +138,32 @@ export function Produtos() {
     }
 
     async function atualizarProduto() {
+        if (!editandoId) {
+            toast.error("Nenhum produto selecionado para editar.");
+            return;
+        }
+
+        const precoValor = parsePrecoInput(preco);
+
+        if (!nome.trim() || !categoria.trim() || !preco || precoValor <= 0 || Number.isNaN(precoValor)) {
+            toast.error("Todos os campos devem ser preenchidos corretamente.");
+            return;
+        }
+
         try {
             setLoading(true);
-
             await api.put(`/produtos/${editandoId}`, {
                 nome,
                 categoria,
-                preco: Number(preco),
+                preco: precoValor,
             });
 
-            toast.success("Produto atualizado!");
-
-            setNome("");
-            setCategoria("");
-            setPreco("");
-
-            setEditandoId(null);
-            setMostrarFormulario(false);
-
+            toast.success("Produto atualizado com sucesso!");
+            limparFormulario();
             await carregarProdutos();
-
         } catch (error) {
-            toast.error("Erro ao atualizar produto");
+            console.error(error);
+            toast.error("Erro ao atualizar produto.");
         } finally {
             setLoading(false);
         }
@@ -109,316 +175,260 @@ export function Produtos() {
     }
 
     async function confirmarDelete() {
-        if (!produtoSelecionado) return;
+        if (!produtoSelecionado) {
+            return;
+        }
 
         try {
+            setLoading(true);
             await api.delete(`/produtos/${produtoSelecionado}`);
-
             toast.success("Produto deletado!");
             await carregarProdutos();
-
         } catch (error) {
+            console.error(error);
             toast.error("Erro ao deletar produto!");
         } finally {
+            setLoading(false);
             setModalDelete(false);
             setProdutoSelecionado(null);
         }
     }
 
-    function editarProduto(produto: any) {
+    function editarProduto(produto: Produto) {
         setEditandoId(produto._id);
         setNome(produto.nome);
         setCategoria(produto.categoria);
-        setPreco(String(produto.preco));
+        setPreco(produto.preco.toString().replace(".", ","));
         setMostrarFormulario(true);
     }
 
-    const produtosFiltrados = produtos.filter((produto) => {
-        const nomeMatch = produto.nome
-            ?.toLowerCase()
-            .includes(busca.toLowerCase());
+    function abrirFormulario() {
+        setMostrarFormulario(true);
+        setEditandoId(null);
+        setNome("");
+        setCategoria("");
+        setPreco("");
+    }
 
-        const categoriaMatch = categoriaFiltro
-            ? produto.categoria === categoriaFiltro
-            : true;
-
-        return nomeMatch && categoriaMatch;
-    });
+    const precoValorParaCalculo = parsePrecoInput(preco);
+    const precoValorFormatado = Number.isNaN(precoValorParaCalculo) ? 0 : precoValorParaCalculo;
 
     return (
-        <div className="page-container">
+        <div className="page-container produtos-page">
+            <Toaster position="top-right" />
 
-            <div style={{
-                background: "#0f172a",
-                color: "#fff",
-                borderRadius: 20,
-                padding: 25,
-                border: "1px solid #1e293b",
-                boxShadow: "0 0 30px rgba(0,0,0,0.4)",
-            }}>
-
-                {/* TOPO */}
-                <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 25,
-                }}>
-                    <div>
-                        <h1 style={{
-                            color: "#fff",
-                            margin: 0,
-                            fontSize: 32,
-                            fontWeight: "bold",
-                        }}>
-                            Produtos
-                        </h1>
-
-                        <p style={{
-                            color: "#94a3b8",
-                            marginTop: 5,
-                        }}>
-                            Gerencie todos os produtos cadastrados
-                        </p>
+            <div className="produtos-card">
+                <div className="produtos-card__header">
+                    <div className="produtos-card__header-center">
+                        <div className="produtos-card__icon">
+                            <Package size={20} />
+                        </div>
+                        <h1>TELA DE PRODUTOS</h1>
                     </div>
+                </div>
 
-                    <button
-                        onClick={() => {
-                            setMostrarFormulario(true);
-                            setEditandoId(null);
-                            setNome("");
-                            setCategoria("");
-                            setPreco("");
-                        }}
-                        style={{
-                            padding: "14px 20px",
-                            background: "linear-gradient(135deg, #dc2626, #991b1b)",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "12px",
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            fontSize: 15,
-                            boxShadow: "0 0 20px rgba(220,38,38,0.4)",
-                        }}
-                    >
-                        + Criar Produto
+                <div className="produtos-subtitle">
+                    <p>Gerencie todos os produtos cadastrados com cálculo em tempo real.</p>
+                    <button className="btn btn-primary produtos-create" onClick={abrirFormulario}>
+                        <Plus size={16} /> Criar Produto
                     </button>
                 </div>
 
-                {/* FORM */}
                 {mostraFormulario && (
-                    <div style={{
-                        background: "#111827",
-                        border: "1px solid #1f2937",
-                        padding: 20,
-                        borderRadius: 16,
-                        marginBottom: 25,
-                    }}>
-                        <h2>
-                            {editandoId ? "Editar Produto" : "Novo Produto"}
-                        </h2>
-
-                        <div style={{
-                            display: "flex",
-                            gap: 15,
-                            flexWrap: "wrap",
-                        }}>
-                            <input
-                                placeholder="Nome"
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                                style={{
-                                    flex: 1,
-                                    minWidth: 220,
-                                    padding: "14px",
-                                    background: "#0f172a",
-                                    border: "1px solid #374151",
-                                    borderRadius: "12px",
-                                    color: "#fff",
-                                }}
-                            />
-
-                            <input
-                                placeholder="Categoria"
-                                value={categoria}
-                                onChange={(e) => setCategoria(e.target.value)}
-                                style={{
-                                    flex: 1,
-                                    minWidth: 220,
-                                    padding: "14px",
-                                    background: "#0f172a",
-                                    border: "1px solid #374151",
-                                    borderRadius: "12px",
-                                    color: "#fff",
-                                }}
-                            />
-
-                            <input
-                                placeholder="Preço"
-                                type="number"
-                                value={preco}
-                                onChange={(e) => setPreco(e.target.value)}
-                                style={{
-                                    flex: 1,
-                                    minWidth: 180,
-                                    padding: "14px",
-                                    background: "#111827",
-                                    border: "1px solid #374151",
-                                    borderRadius: "12px",
-                                    color: "#fff",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginTop: 20 }}>
-                            <button
-                                onClick={
-                                    editandoId
-                                        ? atualizarProduto
-                                        : cadastrarProduto
-                                }
-                                disabled={loading}
-                                style={{
-                                    padding: "14px 22px",
-                                    background: "linear-gradient(135deg, #dc2626, #991b1b)",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: "12px",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                {loading
-                                    ? "Carregando..."
-                                    : editandoId
-                                        ? "Salvar Alterações"
-                                        : "Cadastrar Produto"}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* BUSCA + FILTRO (ESTILIZADO ORIGINAL MANTIDO) */}
-                <div style={{
-                    display: "flex",
-                    gap: 15,
-                    marginBottom: 20,
-                    flexWrap: "wrap",
-                }}>
-                    <input
-                        placeholder="Buscar produto..."
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        style={{
-                            flex: 1,
-                            minWidth: 220,
-                            padding: "14px",
-                            background: "#111827",
-                            border: "1px solid #374151",
-                            borderRadius: "12px",
-                            color: "#fff",
-                        }}
-                    />
-
-                    <select
-                        value={categoriaFiltro}
-                        onChange={(e) => setCategoriaFiltro(e.target.value)}
-                        style={{
-                            minWidth: 220,
-                            padding: "14px",
-                            background: "#111827",
-                            border: "1px solid #374151",
-                            borderRadius: "12px",
-                            color: "#fff",
-                        }}
-                    >
-                        <option value="">Todas categorias</option>
-                        {[...new Set(produtos.map(p => p.categoria))]
-                            .filter(Boolean)
-                            .map(cat => (
-                                <option key={cat} value={cat}>
-                                    {cat}
-                                </option>
-                            ))}
-                    </select>
-                </div>
-
-                {/* LISTA MANTIDA */}
-                {produtosFiltrados.map((produto) => (
-                    <div key={produto._id} style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: 10,
-                        borderBottom: "1px solid #1e293b"
-                    }}>
-                        <span>{produto.nome}</span>
-
-                        <div style={{ display: "flex", gap: 10 }}>
-                            <button onClick={() => editarProduto(produto)}>
-                                Editar
-                            </button>
-
-                            <button onClick={() => abrirModalDelete(produto._id)}>
-                                Deletar
-                            </button>
-                        </div>
-                    </div>
-                ))}
-
-                {/* MODAL DELETE PROFISSIONAL */}
-                {modalDelete && (
-                    <div style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: "rgba(0,0,0,0.7)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}>
-                        <div style={{
-                            background: "#111827",
-                            padding: 20,
-                            borderRadius: 12,
-                            minWidth: 300
-                        }}>
-                            <h3>Deseja realmente deletar este produto?</h3>
-
-                            <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
-                                <button
-                                    onClick={confirmarDelete}
-                                    style={{
-                                        background: "#dc2626",
-                                        color: "#fff",
-                                        padding: 10,
-                                        borderRadius: 8,
-                                        border: "none"
-                                    }}
-                                >
-                                    Sim
+                    <div className="modal-overlay modal-overlay--form">
+                        <div className="modal-box modal-box--form">
+                            <div className="modal-header">
+                                <div>
+                                    <h2>Instanciar Novo Produto</h2>
+                                </div>
+                                <button className="modal-close" onClick={limparFormulario}>
+                                    ×
                                 </button>
+                            </div>
 
-                                <button
-                                    onClick={() => setModalDelete(false)}
-                                    style={{
-                                        background: "#1e293b",
-                                        color: "#fff",
-                                        padding: 10,
-                                        borderRadius: 8,
-                                        border: "none"
-                                    }}
-                                >
-                                    Não
-                                </button>
+                            <div className="modal-content">
+                                <div className="produtos-form">
+                                    <div className="produtos-form__fields">
+                                        <label>
+                                            Nome do produto
+                                            <input
+                                                placeholder="Ex: X-Bacon Artesanal"
+                                                value={nome}
+                                                onChange={(e) => setNome(e.target.value)}
+                                            />
+                                        </label>
+
+                                        <label>
+                                            Categoria
+                                            <input
+                                                placeholder="Ex: Lanches"
+                                                value={categoria}
+                                                onChange={(e) => setCategoria(e.target.value)}
+                                            />
+                                        </label>
+
+                                        <label>
+                                            Preço de venda (R$)
+                                            <input
+                                                placeholder="0,00"
+                                                value={preco}
+                                                onChange={(e) => setPreco(e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    <div className="produtos-form__projection">
+                                        <div>
+                                            <span>Custo estimado</span>
+                                            <strong>{formatCurrency(calcularCusto(precoValorFormatado))}</strong>
+                                        </div>
+                                        <div>
+                                            <span>Margem estimada</span>
+                                            <strong>{formatCurrency(calcularMargem(precoValorFormatado))}</strong>
+                                        </div>
+                                    </div>
+
+                                    <div className="produtos-form__actions">
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={editandoId ? atualizarProduto : cadastrarProduto}
+                                            disabled={loading}
+                                        >
+                                            {loading
+                                                ? "Salvando..."
+                                                : editandoId
+                                                    ? "Atualizar produto"
+                                                    : "Cadastrar Produto"}
+                                        </button>
+                                        <button className="btn btn-secondary" onClick={limparFormulario}>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
 
+                <div className="search-filter-container">
+                    <div className="input-wrapper">
+                        <Search className="input-icon" size={18} />
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Barra de pesquisa"
+                            value={busca}
+                            onChange={(e) => setBusca(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-wrapper">
+                        <Filter className="input-icon" size={18} />
+                        <select
+                            className="category-select"
+                            value={categoriaFiltro}
+                            onChange={(e) => setCategoriaFiltro(e.target.value)}
+                        >
+                            <option value="">Filtro por categoria</option>
+                            {categorias.map((categoriaItem) => (
+                                <option key={categoriaItem} value={categoriaItem}>
+                                    {categoriaItem}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="select-chevron">
+                            <ChevronDown className="chevron-icon" size={16} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="produtos-table-wrapper">
+                    <table className="produtos-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Custo</th>
+                                <th>Margem de Contribuição</th>
+                                <th>CMV (%)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {produtosFiltrados.map((produto) => {
+                                const precoValor = Number(produto.preco);
+                                const custo = calcularCusto(precoValor);
+                                const margem = calcularMargem(precoValor);
+
+                                return (
+                                    <tr key={produto._id}>
+                                        <td className="table-cell table-cell--produto">{produto.nome}</td>
+                                        <td className="table-cell table-cell--categoria">{produto.categoria}</td>
+                                        <td className="table-cell table-cell--preco">{formatCurrency(precoValor)}</td>
+                                        <td className="table-cell table-cell--custo">{formatCurrency(custo)}</td>
+                                        <td className="table-cell table-cell--margin">
+                                            <div className="margin-chip">
+                                                <ArrowDownRight size={14} /> {formatCurrency(margem)}
+                                            </div>
+                                        </td>
+                                        <td className="table-cell table-cell--cmv">{cmvPadrao}%</td>
+                                        <td className="produtos-table__actions">
+                                            <button
+                                                className="icon-button icon-button--edit"
+                                                onClick={() => editarProduto(produto)}
+                                            >
+                                                <Edit3 size={16} />
+                                            </button>
+                                            <button
+                                                className="icon-button icon-button--delete"
+                                                onClick={() => abrirModalDelete(produto._id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+
+                    {produtosFiltrados.length === 0 && (
+                        <div className="produtos-empty">
+                            Nenhum produto encontrado.
+                        </div>
+                    )}
+
+                    <div className="produtos-footer">
+                        <span>
+                            Exibindo {produtosFiltrados.length} de {produtos.length} produtos.
+                        </span>
+                        <span className="produtos-footer__note">
+                            Calculando margens automaticamente à taxa de CMV padrão de 60%.
+                        </span>
+                    </div>
+                </div>
             </div>
+
+            {modalDelete && (
+                <div className="modal-overlay">
+                    <div className="modal-box">
+                        <h2>Deletar produto</h2>
+                        <p>Tem certeza que deseja excluir este produto?</p>
+
+                        <div className="modal-actions">
+                            <button className="btn btn-danger" onClick={confirmarDelete}>
+                                Sim, deletar
+                            </button>
+                            <button className="btn btn-cancel" onClick={() => setModalDelete(false)}>
+                                Não
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+

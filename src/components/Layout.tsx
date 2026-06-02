@@ -14,7 +14,7 @@ export function Layout({ children }: Props) {
 
             <Sidebar />
 
-            <main
+            <main className="layout-main"
                 style={{
                     flex: 1,
                     padding: 20,

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { formatarQuantidade } from "../utils/formatarQuantidade";
 import { api } from "../services/api";
+import { formatarUnidade } from "../utils/formatarUnidade";
 
 export function Insumos() {
     const [insumos, setInsumos] = useState<any[]>([]);
@@ -53,6 +55,9 @@ export function Insumos() {
 
     function abrirModal(insumo: any) {
 
+        console.log("INSUMO ABERTO:", insumo);
+
+        setModoEdicao(false);
         setInsumoSelecionado(insumo);
 
         setDadosEditados({
@@ -75,21 +80,31 @@ export function Insumos() {
         window.print();
     }
 
-    // async function deletarInsumo(id: string) {
-    //      try {
-    //         await api.delete(`/insumos/${id}`);
+    async function deletarInsumo(id: string) {
 
-    //         toast.success("Insumo deletado!");
-    //
-    //         await carregarInsumos();
+        const confirmar = window.confirm(
+            "Tem certeza que deseja deletar este insumo?"
+        );
 
-    //    } catch (error) {
+        if (!confirmar) return;
 
-    //      toast.error("Erro ao deletar insumo");
+        try {
 
-    //      console.error(error);
-    //  }
-    //}
+            await api.delete(`/insumos/${id}`);
+
+
+
+            setModalAberto(false);
+
+            await carregarInsumos();
+
+        } catch (error) {
+
+
+
+            console.error(error);
+        }
+    }
 
     return (
         <div className="page-container">
@@ -251,9 +266,8 @@ export function Insumos() {
                             <span style={{ textAlign: "center" }}>
                                 {insumo.fornecedor || "-"}
                             </span>
-
                             <span style={{ textAlign: "center" }}>
-                                {insumo.qtdLiquida || 0}
+                                {Number(insumo.rendimentoPercentual || 0).toFixed(0)}%
                             </span>
 
                             <span style={{ textAlign: "center" }}>
@@ -261,11 +275,11 @@ export function Insumos() {
                             </span>
 
                             <span style={{ textAlign: "center" }}>
-                                {insumo.unidade}
+                                {formatarUnidade(insumo.unidade)}
                             </span>
 
                             <span style={{ textAlign: "center" }}>
-                                R$ {insumo.valorTotal}
+                                R$ {(insumo.valorUnitario * 1000).toFixed(2)}
                             </span>
 
                             <div
@@ -336,7 +350,10 @@ export function Insumos() {
 
                         {/* BOTÃO FECHAR */}
                         <button
-                            onClick={() => setModalAberto(false)}
+                            onClick={() => {
+                                setModoEdicao(false);
+                                setModalAberto(false);
+                            }}
                             style={{
                                 position: "absolute",
                                 top: 22,
@@ -483,8 +500,10 @@ export function Insumos() {
                                             />
                                         ) : (
                                             <>
-                                                {dadosEditados.rendimento}{" "}
-                                                {insumoSelecionado?.unidade}
+                                                {formatarQuantidade(
+                                                    Number(dadosEditados.rendimento),
+                                                    insumoSelecionado?.unidade
+                                                )}
                                             </>
                                         )}
                                     </strong>
@@ -709,7 +728,6 @@ export function Insumos() {
                                                         >
                                                             {ingrediente.qtdLiquida}
                                                         </span>
-
                                                     )}
 
                                                 </div>
@@ -721,9 +739,10 @@ export function Insumos() {
                                                         color: "#cbd5e1",
                                                     }}
                                                 >
-                                                    {ingredienteCompleto?.unidade || "-"}
+                                                    {formatarUnidade(
+                                                        ingredienteCompleto?.unidade
+                                                    )}
                                                 </span>
-
                                             </div>
                                         );
                                     }
@@ -777,6 +796,9 @@ export function Insumos() {
                                     </button>
 
                                     <button
+                                        onClick={() =>
+                                            deletarInsumo(insumoSelecionado._id)
+                                        }
                                         style={{
                                             background:
                                                 "rgba(239,68,68,0.12)",
@@ -811,6 +833,19 @@ export function Insumos() {
                                                 setModoEdicao(true);
                                                 return;
                                             }
+
+                                            console.log("DADOS ENVIADOS:", {
+                                                nome: dadosEditados.nome,
+                                                categoria: dadosEditados.categoria,
+                                                unidade: dadosEditados.unidade,
+                                                qtdBruta: dadosEditados.qtdBruta,
+                                                qtdLiquida: dadosEditados.qtdLiquida,
+                                                valorTotal: dadosEditados.valorTotal,
+                                                transformacao: {
+                                                    ingredientes: dadosEditados.ingredientes,
+                                                },
+                                            });
+                                            console.log(dadosEditados);
 
                                             // SALVAR ALTERAÇÕES
                                             try {
