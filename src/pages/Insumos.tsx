@@ -7,6 +7,7 @@ export function Insumos() {
     const [insumos, setInsumos] = useState<any[]>([]);
     const [pesquisa, setPesquisa] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("todos");
+    const [filtroCategoria, setFiltroCategoria] = useState("todas");
 
     const [modoEdicao, setModoEdicao] = useState(false);
 
@@ -31,12 +32,24 @@ export function Insumos() {
                 ? true
                 : insumo.tipo === filtroTipo;
 
-        return matchPesquisa && matchTipo;
+        const matchCategoria =
+            filtroCategoria === "todas"
+                ? true
+                : insumo.categoria === filtroCategoria;
+
+        return matchPesquisa && matchTipo && matchCategoria;
     });
 
+    // Obter lista única de categorias
+    const categorias = Array.from(
+        new Set(insumos.map((insumo) => insumo.categoria).filter(Boolean))
+    );
+
     async function carregarInsumos() {
+
         try {
             const res = await api.get("/insumos");
+            console.log(res.data.data);
 
             setInsumos(
                 Array.isArray(res.data.data)
@@ -51,6 +64,7 @@ export function Insumos() {
 
     useEffect(() => {
         carregarInsumos();
+
     }, []);
 
     function abrirModal(insumo: any) {
@@ -175,11 +189,11 @@ export function Insumos() {
                             }
                             style={{
                                 ...inputStyle,
-                                width: 180,
+                                width: 150,
                             }}
                         >
                             <option value="todos">
-                                Todos
+                                Todos os Tipos
                             </option>
 
                             <option value="base">
@@ -189,6 +203,27 @@ export function Insumos() {
                             <option value="transformado">
                                 Transformado
                             </option>
+                        </select>
+
+                        <select
+                            value={filtroCategoria}
+                            onChange={(e) =>
+                                setFiltroCategoria(e.target.value)
+                            }
+                            style={{
+                                ...inputStyle,
+                                width: 150,
+                            }}
+                        >
+                            <option value="todas">
+                                Todas as Categorias
+                            </option>
+
+                            {categorias.map((categoria) => (
+                                <option key={categoria} value={categoria}>
+                                    {categoria}
+                                </option>
+                            ))}
                         </select>
 
                     </div>
@@ -279,7 +314,7 @@ export function Insumos() {
                             </span>
 
                             <span style={{ textAlign: "center" }}>
-                                R$ {(insumo.valorUnitario * 1000).toFixed(2)}
+                                R$ {Number(insumo.valorUnitario).toFixed(2)}
                             </span>
 
                             <div
@@ -380,6 +415,7 @@ export function Insumos() {
                             <div style={{ marginBottom: 28 }}>
 
                                 <span
+                                    className="print-hide"
                                     style={{
                                         background:
                                             "rgba(37,99,235,0.15)",
@@ -433,6 +469,7 @@ export function Insumos() {
                                 </h2>
 
                                 <p
+                                    className="no-print"
                                     style={{
                                         color: "#64748b",
                                         margin: 0,
@@ -479,29 +516,34 @@ export function Insumos() {
                                         }}
                                     >
                                         {modoEdicao ? (
-                                            <input
-                                                type="number"
-                                                value={dadosEditados.rendimento}
-                                                onChange={(e) =>
-                                                    setDadosEditados({
-                                                        ...dadosEditados,
-                                                        rendimento: e.target.value,
-                                                    })
-                                                }
-                                                style={{
-                                                    width: "120px",
-                                                    background: "#0f172a",
-                                                    border: "1px solid #334155",
-                                                    borderRadius: "10px",
-                                                    padding: "8px",
-                                                    color: "#fff",
-                                                    fontSize: "18px",
-                                                }}
-                                            />
+                                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                                <input
+                                                    type="number"
+                                                    value={dadosEditados.rendimento}
+                                                    onChange={(e) =>
+                                                        setDadosEditados({
+                                                            ...dadosEditados,
+                                                            rendimento: e.target.value,
+                                                        })
+                                                    }
+                                                    style={{
+                                                        width: "120px",
+                                                        background: "#0f172a",
+                                                        border: "1px solid #334155",
+                                                        borderRadius: "10px",
+                                                        padding: "8px",
+                                                        color: "#fff",
+                                                        fontSize: "18px",
+                                                    }}
+                                                />
+                                                <span style={{ color: "#94a3b8" }}>
+                                                    {formatarUnidade(insumoSelecionado?.unidade)}
+                                                </span>
+                                            </div>
                                         ) : (
                                             <>
                                                 {formatarQuantidade(
-                                                    Number(dadosEditados.rendimento),
+                                                    Number(insumoSelecionado?.qtdLiquida),
                                                     insumoSelecionado?.unidade
                                                 )}
                                             </>
@@ -532,25 +574,22 @@ export function Insumos() {
                                             <input
                                                 type="number"
                                                 value={dadosEditados.valorTotal}
-                                                onChange={(e) =>
-                                                    setDadosEditados({
-                                                        ...dadosEditados,
-                                                        valorTotal: e.target.value,
-                                                    })
-                                                }
+                                                disabled
                                                 style={{
                                                     width: "160px",
-                                                    background: "#0f172a",
+                                                    background: "#0a0f1a",
                                                     border: "1px solid #334155",
                                                     borderRadius: "10px",
                                                     padding: "8px",
                                                     color: "#10b981",
                                                     fontSize: "22px",
                                                     fontWeight: "bold",
+                                                    cursor: "not-allowed",
+                                                    opacity: 0.7,
                                                 }}
                                             />
                                         ) : (
-                                            <>R$ {dadosEditados.valorTotal}</>
+                                            <>R$ {Number(dadosEditados.valorTotal).toFixed(2)}</>
                                         )}
                                     </strong>
 
@@ -572,7 +611,7 @@ export function Insumos() {
                                     style={{
                                         display: "grid",
                                         gridTemplateColumns:
-                                            "2fr 1fr 1fr",
+                                            modoEdicao ? "2fr 1fr 1fr 1fr 50px" : "2fr 1fr 1fr 1fr",
                                         background: "#0f172a",
                                         padding: "16px 20px",
                                         color: "#94a3b8",
@@ -590,6 +629,16 @@ export function Insumos() {
                                     <span style={{ textAlign: "center" }}>
                                         Unidade
                                     </span>
+
+                                    <span style={{ textAlign: "center" }}>
+                                        Custo
+                                    </span>
+
+                                    {modoEdicao && (
+                                        <span style={{ textAlign: "center" }}>
+                                            Ação
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* INGREDIENTES */}
@@ -601,6 +650,9 @@ export function Insumos() {
                                                 (i: any) =>
                                                     i._id === ingrediente.insumo
                                             ) || ingrediente;
+                                        console.log("INGREDIENTE:", ingredienteCompleto);
+
+                                        const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
 
                                         return (
                                             <div
@@ -608,7 +660,7 @@ export function Insumos() {
                                                 style={{
                                                     display: "grid",
                                                     gridTemplateColumns:
-                                                        "2fr 1fr 1fr",
+                                                        modoEdicao ? "2fr 1fr 1fr 1fr 50px" : "2fr 1fr 1fr 1fr",
                                                     padding: "18px 20px",
                                                     borderBottom:
                                                         "1px solid #1e293b",
@@ -743,6 +795,16 @@ export function Insumos() {
                                                         ingredienteCompleto?.unidade
                                                     )}
                                                 </span>
+                                                <span
+                                                    style={{
+                                                        textAlign: "center",
+                                                        color: "#10b981",
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    R$ {custoIngrediente}
+                                                </span>
+
                                             </div>
                                         );
                                     }
@@ -796,6 +858,7 @@ export function Insumos() {
                                     </button>
 
                                     <button
+                                        className="no-print"
                                         onClick={() =>
                                             deletarInsumo(insumoSelecionado._id)
                                         }
@@ -826,6 +889,7 @@ export function Insumos() {
                                     }}
                                 >
                                     <button
+                                        className="no-print"
                                         onClick={async () => {
 
                                             // ENTRAR EM MODO EDIÇÃO
@@ -872,6 +936,7 @@ export function Insumos() {
 
                                                 // atualiza lista
                                                 await carregarInsumos();
+
 
                                                 // atualiza item aberto
                                                 setInsumoSelecionado({
