@@ -1,0 +1,767 @@
+/* insumos.css - Premium visual styling for Insumos board */
+
+/* General Frame Container */
+.insumos-container {
+    width: 100%;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #fff;
+}
+
+/* Master Card matching the reference screenshot */
+.insumos-card {
+    background: #0f172a;
+    border-radius: 24px;
+    border: 1px solid #1e293b;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Header Banner - Exact replica of the reference picture */
+.insumos-header-banner {
+    background: #1e5cbc;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #144799;
+}
+
+.insumos-header-icon-wrapper {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insumos-header-icon {
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+}
+
+.insumos-header-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+/* Main Content Area */
+.insumos-content {
+    padding: 30px;
+}
+
+/* Introduction block */
+.insumos-intro-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 640px) {
+    .insumos-intro-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.insumos-subtitle {
+    color: #94a3b8;
+    font-size: 14px;
+    margin: 4px 0 0 0;
+    font-family: inherit;
+}
+
+/* Stat Grid Cards - beautiful counters requested */
+.insumos-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 640px) {
+    .insumos-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .insumos-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.insumos-stat-card {
+    background: #121828;
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(35, 47, 74, 0.7);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+.insumos-stat-card:hover {
+    border-color: rgba(30, 92, 188, 0.4);
+    transform: translateY(-2px);
+}
+
+.insumos-stat-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.insumos-stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.insumos-stat-value.accent-blue {
+    color: #3b82f6;
+}
+
+.insumos-stat-value.accent-emerald {
+    color: #10b981;
+}
+
+.insumos-stat-icon-container {
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insumos-stat-icon-container.blue {
+    background: rgba(37, 99, 235, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.insumos-stat-icon-container.slate {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.insumos-stat-icon-container.amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.insumos-stat-icon-container.emerald {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Control Row: Search & Filters */
+.insumos-controls-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+    .insumos-controls-row {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.insumos-search-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.insumos-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.insumos-search-input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.insumos-search-input:focus {
+    border-color: #1e5cbc;
+    box-shadow: 0 0 0 2px rgba(30, 92, 188, 0.2);
+}
+
+.insumos-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .insumos-select-wrapper {
+        width: 200px;
+    }
+}
+
+.insumos-select-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.insumos-select {
+    width: 100%;
+    padding: 12px 36px 12px 40px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    color: #cbd5e1;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: all 0.2s ease;
+}
+
+.insumos-select:focus {
+    border-color: #1e5cbc;
+}
+
+.insumos-select-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+}
+
+/* Creation Actions Button */
+.insumos-create-btn {
+    background: #1e5cbc;
+    color: #ffffff;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.insumos-create-btn:hover {
+    background: #154694;
+}
+
+.insumos-create-btn:active {
+    transform: scale(0.98);
+}
+
+/* Custom Styled Single-Table Frame */
+.insumos-table-wrapper {
+    border: 1px solid #232f4a;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.insumos-table-scroll {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.insumos-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+.insumos-table th {
+    background: #182033;
+    padding: 16px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    border: 1px solid #232f4a;
+    text-align: center;
+}
+
+.insumos-table th:first-child {
+    text-align: left;
+    padding-left: 24px;
+}
+
+.insumos-table td {
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: #cbd5e1;
+    border: 1px solid #232f4a;
+    text-align: center;
+}
+
+.insumos-table td:first-child {
+    text-align: left;
+    padding-left: 24px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.insumos-table tr:hover {
+    background: rgba(22, 31, 54, 0.6);
+}
+
+/* Base and Transformado Badges */
+.insumo-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.insumo-badge.transformado {
+    background: rgba(30, 92, 188, 0.12);
+    color: #599ef7;
+    border: 1px solid rgba(30, 92, 188, 0.3);
+}
+
+.insumo-badge.base {
+    background: rgba(100, 116, 139, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+/* Category styling columns */
+.insumo-category-label {
+    color: #599ef7;
+    font-weight: 600;
+}
+
+/* Action button configurations */
+.insumo-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insumo-action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.insumo-action-btn.view {
+    color: #3b82f6;
+}
+
+.insumo-action-btn.edit {
+    color: #34d399;
+}
+
+.insumo-action-btn.delete {
+    color: #f87171;
+}
+
+.insumo-action-btn.delete:hover {
+    background: rgba(248, 113, 113, 0.1);
+}
+
+/* Footer info row */
+.insumos-footer-row {
+    background: #141a2e;
+    border-top: 1px solid #232f4a;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.insumos-footer-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: monospace;
+}
+
+.insumos-footer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #1e5cbc;
+}
+
+/* High Fidelity Technical sheet modal component overlay */
+.insumos-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.insumos-modal-card {
+    background: #111827;
+    width: 100%;
+    max-width: 850px;
+    border-radius: 24px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.insumos-modal-accent-top {
+    height: 4px;
+    background: linear-gradient(90deg, #1e5cbc, #154694);
+}
+
+.insumos-modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.insumos-modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+
+.insumos-modal-body {
+    padding: 30px;
+    overflow-y: visible;
+}
+
+/* Modal Headers */
+.modal-header-tag {
+    background: rgba(30, 92, 188, 0.15);
+    color: #60a5fa;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(30, 92, 188, 0.2);
+    display: inline-block;
+}
+
+.modal-header-title {
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+}
+
+.modal-header-subtitle {
+    color: #64748b;
+    margin: 0;
+    font-size: 13.5px;
+}
+
+.modal-divider {
+    height: 1px;
+    background: #1f2937;
+    margin: 24px 0;
+}
+
+/* Yield totals row */
+.modal-info-panel-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.modal-info-block-label {
+    color: #94a3b8;
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.modal-info-block-value {
+    color: #f8fafc;
+    font-size: 22px;
+    font-weight: 700;
+    display: block;
+}
+
+.modal-info-block-cost {
+    color: #10b981;
+    font-size: 28px;
+    font-weight: 800;
+    font-family: monospace;
+}
+
+/* Form inputs for edit mode inside modal */
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+    .modal-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.modal-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-input-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.modal-form-input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.modal-form-input:focus {
+    border-color: #1e5cbc;
+}
+
+/* Ingredients sub-recipes frame table */
+.modal-ingredients-section {
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    overflow: visible;
+    margin-top: 20px;
+}
+
+.modal-ingredients-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    background: #0f172a;
+    padding: 12px 18px;
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 12.5px;
+    border-bottom: 1px solid #1f2937;
+}
+
+.modal-ingredients-header-edicao {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+    background: #0f172a;
+    padding: 12px 18px;
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 12.5px;
+    border-bottom: 1px solid #1f2937;
+}
+
+.modal-ingredient-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 14px 18px;
+    border-bottom: 1px solid #1e293b;
+    align-items: center;
+    background: #111827;
+    font-size: 13px;
+}
+
+.modal-ingredient-row-edicao {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #1e293b;
+    align-items: center;
+    background: #111827;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.modal-ingredient-row:last-child,
+.modal-ingredient-row-edicao:last-child {
+    border-bottom: none;
+}
+
+/* Modal Bottom Action Controls */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.modal-btn-group-left {
+    display: flex;
+    gap: 12px;
+}
+
+.modal-footer-btn {
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.modal-footer-btn.print {
+    background: #1e2937;
+    color: #cbd5e1;
+    border: 1px solid #374151;
+}
+
+.modal-footer-btn.print:hover {
+    background: #2d3748;
+}
+
+.modal-footer-btn.delete {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.modal-footer-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.modal-footer-btn.save {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    padding: 10px 22px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.modal-footer-btn.save.editing {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.modal-footer-btn.save:hover {
+    filter: brightness(1.1);
+}
+
+/* Print CSS Configurations overrides */
+@media print {
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .no-print,
+    .print-hide,
+    .insumos-modal-close-btn,
+    .modal-footer,
+    .insumos-container>*:not(#area-impressao),
+    #app-sidebar,
+    header {
+        display: none !important;
+    }
+
+    #area-impressao {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        padding: 0 !important;
+        color: #000 !important;
+        background: transparent !important;
+    }
+
+    #area-impressao * {
+        color: #000000 !important;
+    }
+
+    #area-impressao h2 {
+        font-size: 28px !important;
+    }
+}

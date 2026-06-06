@@ -2,26 +2,37 @@ import { useEffect, useState } from "react";
 import { formatarQuantidade } from "../utils/formatarQuantidade";
 import { api } from "../services/api";
 import { formatarUnidade } from "../utils/formatarUnidade";
+import "./insumos.css";
+import {
+    Plus,
+    Search,
+    Filter,
+    Layers,
+    SlidersHorizontal,
+    ChefHat,
+    Eye,
+    Pencil,
+    Trash2,
+    Printer,
+    X,
+    Save
+} from "lucide-react";
 
 export function Insumos() {
     const [insumos, setInsumos] = useState<any[]>([]);
     const [pesquisa, setPesquisa] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("todos");
     const [filtroCategoria, setFiltroCategoria] = useState("todas");
+    const [pesquisaIngrediente, setPesquisaIngrediente] = useState("");
+
 
     const [modoEdicao, setModoEdicao] = useState(false);
-
-    const [dadosEditados, setDadosEditados] = useState<any>({ nome: "", rendimento: 0, valorTotal: 0, ingredientes: [], });
-
-
+    const [dadosEditados, setDadosEditados] = useState<any>({ nome: "", rendimento: 0, valorTotal: 0, ingredientes: [] });
 
     const [modalAberto, setModalAberto] = useState(false);
     const [insumoSelecionado, setInsumoSelecionado] = useState<any>(null);
 
-
-
     const insumosFiltrados = insumos.filter((insumo) => {
-
         const matchPesquisa =
             insumo.nome
                 ?.toLowerCase()
@@ -45,8 +56,19 @@ export function Insumos() {
         new Set(insumos.map((insumo) => insumo.categoria).filter(Boolean))
     );
 
-    async function carregarInsumos() {
+    const insumosPesquisa = insumos.filter((ins: any) =>
+        ins.nome
+            ?.toLowerCase()
+            .includes(pesquisaIngrediente.toLowerCase())
+    );
 
+    // Dynamic stats trackers
+    const totalInsumosCount = insumos.length;
+    const baseInsumosCount = insumos.filter(i => !i.tipo || i.tipo === "base").length;
+    const transformadosCount = insumos.filter(i => i.tipo === "transformado").length;
+    const categoriasCount = categorias.length;
+
+    async function carregarInsumos() {
         try {
             const res = await api.get("/insumos");
             console.log(res.data.data);
@@ -56,7 +78,6 @@ export function Insumos() {
                     ? res.data.data
                     : []
             );
-
         } catch (error) {
             console.error(error);
         }
@@ -64,15 +85,20 @@ export function Insumos() {
 
     useEffect(() => {
         carregarInsumos();
-
     }, []);
 
     function abrirModal(insumo: any) {
 
+        console.log("INSUMO COMPLETO:", insumo);
+        console.log("TRANSFORMAÇÃO:", insumo.transformacao);
+        console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
         console.log("INSUMO ABERTO:", insumo);
 
         setModoEdicao(false);
         setInsumoSelecionado(insumo);
+        console.log("INSUMO ABERTO:", insumo);
+        console.log("TRANSFORMAÇÃO:", insumo.transformacao);
+        console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
 
         setDadosEditados({
             nome: insumo.nome,
@@ -82,11 +108,28 @@ export function Insumos() {
             qtdLiquida: insumo.qtdLiquida,
             valorTotal: insumo.valorTotal,
             rendimento: insumo.rendimento,
-
-            ingredientes:
-                insumo.transformacao?.ingredientes || [],
+            ingredientes: insumo.transformacao?.ingredientes
+                ? JSON.parse(JSON.stringify(insumo.transformacao.ingredientes))
+                : [],
         });
 
+        setModalAberto(true);
+    }
+
+    // Direct helper for adding a completely new raw/complex insumo
+    function handleCriarNovoInsumo() {
+        setInsumoSelecionado(null);
+        setModoEdicao(true);
+        setDadosEditados({
+            nome: "",
+            categoria: "Ingredientes Base",
+            unidade: "kg",
+            qtdBruta: 1,
+            qtdLiquida: 1,
+            valorTotal: 0,
+            rendimento: 100,
+            ingredientes: []
+        });
         setModalAberto(true);
     }
 
@@ -95,7 +138,6 @@ export function Insumos() {
     }
 
     async function deletarInsumo(id: string) {
-
         const confirmar = window.confirm(
             "Tem certeza que deseja deletar este insumo?"
         );
@@ -103,346 +145,275 @@ export function Insumos() {
         if (!confirmar) return;
 
         try {
-
             await api.delete(`/insumos/${id}`);
-
-
-
             setModalAberto(false);
-
             await carregarInsumos();
-
         } catch (error) {
-
-
-
             console.error(error);
         }
     }
 
     return (
-        <div className="page-container">
-            <div
-                style={{
-                    background: "#0f172a",
-                    color: "#fff",
-                    borderRadius: 20,
-                    padding: 25,
-                    border: "1px solid #1e293b",
-                    boxShadow: "0 0 30px rgba(0,0,0,0.4)",
-                }}
-            >
-                {/* TOPO */}
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 25,
-                    }}
-                >
-                    <div>
-                        <h1
-                            style={{
-                                margin: 0,
-                                fontSize: 32,
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Insumos
-                        </h1>
+        <div className="insumos-container">
+            <div className="insumos-card">
 
-                        <p
-                            style={{
-                                color: "#94a3b8",
-                                marginTop: 5,
-                            }}
-                        >
-                            Gerencie os insumos do sistema
-                        </p>
+                {/* 1. HEADER BANNER */}
+                <div className="insumos-header-banner" id="insumos-header-banner">
+                    <div className="insumos-header-icon-wrapper">
+                        <Layers className="insumos-header-icon" />
                     </div>
-
-                    <div
-                        style={{
-                            display: "flex",
-                            gap: 12,
-                            alignItems: "center",
-                        }}
-                    >
-
-                        <input
-                            placeholder="Pesquisar insumo..."
-                            value={pesquisa}
-                            onChange={(e) =>
-                                setPesquisa(e.target.value)
-                            }
-                            style={{
-                                ...inputStyle,
-                                width: 240,
-                            }}
-                        />
-
-                        <select
-                            value={filtroTipo}
-                            onChange={(e) =>
-                                setFiltroTipo(e.target.value)
-                            }
-                            style={{
-                                ...inputStyle,
-                                width: 150,
-                            }}
-                        >
-                            <option value="todos">
-                                Todos os Tipos
-                            </option>
-
-                            <option value="base">
-                                Base
-                            </option>
-
-                            <option value="transformado">
-                                Transformado
-                            </option>
-                        </select>
-
-                        <select
-                            value={filtroCategoria}
-                            onChange={(e) =>
-                                setFiltroCategoria(e.target.value)
-                            }
-                            style={{
-                                ...inputStyle,
-                                width: 150,
-                            }}
-                        >
-                            <option value="todas">
-                                Todas as Categorias
-                            </option>
-
-                            {categorias.map((categoria) => (
-                                <option key={categoria} value={categoria}>
-                                    {categoria}
-                                </option>
-                            ))}
-                        </select>
-
-                    </div>
-
-
+                    <h1 className="insumos-header-title">TELA DE INSUMOS</h1>
                 </div>
 
-                {/* TABELA */}
-                <div style={{ marginTop: 20 }}>
+                {/* 2. MAIN CONTENT BODY */}
+                <div className="insumos-content">
 
-                    {/* CABEÇALHO */}
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns:
-                                "2fr 1.3fr 1.3fr 1.6fr 1fr 1fr 1fr 1.3fr 140px",
-                            background: "#111827",
-                            padding: "16px 20px",
-                            borderRadius: "14px 14px 0 0",
-                            border: "1px solid #1f2937",
-                            color: "#94a3b8",
-                            fontWeight: "bold",
-                            fontSize: 14,
-                        }}
-                    >
-                        <span style={{ textAlign: "left" }}>Nome</span>
-
-
-                        <span style={{ textAlign: "center" }}>Tipo</span>
-
-                        <span style={{ textAlign: "center" }}>Categoria</span>
-
-                        <span style={{ textAlign: "center" }}>Fornecedor</span>
-
-                        <span style={{ textAlign: "center" }}>Rendimento</span>
-
-                        <span style={{ textAlign: "center" }}>Fichas</span>
-
-                        <span style={{ textAlign: "center" }}>Unidade</span>
-
-                        <span style={{ textAlign: "center" }}>Valor Unitário</span>
-
-                        <span style={{ textAlign: "center" }}>Ações</span>
-
+                    {/* Introductory subtitle and action bar */}
+                    <div className="insumos-intro-row">
+                        <div>
+                            <p className="insumos-subtitle">
+                                Gerencie todos os insumos cadastrados com cálculo em tempo real.
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleCriarNovoInsumo}
+                            className="insumos-create-btn"
+                        >
+                            <Plus className="w-4.5 h-4.5 font-bold" />
+                            Criar Insumo
+                        </button>
                     </div>
 
-                    {/* LISTA */}
-                    {insumosFiltrados.map((insumo) => (
-
-                        <div
-                            key={insumo._id}
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                    "2fr 1.3fr 1.3fr 1.6fr 1fr 1fr 1fr 1.3fr 140px",
-
-
-                                alignItems: "center",
-                                background: "#0f172a",
-                                padding: "18px 20px",
-                                borderBottom:
-                                    "1px solid #1e293b",
-                            }}
-                        >
-                            <strong>{insumo.nome}</strong>
-
-                            <span style={{ textAlign: "center" }}>
-                                {insumo.tipo || "base"}
-                            </span>
-
-                            <span style={{ textAlign: "center" }}>
-                                {insumo.categoria}
-                            </span>
-
-                            <span style={{ textAlign: "center" }}>
-                                {insumo.fornecedor || "-"}
-                            </span>
-                            <span style={{ textAlign: "center" }}>
-                                {Number(insumo.rendimentoPercentual || 0).toFixed(0)}%
-                            </span>
-
-                            <span style={{ textAlign: "center" }}>
-                                {insumo.fichas || 0}
-                            </span>
-
-                            <span style={{ textAlign: "center" }}>
-                                {formatarUnidade(insumo.unidade)}
-                            </span>
-
-                            <span style={{ textAlign: "center" }}>
-                                R$ {Number(insumo.valorUnitario).toFixed(2)}
-                            </span>
-
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    width: "100%",
-                                }}
-                            >
-
-                                <button
-                                    onClick={() => abrirModal(insumo)}
-                                    style={{
-                                        ...buttonStyle,
-                                        padding: "8px 18px",
-                                        minWidth: "80px",
-                                        height: "38px",
-                                        background:
-                                            "linear-gradient(135deg, #2563eb, #1d4ed8)",
-                                        boxShadow: "none",
-                                    }}
-                                >
-                                    Ver
-                                </button>
-
+                    {/* STATS MODULE PANEL */}
+                    <div className="insumos-stats-grid">
+                        <div className="insumos-stat-card">
+                            <div>
+                                <span className="insumos-stat-label">Total Insumos</span>
+                                <span className="insumos-stat-value">{totalInsumosCount}</span>
+                            </div>
+                            <div className="insumos-stat-icon-container blue">
+                                <Layers className="w-5 h-5" />
                             </div>
                         </div>
-                    ))}
+
+                        <div className="insumos-stat-card">
+                            <div>
+                                <span className="insumos-stat-label">Insumos Base</span>
+                                <span className="insumos-stat-value accent-blue">{baseInsumosCount}</span>
+                            </div>
+                            <div className="insumos-stat-icon-container slate">
+                                <SlidersHorizontal className="w-5 h-5" />
+                            </div>
+                        </div>
+
+                        <div className="insumos-stat-card">
+                            <div>
+                                <span className="insumos-stat-label">Transformados</span>
+                                <span className="insumos-stat-value">{transformadosCount}</span>
+                            </div>
+                            <div className="insumos-stat-icon-container amber">
+                                <ChefHat className="w-5 h-5" />
+                            </div>
+                        </div>
+
+                        <div className="insumos-stat-card">
+                            <div>
+                                <span className="insumos-stat-label">Categorias</span>
+                                <span className="insumos-stat-value accent-emerald">{categoriasCount}</span>
+                            </div>
+                            <div className="insumos-stat-icon-container emerald">
+                                <Filter className="w-5 h-5" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SEARCHBAR AND DROPDOWN FILTERS */}
+                    <div className="insumos-controls-row">
+                        <div className="insumos-search-wrapper">
+                            <Search className="insumos-search-icon" />
+                            <input
+                                placeholder="Barra de pesquisa"
+                                value={pesquisa}
+                                onChange={(e) => setPesquisa(e.target.value)}
+                                className="insumos-search-input"
+                            />
+                        </div>
+
+                        <div className="insumos-select-wrapper">
+                            <Filter className="insumos-select-icon" />
+                            <select
+                                value={filtroTipo}
+                                onChange={(e) => setFiltroTipo(e.target.value)}
+                                className="insumos-select"
+                            >
+                                <option value="todos">Todos os Tipos</option>
+                                <option value="base">Base</option>
+                                <option value="transformado">Transformado</option>
+                            </select>
+                            <span className="insumos-select-arrow">▼</span>
+                        </div>
+
+                        <div className="insumos-select-wrapper">
+                            <Filter className="insumos-select-icon" />
+                            <select
+                                value={filtroCategoria}
+                                onChange={(e) => setFiltroCategoria(e.target.value)}
+                                className="insumos-select"
+                            >
+                                <option value="todas">Filtro por categoria</option>
+                                {categorias.map((categoria) => (
+                                    <option key={categoria} value={categoria}>
+                                        {categoria}
+                                    </option>
+                                ))}
+                            </select>
+                            <span className="insumos-select-arrow">▼</span>
+                        </div>
+                    </div>
+
+                    {/* MULTI-COLUMN COMPACT TABLE */}
+                    <div className="insumos-table-wrapper">
+                        <div className="insumos-table-scroll">
+                            <table className="insumos-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Tipo</th>
+                                        <th>Categoria</th>
+                                        <th>Fornecedor</th>
+                                        <th>Rendimento</th>
+                                        <th>Fichas</th>
+                                        <th>Unidade</th>
+                                        <th>Valor Unitário</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {insumosFiltrados.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={9} style={{ textAlign: "center", color: "#64748b" }}>
+                                                Nenhum insumo encontrado para este filtro de busca.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        insumosFiltrados.map((insumo) => (
+                                            <tr key={insumo._id}>
+
+                                                {/* Nome */}
+                                                <td>{insumo.nome}</td>
+
+                                                {/* Tipo (Base / Transformado) */}
+                                                <td>
+                                                    <span className={`insumo-badge ${insumo.tipo === "transformado" ? "transformado" : "base"}`}>
+                                                        {insumo.tipo || "base"}
+                                                    </span>
+                                                </td>
+
+                                                {/* Categoria */}
+                                                <td>
+                                                    <span className="insumo-category-label">
+                                                        {insumo.categoria}
+                                                    </span>
+                                                </td>
+
+                                                {/* Fornecedor */}
+                                                <td>{insumo.fornecedor || "-"}</td>
+
+                                                {/* Rendimento */}
+                                                <td style={{ fontFamily: "monospace" }}>
+                                                    {Number(insumo.rendimentoPercentual || 0).toFixed(0)}%
+                                                </td>
+
+                                                {/* Fichas */}
+                                                <td style={{ fontFamily: "monospace", color: "#64748b" }}>
+                                                    {insumo.fichas || 0}
+                                                </td>
+
+                                                {/* Unidade */}
+                                                <td>{formatarUnidade(insumo.unidade)}</td>
+
+                                                {/* Valor Unitário */}
+                                                <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                                                    R$ {(
+                                                        ["kg", "l"].includes(insumo.unidade)
+                                                            ? Number(insumo.valorUnitario) * 1000
+                                                            : Number(insumo.valorUnitario)
+                                                    ).toFixed(2).replace(".", ",")}
+                                                </td>
+
+                                                {/* Compact Action Controls */}
+                                                <td>
+                                                    <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                                                        <button
+                                                            onClick={() => abrirModal(insumo)}
+                                                            className="insumo-action-btn view"
+                                                            title="Ver Detalhes"
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        {insumo.tipo === "transformado" && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    abrirModal(insumo);
+                                                                    setModoEdicao(true);
+                                                                }}
+                                                                className="insumo-action-btn edit"
+                                                            >
+                                                                <Pencil className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => deletarInsumo(insumo._id)}
+                                                            className="insumo-action-btn delete"
+                                                            title="Deletar Insumo"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Integration dynamic status description footer */}
+                        <div className="insumos-footer-row">
+                            <span>Exibindo {insumosFiltrados.length} de {insumos.length} registros ativos.</span>
+                            <div className="insumos-footer-status">
+                                <div className="insumos-footer-dot"></div>
+                                Banco de insumos integrado às receitas SR de forma automatizada
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
+            {/* HIGH FIDELITY TECHNICAL SHEET DETAIL MODAL */}
             {modalAberto && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(3, 7, 18, 0.82)",
-                        backdropFilter: "blur(8px)",
-                        WebkitBackdropFilter: "blur(8px)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 9999,
-                        padding: "20px",
-                    }}
-                >
-                    <div
-                        style={{
-                            background: "#111827",
-                            width: "100%",
-                            maxWidth: "900px",
-                            borderRadius: "24px",
-                            border: "1px solid #1f2937",
-                            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.6)",
-                            overflow: "hidden",
-                            position: "relative",
-                        }}
-                    >
-                        {/* TOPO AZUL */}
-                        <div
-                            style={{
-                                height: "5px",
-                                background:
-                                    "linear-gradient(90deg, #2563eb, #1d4ed8)",
-                            }}
-                        />
-
-                        {/* BOTÃO FECHAR */}
+                <div className="insumos-modal-backdrop">
+                    <div className="insumos-modal-card">
+                        <div className="insumos-modal-accent-top"></div>
                         <button
+                            className="insumos-modal-close-btn no-print"
                             onClick={() => {
                                 setModoEdicao(false);
                                 setModalAberto(false);
                             }}
-                            style={{
-                                position: "absolute",
-                                top: 22,
-                                right: 22,
-                                width: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                border: "none",
-                                background: "rgba(255,255,255,0.05)",
-                                color: "#94a3b8",
-                                fontSize: "18px",
-                                cursor: "pointer",
-                            }}
                         >
-                            ✕
+                            <X className="w-5 h-5" />
                         </button>
 
-                        <div
-                            id="area-impressao"
-                            style={{ padding: "34px" }}
-                        >
+                        <div className="insumos-modal-body" id="area-impressao">
 
-                            {/* CABEÇALHO */}
-                            <div style={{ marginBottom: 28 }}>
+                            {/* Modal Badge Tag */}
+                            <div>
+                                <span className="modal-header-tag print-hide">Ficha Técnica</span>
 
-                                <span
-                                    className="print-hide"
-                                    style={{
-                                        background:
-                                            "rgba(37,99,235,0.15)",
-                                        color: "#60a5fa",
-                                        fontSize: 11,
-                                        fontWeight: "bold",
-                                        letterSpacing: "1.5px",
-                                        textTransform: "uppercase",
-                                        padding: "6px 12px",
-                                        borderRadius: "999px",
-                                        border:
-                                            "1px solid rgba(37,99,235,0.2)",
-                                    }}
-                                >
-                                    Ficha Técnica
-                                </span>
-
-                                <h2
-                                    style={{
-                                        marginTop: 18,
-                                        marginBottom: 8,
-                                        fontSize: 34,
-                                        fontWeight: 800,
-                                        color: "#f8fafc",
-                                        letterSpacing: "-1px",
-                                    }}
-                                >
+                                <h2 className="modal-header-title">
                                     {modoEdicao ? (
                                         <input
                                             value={dadosEditados.nome}
@@ -452,535 +423,354 @@ export function Insumos() {
                                                     nome: e.target.value,
                                                 })
                                             }
-                                            style={{
-                                                width: "100%",
-                                                background: "#0f172a",
-                                                border: "1px solid #334155",
-                                                borderRadius: "12px",
-                                                padding: "12px",
-                                                color: "#fff",
-                                                fontSize: "28px",
-                                                fontWeight: 700,
-                                            }}
+                                            className="modal-form-input"
+                                            style={{ fontSize: "24px", fontWeight: "bold" }}
                                         />
                                     ) : (
-                                        insumoSelecionado?.nome
+                                        insumoSelecionado?.nome || "Novo Insumo"
                                     )}
                                 </h2>
 
-                                <p
-                                    className="no-print"
-                                    style={{
-                                        color: "#64748b",
-                                        margin: 0,
-                                        fontSize: 14,
-                                    }}
-                                >
-                                    Visualização completa do produto
+                                <p className="modal-header-subtitle no-print">
+                                    Visualização completa dos componentes e rendimento
                                 </p>
                             </div>
 
-                            {/* DIVISOR */}
-                            <div
-                                style={{
-                                    height: 1,
-                                    background: "#1f2937",
-                                    marginBottom: 28,
-                                }}
-                            />
+                            <div className="modal-divider"></div>
 
-                            {/* RENDIMENTO E VALOR */}
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    marginBottom: 24,
-                                }}
-                            >
+                            {/* Yield indicators panel row */}
+                            <div className="modal-info-panel-row">
                                 <div>
-                                    <p
-                                        style={{
-                                            color: "#94a3b8",
-                                            margin: 0,
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        Rendimento
-                                    </p>
-
-                                    <strong
-                                        style={{
-                                            color: "#f8fafc",
-                                            fontSize: 22,
-                                        }}
-                                    >
-                                        {modoEdicao ? (
-                                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                                                <input
-                                                    type="number"
-                                                    value={dadosEditados.rendimento}
-                                                    onChange={(e) =>
-                                                        setDadosEditados({
-                                                            ...dadosEditados,
-                                                            rendimento: e.target.value,
-                                                        })
-                                                    }
-                                                    style={{
-                                                        width: "120px",
-                                                        background: "#0f172a",
-                                                        border: "1px solid #334155",
-                                                        borderRadius: "10px",
-                                                        padding: "8px",
-                                                        color: "#fff",
-                                                        fontSize: "18px",
-                                                    }}
-                                                />
-                                                <span style={{ color: "#94a3b8" }}>
-                                                    {formatarUnidade(insumoSelecionado?.unidade)}
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {formatarQuantidade(
-                                                    Number(insumoSelecionado?.qtdLiquida),
-                                                    insumoSelecionado?.unidade
-                                                )}
-                                            </>
+                                    <p className="modal-info-block-label">Rendimento</p>
+                                    <span className="modal-info-block-value">
+                                        {formatarQuantidade(
+                                            Number(modoEdicao ? dadosEditados.qtdLiquida : insumoSelecionado?.qtdLiquida),
+                                            modoEdicao ? dadosEditados.unidade : insumoSelecionado?.unidade
                                         )}
-                                    </strong>
+                                    </span>
                                 </div>
 
                                 <div style={{ textAlign: "right" }}>
-                                    <p
-                                        style={{
-                                            color: "#94a3b8",
-                                            margin: 0,
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        Custo Total
-                                    </p>
-
-                                    <strong
-                                        style={{
-                                            color: "#10b981",
-                                            fontSize: 28,
-                                            fontWeight: 800,
-                                            fontFamily: "monospace",
-                                        }}
-                                    >
-                                        {modoEdicao ? (
-                                            <input
-                                                type="number"
-                                                value={dadosEditados.valorTotal}
-                                                disabled
-                                                style={{
-                                                    width: "160px",
-                                                    background: "#0a0f1a",
-                                                    border: "1px solid #334155",
-                                                    borderRadius: "10px",
-                                                    padding: "8px",
-                                                    color: "#10b981",
-                                                    fontSize: "22px",
-                                                    fontWeight: "bold",
-                                                    cursor: "not-allowed",
-                                                    opacity: 0.7,
-                                                }}
-                                            />
-                                        ) : (
-                                            <>R$ {Number(dadosEditados.valorTotal).toFixed(2)}</>
-                                        )}
-                                    </strong>
-
+                                    <p className="modal-info-block-label">Custo Estimado</p>
+                                    <span className="modal-info-block-cost">
+                                        R$ {Number(modoEdicao ? dadosEditados.valorTotal : dadosEditados.valorTotal || insumoSelecionado?.valorTotal || 0).toFixed(2)}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* TABELA */}
-                            <div
-                                style={{
-                                    border: "1px solid #1f2937",
-                                    borderRadius: "16px",
-                                    overflow: "hidden",
-                                    marginTop: 20,
-                                }}
-                            >
 
-                                {/* CABEÇALHO */}
-                                <div
-                                    style={{
-                                        display: "grid",
-                                        gridTemplateColumns:
-                                            modoEdicao ? "2fr 1fr 1fr 1fr 50px" : "2fr 1fr 1fr 1fr",
-                                        background: "#0f172a",
-                                        padding: "16px 20px",
-                                        color: "#94a3b8",
-                                        fontWeight: "bold",
-                                        fontSize: 13,
-                                        borderBottom: "1px solid #1f2937",
-                                    }}
-                                >
-                                    <span>Ingrediente</span>
+                            {/* SUB-INGREDIENT DISH COMPOSITION */}
+                            {(modoEdicao ||
+                                insumoSelecionado?.transformacao?.ingredientes?.length > 0) && (
+                                    <div className="modal-ingredients-section">
+                                        <div
+                                            className={
+                                                modoEdicao
+                                                    ? "modal-ingredients-header-edicao"
+                                                    : "modal-ingredients-header"
+                                            }
+                                        >
+                                            <span>Ingrediente</span>
+                                            <span style={{ textAlign: "center" }}>Quantidade</span>
+                                            <span style={{ textAlign: "center" }}>Unidade</span>
+                                            <span style={{ textAlign: "center" }}>Custo</span>
+                                            {modoEdicao && (
+                                                <span style={{ textAlign: "center" }}>
+                                                    Ação
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(modoEdicao ? dadosEditados.ingredientes : insumoSelecionado?.transformacao?.ingredientes)?.map((ingrediente: any, index: number) => {
+                                            console.log("INGREDIENTE ATUAL:", ingrediente);
+                                            console.log("INSUMO ENCONTRADO:", insumos.find(
+                                                (i: any) => i._id === ingrediente.insumo
+                                            ));
+                                            const ingredienteCompleto =
+                                                insumos.find(
+                                                    (i: any) =>
+                                                        String(i._id) === String(ingrediente.insumo)
+                                                ) || ingrediente;
 
-                                    <span style={{ textAlign: "center" }}>
-                                        Quantidade
-                                    </span>
+                                            console.log("ID INGREDIENTE:", ingrediente.insumo);
 
-                                    <span style={{ textAlign: "center" }}>
-                                        Unidade
-                                    </span>
-
-                                    <span style={{ textAlign: "center" }}>
-                                        Custo
-                                    </span>
-
-                                    {modoEdicao && (
-                                        <span style={{ textAlign: "center" }}>
-                                            Ação
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* INGREDIENTES */}
-                                {dadosEditados?.ingredientes?.map(
-                                    (ingrediente: any) => {
-
-                                        const ingredienteCompleto =
-                                            insumos.find(
-                                                (i: any) =>
-                                                    i._id === ingrediente.insumo
-                                            ) || ingrediente;
-                                        console.log("INGREDIENTE:", ingredienteCompleto);
-
-                                        const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
-
-                                        return (
-                                            <div
-                                                key={ingrediente._id || ingrediente.insumo}
-                                                style={{
-                                                    display: "grid",
-                                                    gridTemplateColumns:
-                                                        modoEdicao ? "2fr 1fr 1fr 1fr 50px" : "2fr 1fr 1fr 1fr",
-                                                    padding: "18px 20px",
-                                                    borderBottom:
-                                                        "1px solid #1e293b",
-                                                    alignItems: "center",
-                                                    background: "#111827",
-                                                    gap: "12px",
-                                                }}
-                                            >
-
-                                                {/* NOME DO INGREDIENTE */}
-                                                {modoEdicao ? (
-                                                    <select
-                                                        value={ingrediente.insumo}
-                                                        onChange={(e) => {
-
-                                                            const novosIngredientes =
-                                                                dadosEditados.ingredientes.map(
-                                                                    (item: any) =>
-
-                                                                        item._id === ingrediente._id
-                                                                            ? {
-                                                                                ...item,
-                                                                                insumo: e.target.value,
-                                                                            }
-                                                                            : item
-                                                                );
-
-                                                            setDadosEditados({
-                                                                ...dadosEditados,
-                                                                ingredientes: novosIngredientes,
-                                                            });
-                                                        }}
-
-                                                        style={{
-                                                            width: "100%",
-                                                            background: "#0f172a",
-                                                            border: "1px solid #334155",
-                                                            borderRadius: "10px",
-                                                            padding: "10px",
-                                                            color: "#fff",
-                                                        }}
-                                                    >
-
-                                                        {insumos.map((insumo: any) => (
-
-                                                            <option
-                                                                key={insumo._id}
-                                                                value={insumo._id}
-                                                            >
-                                                                {insumo.nome}
-                                                            </option>
-
-                                                        ))}
-
-                                                    </select>
-                                                ) : (
-                                                    <span
-                                                        style={{
-                                                            color: "#f8fafc",
-                                                            fontWeight: 600,
-                                                        }}
-                                                    >
-                                                        {ingredienteCompleto?.nome || "Ingrediente"}
-                                                    </span>
-                                                )}
-
-                                                {/* QUANTIDADE */}
-                                                <div style={{ textAlign: "center" }}>
-
-                                                    {modoEdicao ? (
-
-                                                        <input
-                                                            type="number"
-                                                            id="btux4s"
-                                                            value={ingrediente.qtdLiquida || ""}
-
-
-
-                                                            onChange={(e) => {
-
-                                                                const novosIngredientes =
-                                                                    dadosEditados.ingredientes.map(
-                                                                        (item: any) =>
-
-                                                                            item._id === ingrediente._id
-                                                                                ? {
-                                                                                    ...item,
-                                                                                    qtdLiquida: Number(e.target.value),
-
-                                                                                }
-                                                                                : item
-                                                                    );
-
-                                                                setDadosEditados({
-                                                                    ...dadosEditados,
-                                                                    ingredientes: novosIngredientes,
-                                                                });
-                                                            }}
-
+                                            console.log(
+                                                "INSUMO ACHADO:",
+                                                insumos.find(
+                                                    (i: any) =>
+                                                        String(i._id) === String(ingrediente.insumo)
+                                                )
+                                            );
+                                            const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
+                                            console.log("INGREDIENTE COMPLETO:", ingredienteCompleto);
+                                            console.log("NOME:", ingredienteCompleto?.nome);
+                                            console.log("PESQUISANDO:", ingrediente.pesquisando);
+                                            console.log("RENDERIZANDO:", ingredienteCompleto);
+                                            return (
+                                                <div
+                                                    key={`${ingrediente.insumo}-${index}`}
+                                                    className={modoEdicao ? "modal-ingredient-row-edicao" : "modal-ingredient-row"}
+                                                >
+                                                    {/* Ingrediente */}
+                                                    {ingrediente.pesquisando ? (
+                                                        <div
                                                             style={{
-                                                                width: "80px",
-                                                                background: "#0f172a",
-                                                                border: "1px solid #334155",
-                                                                borderRadius: "10px",
-                                                                padding: "8px",
-                                                                color: "#fff",
-                                                                textAlign: "center",
+                                                                position: "relative",
+                                                                width: "100%"
                                                             }}
-                                                        />
+                                                        >
+                                                            <input
+                                                                type="text"
+                                                                placeholder="🔍 Pesquisar ingrediente..."
+                                                                value={pesquisaIngrediente}
+                                                                onChange={(e) => setPesquisaIngrediente(e.target.value)}
+                                                                className="modal-form-input"
+                                                            />
+
+                                                            {pesquisaIngrediente && (
+                                                                <div
+                                                                    style={{
+                                                                        position: "absolute",
+                                                                        top: "100%",
+                                                                        left: 0,
+                                                                        right: 0,
+                                                                        background: "#111827",
+                                                                        border: "1px solid #374151",
+                                                                        borderRadius: "8px",
+                                                                        maxHeight: "200px",
+                                                                        overflowY: "auto",
+                                                                        zIndex: 99999
+                                                                    }}
+                                                                >
+                                                                    {insumosPesquisa.slice(0, 10).map((ins: any) => (
+                                                                        <div
+                                                                            key={ins._id}
+                                                                            style={{
+                                                                                padding: "10px",
+                                                                                cursor: "pointer",
+                                                                                borderBottom: "1px solid #1f2937"
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                const novosIngredientes =
+                                                                                    dadosEditados.ingredientes.map(
+                                                                                        (item: any, idx: number) =>
+                                                                                            idx === index
+                                                                                                ? {
+                                                                                                    ...item,
+                                                                                                    insumo: ins._id,
+                                                                                                    pesquisando: false
+                                                                                                }
+                                                                                                : item
+                                                                                    );
+
+                                                                                setDadosEditados({
+                                                                                    ...dadosEditados,
+                                                                                    ingredientes: novosIngredientes
+                                                                                });
+
+                                                                                setPesquisaIngrediente("");
+                                                                            }}
+                                                                        >
+                                                                            {ins.nome}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
 
                                                     ) : (
 
-                                                        <span
-                                                            style={{
-                                                                color: "#cbd5e1",
-                                                            }}
-                                                        >
-                                                            {ingrediente.qtdLiquida}
+                                                        <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                                                            {ingredienteCompleto?.nome || "SEM NOME"}
                                                         </span>
+                                                    )}
+                                                    {/* Quantidade */}
+                                                    <div style={{ textAlign: "center" }}>
+                                                        {modoEdicao ? (
+                                                            <input
+                                                                type="number"
+                                                                value={ingrediente.qtdLiquida || ""}
+                                                                onChange={(e) => {
+                                                                    const novosIngredientes =
+                                                                        dadosEditados.ingredientes.map(
+                                                                            (item: any, idx: number) =>
+                                                                                idx === index
+                                                                                    ? {
+                                                                                        ...item,
+                                                                                        qtdLiquida: Number(e.target.value)
+                                                                                    }
+                                                                                    : item
+                                                                        );
+                                                                    console.log("NOVOS INGREDIENTES:", novosIngredientes);
+
+
+                                                                    setDadosEditados({
+                                                                        ...dadosEditados,
+                                                                        ingredientes: novosIngredientes,
+                                                                    });
+                                                                }}
+                                                                className="modal-form-input"
+                                                                style={{ textAlign: "center", width: "80px" }}
+                                                            />
+                                                        ) : (
+                                                            <span>{ingrediente.qtdLiquida}</span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Unidade */}
+                                                    <span style={{ textAlign: "center" }}>{formatarUnidade(ingredienteCompleto?.unidade)}</span>
+
+                                                    {/* Custo */}
+                                                    <span style={{ textAlign: "center", color: "#10b981", fontWeight: "bold" }}>
+                                                        R$ {custoIngrediente}
+                                                    </span>
+
+                                                    {/* Deletar item */}
+                                                    {modoEdicao && (
+                                                        <div style={{ display: "flex", justifyContent: "center" }}>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const novosIngredientes = dadosEditados.ingredientes.filter((_: any, idx: number) => idx !== index);
+                                                                    setDadosEditados({ ...dadosEditados, ingredientes: novosIngredientes });
+                                                                }}
+                                                                className="insumo-action-btn delete"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     )}
 
                                                 </div>
+                                            );
+                                        })}
 
-                                                {/* UNIDADE */}
-                                                <span
-                                                    style={{
-                                                        textAlign: "center",
-                                                        color: "#cbd5e1",
+                                        {modoEdicao && (
+                                            <div style={{ padding: "12px", background: "#0a0f1a", display: "flex", justifyContent: "center" }}>
+                                                <button
+                                                    onClick={() => {
+                                                        setDadosEditados({
+                                                            ...dadosEditados,
+                                                            ingredientes: [
+                                                                ...dadosEditados.ingredientes,
+                                                                {
+                                                                    insumo: "",
+                                                                    qtdLiquida: 0,
+                                                                    pesquisando: true
+                                                                }
+                                                            ]
+                                                        });
                                                     }}
+                                                    className="modal-footer-btn print"
+                                                    style={{ fontSize: "11px", padding: "6px 12px" }}
                                                 >
-                                                    {formatarUnidade(
-                                                        ingredienteCompleto?.unidade
-                                                    )}
-                                                </span>
-                                                <span
-                                                    style={{
-                                                        textAlign: "center",
-                                                        color: "#10b981",
-                                                        fontWeight: "bold",
-                                                    }}
-                                                >
-                                                    R$ {custoIngrediente}
-                                                </span>
-
+                                                    + Adicionar Ingrediente
+                                                </button>
                                             </div>
-                                        );
-                                    }
+                                        )}
+                                    </div>
                                 )}
-                            </div>
 
-                            {/* DIVISOR */}
-                            <div
-                                style={{
-                                    height: 1,
-                                    background: "#1f2937",
-                                    marginTop: 30,
-                                    marginBottom: 28,
-                                }}
-                            />
+                            <div className="modal-divider"></div>
 
-                            {/* RODAPÉ */}
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    flexWrap: "wrap",
-                                    gap: "16px",
-                                }}
-                            >
-
-                                {/* ESQUERDA */}
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        gap: "12px",
-                                    }}
-                                >
-
-
-                                    <button
-                                        className="no-print" onClick={imprimirFicha}
-                                        style={{
-                                            background: "#1f2937",
-                                            color: "#cbd5e1",
-                                            border: "1px solid #374151",
-                                            borderRadius: "12px",
-                                            padding: "12px 18px",
-                                            fontSize: 14,
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        🖨️ Imprimir
+                            {/* Modal action controllers layout footer */}
+                            <div className="modal-footer no-print">
+                                <div className="modal-btn-group-left">
+                                    <button onClick={imprimirFicha} className="modal-footer-btn print">
+                                        <Printer className="w-4 h-4" /> Imprimir
                                     </button>
-
-                                    <button
-                                        className="no-print"
-                                        onClick={() =>
-                                            deletarInsumo(insumoSelecionado._id)
-                                        }
-                                        style={{
-                                            background:
-                                                "rgba(239,68,68,0.12)",
-                                            color: "#f87171",
-                                            border:
-                                                "1px solid rgba(239,68,68,0.2)",
-                                            borderRadius: "12px",
-                                            padding: "12px 18px",
-                                            fontSize: 14,
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        🗑️ Deletar
-                                    </button>
-
+                                    {insumoSelecionado && (
+                                        <button onClick={() => deletarInsumo(insumoSelecionado._id)} className="modal-footer-btn delete">
+                                            <Trash2 className="w-4 h-4" /> Deletar
+                                        </button>
+                                    )}
                                 </div>
 
-                                {/* DIREITA */}
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        gap: "12px",
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <button
-                                        className="no-print"
-                                        onClick={async () => {
 
-                                            // ENTRAR EM MODO EDIÇÃO
+
+                                <div>
+                                    <button
+                                        onClick={async () => {
                                             if (!modoEdicao) {
                                                 setModoEdicao(true);
                                                 return;
                                             }
+                                            const custoTotal = dadosEditados.ingredientes.reduce(
+                                                (total: number, item: any) => {
+                                                    const insumo = insumos.find(i => i._id === item.insumo);
 
-                                            console.log("DADOS ENVIADOS:", {
-                                                nome: dadosEditados.nome,
-                                                categoria: dadosEditados.categoria,
-                                                unidade: dadosEditados.unidade,
-                                                qtdBruta: dadosEditados.qtdBruta,
-                                                qtdLiquida: dadosEditados.qtdLiquida,
-                                                valorTotal: dadosEditados.valorTotal,
-                                                transformacao: {
-                                                    ingredientes: dadosEditados.ingredientes,
+                                                    if (!insumo) return total;
+
+                                                    const valorUnitario = Number(insumo.valorUnitario || 0);
+                                                    const quantidade = Number(item.qtdLiquida || 0);
+
+                                                    return total + valorUnitario * quantidade;
                                                 },
-                                            });
-                                            console.log(dadosEditados);
+                                                0
+                                            );
 
-                                            // SALVAR ALTERAÇÕES
                                             try {
-                                                await api.put(
-                                                    `/insumos/${insumoSelecionado._id}`,
-                                                    {
+                                                if (insumoSelecionado) {
+                                                    console.log("🔥 ENVIANDO UPDATE INSUMO");
+
+                                                    const ingredientesLimpos = (dadosEditados.ingredientes || [])
+                                                        .filter((i: any) => i.insumo)
+                                                        .map((item: any) => ({
+                                                            insumo: item.insumo,
+                                                            qtdLiquida: Number(item.qtdLiquida) || 0,
+                                                        }));
+
+                                                    const payload = {
                                                         nome: dadosEditados.nome,
                                                         categoria: dadosEditados.categoria,
                                                         unidade: dadosEditados.unidade,
-                                                        qtdBruta: dadosEditados.qtdBruta,
-                                                        qtdLiquida: dadosEditados.qtdLiquida,
-                                                        valorTotal: dadosEditados.valorTotal,
+
+                                                        // 🔥 AQUI ESTÁ A CORREÇÃO
+                                                        qtdBruta: Number(dadosEditados.qtdBruta) || 0,
+                                                        qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
+                                                        valorTotal: Number(custoTotal) || 0,
 
                                                         transformacao: {
-                                                            ingredientes: dadosEditados.ingredientes.map(
-                                                                (item: any) => ({
-                                                                    insumo: item.insumo,
-                                                                    qtdLiquida: Number(item.qtdLiquida),
-                                                                })
-                                                            ),
+                                                            ingredientes: ingredientesLimpos,
                                                         },
-                                                    }
-                                                );
+                                                    };
 
-                                                // atualiza lista
+                                                    console.log("🔥 PAYLOAD FINAL:", payload);
+
+                                                    await api.put(`/insumos/${insumoSelecionado._id}`, payload);
+
+                                                    alert("Insumo atualizado com sucesso!");
+                                                } else {
+                                                    await api.post(`/insumos`, {
+                                                        nome: dadosEditados.nome,
+                                                        categoria: dadosEditados.categoria,
+                                                        unidade: dadosEditados.unidade,
+
+                                                        qtdBruta: Number(dadosEditados.qtdBruta) || 0,
+                                                        qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
+                                                        valorTotal: Number(custoTotal) || 0,
+
+                                                        transformacao: {
+                                                            ingredientes: (dadosEditados.ingredientes || []).map((item: any) => ({
+                                                                insumo: item.insumo,
+                                                                qtdLiquida: Number(item.qtdLiquida) || 0,
+                                                            })),
+                                                        },
+                                                    });
+
+                                                    alert("Insumo criado com sucesso!");
+                                                }
+
                                                 await carregarInsumos();
-
-
-                                                // atualiza item aberto
-                                                setInsumoSelecionado({
-                                                    ...insumoSelecionado,
-                                                    ...dadosEditados,
-                                                    transformacao: {
-                                                        ingredientes: dadosEditados.ingredientes,
-                                                    },
-                                                });
-
-                                                // sai do modo edição
                                                 setModoEdicao(false);
-
-                                                alert("Insumo atualizado com sucesso!");
+                                                setModalAberto(false);
 
                                             } catch (error: any) {
-
-                                                console.log(error.response.data);
-
-                                                alert("Erro ao atualizar insumo");
+                                                console.error(error);
+                                                alert("Erro ao salvar insumo: " + (error.response?.data?.message || error.message));
                                             }
-                                        }}
-
-                                        style={{
-                                            background:
-                                                modoEdicao
-                                                    ? "linear-gradient(135deg, #16a34a, #15803d)"
-                                                    : "linear-gradient(135deg, #2563eb, #1d4ed8)",
-
-                                            color: "#fff",
-                                            border: "none",
-                                            borderRadius: "12px",
-                                            padding: "12px 24px",
-                                            fontSize: 14,
-                                            fontWeight: "bold",
-                                            cursor: "pointer",
-
-                                            boxShadow:
-                                                modoEdicao
-                                                    ? "0 10px 25px rgba(22,163,74,0.25)"
-                                                    : "0 10px 25px rgba(37,99,235,0.25)",
-                                        }}
+                                        }} className="modal-footer-btn save"
                                     >
-                                        {modoEdicao ? "💾 Salvar" : "✏️ Editar"}
+                                        <Save className="w-4 h-4" />
+                                        {modoEdicao ? "Salvar" : "Editar"}
                                     </button>
                                 </div>
                             </div>
@@ -988,29 +778,9 @@ export function Insumos() {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+
+            )
+            }
+        </div >
     );
 }
-
-const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "14px",
-    background: "#0f172a",
-    border: "1px solid #374151",
-    borderRadius: "12px",
-    color: "#fff",
-    outline: "none",
-};
-
-const buttonStyle: React.CSSProperties = {
-    padding: "14px 22px",
-    background:
-        "linear-gradient(135deg, #dc2626, #991b1b)",
-    color: "#fff",
-    border: "none",
-    borderRadius: "12px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    boxShadow: "0 0 15px rgba(220,38,38,0.4)",
-};
