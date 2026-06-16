@@ -23,7 +23,8 @@ export function Insumos() {
     const [pesquisa, setPesquisa] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("todos");
     const [filtroCategoria, setFiltroCategoria] = useState("todas");
-    const [pesquisaIngrediente, setPesquisaIngrediente] = useState("");
+    const [pesquisasIngredientes, setPesquisasIngredientes] = useState<{ [key: number]: string }>({});
+    const [inputAberto, setInputAberto] = useState<number | null>(null);
 
 
     const [modoEdicao, setModoEdicao] = useState(false);
@@ -56,12 +57,6 @@ export function Insumos() {
         new Set(insumos.map((insumo) => insumo.categoria).filter(Boolean))
     );
 
-    const insumosPesquisa = insumos.filter((ins: any) =>
-        ins.nome
-            ?.toLowerCase()
-            .includes(pesquisaIngrediente.toLowerCase())
-    );
-
     // Dynamic stats trackers
     const totalInsumosCount = insumos.length;
     const baseInsumosCount = insumos.filter(i => !i.tipo || i.tipo === "base").length;
@@ -71,13 +66,23 @@ export function Insumos() {
     async function carregarInsumos() {
         try {
             const res = await api.get("/insumos");
-            console.log(res.data.data);
+
+            console.log("🚨 API COMPLETA:", res.data);
+
+            const pratoTeste = res.data.data.find(
+                (i: any) => i.nome === "Prato de teste"
+            );
+
+            console.log("🚨 PRATO TESTE API:", pratoTeste);
+            console.log("🚨 qtdBruta API:", pratoTeste?.qtdBruta);
+            console.log("🚨 qtdLiquida API:", pratoTeste?.qtdLiquida);
 
             setInsumos(
                 Array.isArray(res.data.data)
                     ? res.data.data
                     : []
             );
+
         } catch (error) {
             console.error(error);
         }
@@ -87,15 +92,38 @@ export function Insumos() {
         carregarInsumos();
     }, []);
 
+    useEffect(() => {
+        const fecharPesquisa = () => {
+            setInputAberto(null);
+        };
+
+        document.addEventListener("click", fecharPesquisa);
+
+        return () => {
+            document.removeEventListener("click", fecharPesquisa);
+        };
+    }, []);
+
     function abrirModal(insumo: any) {
+
+        console.log("🚨 INSUMO RECEBIDO DO BANCO:", insumo.nome);
+        console.log("🚨 qtdBruta ORIGINAL:", insumo.qtdBruta);
+        console.log("🚨 qtdLiquida ORIGINAL:", insumo.qtdLiquida);
+        console.log("🚨 unidade ORIGINAL:", insumo.unidade);
 
         console.log("INSUMO COMPLETO:", insumo);
         console.log("TRANSFORMAÇÃO:", insumo.transformacao);
         console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
         console.log("INSUMO ABERTO:", insumo);
 
+        // 👇 ADICIONE ESTES 3 LOGS AQUI
+        console.log("🚨 QTD BRUTA BANCO:", insumo.qtdBruta);
+        console.log("🚨 QTD LIQUIDA BANCO:", insumo.qtdLiquida);
+        console.log("🚨 UNIDADE:", insumo.unidade);
+
         setModoEdicao(false);
         setInsumoSelecionado(insumo);
+
         console.log("INSUMO ABERTO:", insumo);
         console.log("TRANSFORMAÇÃO:", insumo.transformacao);
         console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
@@ -104,8 +132,17 @@ export function Insumos() {
             nome: insumo.nome,
             categoria: insumo.categoria,
             unidade: insumo.unidade,
-            qtdBruta: insumo.qtdBruta,
-            qtdLiquida: insumo.qtdLiquida,
+            qtdBruta:
+                insumo.unidade === "kg" ||
+                    insumo.unidade === "l"
+                    ? insumo.qtdBruta / 1000
+                    : insumo.qtdBruta,
+
+            qtdLiquida:
+                insumo.unidade === "kg" ||
+                    insumo.unidade === "l"
+                    ? insumo.qtdLiquida / 1000
+                    : insumo.qtdLiquida,
             valorTotal: insumo.valorTotal,
             rendimento: insumo.rendimento,
             ingredientes: insumo.transformacao?.ingredientes
@@ -336,7 +373,7 @@ export function Insumos() {
                                                 <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
                                                     R$ {(
                                                         ["kg", "l"].includes(insumo.unidade)
-                                                            ? Number(insumo.valorUnitario) * 1000
+                                                            ? Number(insumo.valorUnitario) * 100
                                                             : Number(insumo.valorUnitario)
                                                     ).toFixed(2).replace(".", ",")}
                                                 </td>
@@ -434,9 +471,8 @@ export function Insumos() {
                                 <p className="modal-header-subtitle no-print">
                                     Visualização completa dos componentes e rendimento
                                 </p>
+                                <div className="modal-header-divider"></div>
                             </div>
-
-                            <div className="modal-divider"></div>
 
                             {/* Yield indicators panel row */}
                             <div className="modal-info-panel-row">
@@ -463,6 +499,7 @@ export function Insumos() {
                             {(modoEdicao ||
                                 insumoSelecionado?.transformacao?.ingredientes?.length > 0) && (
                                     <div className="modal-ingredients-section">
+                                        {/* Cabeçalho */}
                                         <div
                                             className={
                                                 modoEdicao
@@ -480,171 +517,195 @@ export function Insumos() {
                                                 </span>
                                             )}
                                         </div>
-                                        {(modoEdicao ? dadosEditados.ingredientes : insumoSelecionado?.transformacao?.ingredientes)?.map((ingrediente: any, index: number) => {
-                                            console.log("INGREDIENTE ATUAL:", ingrediente);
-                                            console.log("INSUMO ENCONTRADO:", insumos.find(
-                                                (i: any) => i._id === ingrediente.insumo
-                                            ));
-                                            const ingredienteCompleto =
-                                                insumos.find(
-                                                    (i: any) =>
-                                                        String(i._id) === String(ingrediente.insumo)
-                                                ) || ingrediente;
+                                        {/* Área com scroll */}
+                                        <div className="modal-ingredients-scroll">
+                                            {(modoEdicao ? dadosEditados.ingredientes : insumoSelecionado?.transformacao?.ingredientes)?.map((ingrediente: any, index: number) => {
+                                                const ingredienteCompleto =
+                                                    insumos.find(
+                                                        (i: any) =>
+                                                            String(i._id) === String(ingrediente.insumo)
+                                                    ) || ingrediente;
 
-                                            console.log("ID INGREDIENTE:", ingrediente.insumo);
+                                                const insumosPesquisa = insumos.filter((ins: any) =>
+                                                    ins.nome?.toLowerCase().includes(
+                                                        (pesquisasIngredientes[index] || "").toLowerCase()
+                                                    )
+                                                );
 
-                                            console.log(
-                                                "INSUMO ACHADO:",
-                                                insumos.find(
-                                                    (i: any) =>
-                                                        String(i._id) === String(ingrediente.insumo)
-                                                )
-                                            );
-                                            const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
-                                            console.log("INGREDIENTE COMPLETO:", ingredienteCompleto);
-                                            console.log("NOME:", ingredienteCompleto?.nome);
-                                            console.log("PESQUISANDO:", ingrediente.pesquisando);
-                                            console.log("RENDERIZANDO:", ingredienteCompleto);
-                                            return (
-                                                <div
-                                                    key={`${ingrediente.insumo}-${index}`}
-                                                    className={modoEdicao ? "modal-ingredient-row-edicao" : "modal-ingredient-row"}
-                                                >
-                                                    {/* Ingrediente */}
-                                                    {ingrediente.pesquisando ? (
-                                                        <div
-                                                            style={{
-                                                                position: "relative",
-                                                                width: "100%"
-                                                            }}
-                                                        >
-                                                            <input
-                                                                type="text"
-                                                                placeholder="🔍 Pesquisar ingrediente..."
-                                                                value={pesquisaIngrediente}
-                                                                onChange={(e) => setPesquisaIngrediente(e.target.value)}
-                                                                className="modal-form-input"
-                                                            />
+                                                console.log("ID INGREDIENTE:", ingrediente.insumo);
 
-                                                            {pesquisaIngrediente && (
-                                                                <div
-                                                                    style={{
-                                                                        position: "absolute",
-                                                                        top: "100%",
-                                                                        left: 0,
-                                                                        right: 0,
-                                                                        background: "#111827",
-                                                                        border: "1px solid #374151",
-                                                                        borderRadius: "8px",
-                                                                        maxHeight: "200px",
-                                                                        overflowY: "auto",
-                                                                        zIndex: 99999
-                                                                    }}
-                                                                >
-                                                                    {insumosPesquisa.slice(0, 10).map((ins: any) => (
+                                                console.log(
+                                                    "INSUMO ACHADO:",
+                                                    insumos.find(
+                                                        (i: any) =>
+                                                            String(i._id) === String(ingrediente.insumo)
+                                                    )
+                                                );
+                                                const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
+                                                console.log("INGREDIENTE COMPLETO:", ingredienteCompleto);
+                                                console.log("NOME:", ingredienteCompleto?.nome);
+                                                console.log("PESQUISANDO:", ingrediente.pesquisando);
+                                                console.log("RENDERIZANDO:", ingredienteCompleto);
+                                                return (
+                                                    <div
+                                                        key={`${ingrediente.insumo}-${index}`}
+                                                        className={modoEdicao ? "modal-ingredient-row-edicao" : "modal-ingredient-row"}
+                                                    >
+                                                        {/* Ingrediente */}
+                                                        {ingrediente.pesquisando ? (
+                                                            <div
+                                                                style={{
+                                                                    position: "relative",
+                                                                    width: "100%"
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setInputAberto(index);
+                                                                }}
+                                                            >
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="🔍 Pesquisar ingrediente..."
+                                                                    value={pesquisasIngredientes[index] || ""}
+                                                                    onFocus={() => setInputAberto(index)}
+                                                                    onChange={(e) =>
+                                                                        setPesquisasIngredientes({
+                                                                            ...pesquisasIngredientes,
+                                                                            [index]: e.target.value
+                                                                        })
+                                                                    }
+                                                                    className="modal-form-input"
+                                                                />
+
+                                                                {inputAberto === index &&
+                                                                    (pesquisasIngredientes[index] || "") && (
                                                                         <div
-                                                                            key={ins._id}
                                                                             style={{
-                                                                                padding: "10px",
-                                                                                cursor: "pointer",
-                                                                                borderBottom: "1px solid #1f2937"
-                                                                            }}
-                                                                            onClick={() => {
-                                                                                const novosIngredientes =
-                                                                                    dadosEditados.ingredientes.map(
-                                                                                        (item: any, idx: number) =>
-                                                                                            idx === index
-                                                                                                ? {
-                                                                                                    ...item,
-                                                                                                    insumo: ins._id,
-                                                                                                    pesquisando: false
-                                                                                                }
-                                                                                                : item
-                                                                                    );
-
-                                                                                setDadosEditados({
-                                                                                    ...dadosEditados,
-                                                                                    ingredientes: novosIngredientes
-                                                                                });
-
-                                                                                setPesquisaIngrediente("");
+                                                                                position: "absolute",
+                                                                                top: "100%",
+                                                                                left: 0,
+                                                                                right: 0,
+                                                                                background: "#111827",
+                                                                                border: "1px solid #374151",
+                                                                                borderRadius: "8px",
+                                                                                maxHeight: "200px",
+                                                                                overflowY: "auto",
+                                                                                zIndex: 99999,
+                                                                                boxShadow: "0 10px 25px rgba(0,0,0,.5)"
                                                                             }}
                                                                         >
-                                                                            {ins.nome}
+                                                                            {insumosPesquisa.slice(0, 10).map((ins: any) => (
+                                                                                <div
+                                                                                    key={ins._id}
+                                                                                    style={{
+                                                                                        padding: "10px",
+                                                                                        cursor: "pointer",
+                                                                                        borderBottom: "1px solid #1f2937"
+                                                                                    }}
+                                                                                    onClick={() => {
+                                                                                        const novosIngredientes =
+                                                                                            dadosEditados.ingredientes.map(
+                                                                                                (item: any, idx: number) =>
+                                                                                                    idx === index
+                                                                                                        ? {
+                                                                                                            ...item,
+                                                                                                            insumo: ins._id,
+                                                                                                            pesquisando: false
+                                                                                                        }
+                                                                                                        : item
+                                                                                            );
+
+                                                                                        setDadosEditados({
+                                                                                            ...dadosEditados,
+                                                                                            ingredientes: novosIngredientes
+                                                                                        });
+
+                                                                                        setPesquisasIngredientes({
+                                                                                            ...pesquisasIngredientes,
+                                                                                            [index]: ""
+                                                                                        });
+                                                                                    }}
+                                                                                >
+                                                                                    {ins.nome}
+                                                                                </div>
+                                                                            ))}
                                                                         </div>
-                                                                    ))}
-                                                                </div>
+                                                                    )}
+                                                            </div>
+
+                                                        ) : (
+
+                                                            <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                                                                {ingredienteCompleto?.nome || "SEM NOME"}
+                                                            </span>
+                                                        )}
+                                                        {/* Quantidade */}
+                                                        <div style={{ textAlign: "center" }}>
+                                                            {modoEdicao ? (
+                                                                <input
+                                                                    type="number"
+                                                                    value={ingrediente.qtdLiquida || ""}
+                                                                    onChange={(e) => {
+                                                                        const novosIngredientes =
+                                                                            dadosEditados.ingredientes.map(
+                                                                                (item: any, idx: number) =>
+                                                                                    idx === index
+                                                                                        ? {
+                                                                                            ...item,
+                                                                                            qtdLiquida: Number(e.target.value)
+                                                                                        }
+                                                                                        : item
+                                                                            );
+                                                                        console.log("NOVOS INGREDIENTES:", novosIngredientes);
+
+
+                                                                        setDadosEditados({
+                                                                            ...dadosEditados,
+                                                                            ingredientes: novosIngredientes,
+                                                                        });
+                                                                    }}
+                                                                    className="modal-form-input"
+                                                                    style={{ textAlign: "center", width: "80px" }}
+                                                                />
+                                                            ) : (
+                                                                <span>{ingrediente.qtdLiquida}</span>
                                                             )}
                                                         </div>
 
-                                                    ) : (
+                                                        {/* Unidade */}
+                                                        <span style={{ textAlign: "center" }}>{formatarUnidade(ingredienteCompleto?.unidade)}</span>
 
-                                                        <span style={{ color: "#ffffff", fontWeight: 600 }}>
-                                                            {ingredienteCompleto?.nome || "SEM NOME"}
+                                                        {/* Custo */}
+                                                        <span style={{ textAlign: "center", color: "#10b981", fontWeight: "bold" }}>
+                                                            R$ {custoIngrediente}
                                                         </span>
-                                                    )}
-                                                    {/* Quantidade */}
-                                                    <div style={{ textAlign: "center" }}>
-                                                        {modoEdicao ? (
-                                                            <input
-                                                                type="number"
-                                                                value={ingrediente.qtdLiquida || ""}
-                                                                onChange={(e) => {
-                                                                    const novosIngredientes =
-                                                                        dadosEditados.ingredientes.map(
-                                                                            (item: any, idx: number) =>
-                                                                                idx === index
-                                                                                    ? {
-                                                                                        ...item,
-                                                                                        qtdLiquida: Number(e.target.value)
-                                                                                    }
-                                                                                    : item
-                                                                        );
-                                                                    console.log("NOVOS INGREDIENTES:", novosIngredientes);
 
 
-                                                                    setDadosEditados({
-                                                                        ...dadosEditados,
-                                                                        ingredientes: novosIngredientes,
-                                                                    });
-                                                                }}
-                                                                className="modal-form-input"
-                                                                style={{ textAlign: "center", width: "80px" }}
-                                                            />
-                                                        ) : (
-                                                            <span>{ingrediente.qtdLiquida}</span>
+                                                        {/* Deletar item */}
+                                                        {modoEdicao && (
+                                                            <div style={{ display: "flex", justifyContent: "center" }}>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const novosIngredientes = dadosEditados.ingredientes.filter((_: any, idx: number) => idx !== index);
+                                                                        setDadosEditados({ ...dadosEditados, ingredientes: novosIngredientes });
+                                                                    }}
+                                                                    className="insumo-action-btn delete"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
                                                         )}
+
                                                     </div>
 
-                                                    {/* Unidade */}
-                                                    <span style={{ textAlign: "center" }}>{formatarUnidade(ingredienteCompleto?.unidade)}</span>
+                                                );
 
-                                                    {/* Custo */}
-                                                    <span style={{ textAlign: "center", color: "#10b981", fontWeight: "bold" }}>
-                                                        R$ {custoIngrediente}
-                                                    </span>
-
-                                                    {/* Deletar item */}
-                                                    {modoEdicao && (
-                                                        <div style={{ display: "flex", justifyContent: "center" }}>
-                                                            <button
-                                                                onClick={() => {
-                                                                    const novosIngredientes = dadosEditados.ingredientes.filter((_: any, idx: number) => idx !== index);
-                                                                    setDadosEditados({ ...dadosEditados, ingredientes: novosIngredientes });
-                                                                }}
-                                                                className="insumo-action-btn delete"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    )}
-
-                                                </div>
-                                            );
-                                        })}
+                                            })
+                                            }
+                                        </div>
 
                                         {modoEdicao && (
-                                            <div style={{ padding: "12px", background: "#0a0f1a", display: "flex", justifyContent: "center" }}>
+                                            <div style={{ padding: "12px", display: "flex", justifyContent: "center" }}>
                                                 <button
                                                     onClick={() => {
                                                         setDadosEditados({
@@ -659,7 +720,7 @@ export function Insumos() {
                                                             ]
                                                         });
                                                     }}
-                                                    className="modal-footer-btn print"
+                                                    className="modal-add-ingredient-btn"
                                                     style={{ fontSize: "11px", padding: "6px 12px" }}
                                                 >
                                                     + Adicionar Ingrediente
@@ -711,19 +772,58 @@ export function Insumos() {
                                                 if (insumoSelecionado) {
                                                     console.log("🔥 ENVIANDO UPDATE INSUMO");
 
-                                                    const ingredientesLimpos = (dadosEditados.ingredientes || [])
+                                                    console.log("🚨 dadosEditados COMPLETO:", dadosEditados);
+
+                                                    console.log(
+                                                        "🚨 qtdBruta dadosEditados:",
+                                                        dadosEditados.qtdBruta
+                                                    );
+
+                                                    console.log(
+                                                        "🚨 qtdLiquida dadosEditados:",
+                                                        dadosEditados.qtdLiquida
+                                                    );
+                                                    const linhaIncompleta = (dadosEditados.ingredientes || []).find(
+                                                        (item: any) =>
+                                                            !item.insumo ||
+                                                            !item.qtdLiquida ||
+                                                            Number(item.qtdLiquida) <= 0
+                                                    );
+
+                                                    if (linhaIncompleta) {
+                                                        alert(
+                                                            "Existem ingredientes sem seleção ou sem quantidade."
+                                                        );
+                                                        return;
+                                                    }
+
+                                                    const ingredientesLimpos: {
+                                                        insumo: string;
+                                                        qtdLiquida: number;
+                                                    }[] = (dadosEditados.ingredientes || [])
                                                         .filter((i: any) => i.insumo)
                                                         .map((item: any) => ({
                                                             insumo: item.insumo,
                                                             qtdLiquida: Number(item.qtdLiquida) || 0,
                                                         }));
 
+                                                    // 🚨 VALIDAÇÃO
+                                                    const ingredienteSemQuantidade = ingredientesLimpos.find(
+                                                        (item: any) => item.qtdLiquida <= 0
+                                                    );
+
+                                                    if (ingredienteSemQuantidade) {
+                                                        alert(
+                                                            "Todos os ingredientes precisam ter uma quantidade maior que zero."
+                                                        );
+                                                        return;
+                                                    }
+
                                                     const payload = {
                                                         nome: dadosEditados.nome,
                                                         categoria: dadosEditados.categoria,
                                                         unidade: dadosEditados.unidade,
 
-                                                        // 🔥 AQUI ESTÁ A CORREÇÃO
                                                         qtdBruta: Number(dadosEditados.qtdBruta) || 0,
                                                         qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
                                                         valorTotal: Number(custoTotal) || 0,
@@ -735,10 +835,37 @@ export function Insumos() {
 
                                                     console.log("🔥 PAYLOAD FINAL:", payload);
 
-                                                    await api.put(`/insumos/${insumoSelecionado._id}`, payload);
+                                                    await api.put(
+                                                        `/insumos/${insumoSelecionado._id}`,
+                                                        payload
+                                                    );
 
                                                     alert("Insumo atualizado com sucesso!");
                                                 } else {
+
+                                                    const ingredientesLimpos = (dadosEditados.ingredientes || [])
+                                                        .filter(
+                                                            (i: any) =>
+                                                                i.insumo &&
+                                                                Number(i.qtdLiquida) > 0
+                                                        )
+                                                        .map((item: any) => ({
+                                                            insumo: item.insumo,
+                                                            qtdLiquida: Number(item.qtdLiquida),
+                                                        }));
+
+                                                    // 🚨 VALIDAÇÃO
+                                                    const ingredienteSemQuantidade = ingredientesLimpos.find(
+                                                        (item: any) => item.qtdLiquida <= 0
+                                                    );
+
+                                                    if (ingredienteSemQuantidade) {
+                                                        alert(
+                                                            "Todos os ingredientes precisam ter uma quantidade maior que zero."
+                                                        );
+                                                        return;
+                                                    }
+
                                                     await api.post(`/insumos`, {
                                                         nome: dadosEditados.nome,
                                                         categoria: dadosEditados.categoria,
@@ -749,10 +876,7 @@ export function Insumos() {
                                                         valorTotal: Number(custoTotal) || 0,
 
                                                         transformacao: {
-                                                            ingredientes: (dadosEditados.ingredientes || []).map((item: any) => ({
-                                                                insumo: item.insumo,
-                                                                qtdLiquida: Number(item.qtdLiquida) || 0,
-                                                            })),
+                                                            ingredientes: ingredientesLimpos,
                                                         },
                                                     });
 
@@ -765,7 +889,11 @@ export function Insumos() {
 
                                             } catch (error: any) {
                                                 console.error(error);
-                                                alert("Erro ao salvar insumo: " + (error.response?.data?.message || error.message));
+
+                                                alert(
+                                                    "Erro ao salvar insumo: " +
+                                                    (error.response?.data?.message || error.message)
+                                                );
                                             }
                                         }} className="modal-footer-btn save"
                                     >
@@ -778,7 +906,6 @@ export function Insumos() {
                         </div>
                     </div>
                 </div>
-
             )
             }
         </div >
