@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { formatarQuantidade } from "../utils/formatarQuantidade";
 import { api } from "../services/api";
 import { formatarUnidade } from "../utils/formatarUnidade";
-import "./insumos.css";
+import "./Insumos.css";
 import {
     Plus,
     Search,
