@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { formatarQuantidade } from "../utils/formatarQuantidade";
 import { api } from "../services/api";
 import { formatarUnidade } from "../utils/formatarUnidade";
 import "./Insumos.css";
@@ -25,13 +24,15 @@ export function Insumos() {
     const [filtroCategoria, setFiltroCategoria] = useState("todas");
     const [pesquisasIngredientes, setPesquisasIngredientes] = useState<{ [key: number]: string }>({});
     const [inputAberto, setInputAberto] = useState<number | null>(null);
-
-
     const [modoEdicao, setModoEdicao] = useState(false);
     const [dadosEditados, setDadosEditados] = useState<any>({ nome: "", rendimento: 0, valorTotal: 0, ingredientes: [] });
 
     const [modalAberto, setModalAberto] = useState(false);
     const [insumoSelecionado, setInsumoSelecionado] = useState<any>(null);
+    const [etapaCadastro, setEtapaCadastro] = useState(1);
+    const [tipoCadastro, setTipoCadastro] = useState<
+        "insumo" | "insumo-produto" | ""
+    >("");
 
     const insumosFiltrados = insumos.filter((insumo) => {
         const matchPesquisa =
@@ -67,16 +68,6 @@ export function Insumos() {
         try {
             const res = await api.get("/insumos");
 
-            console.log("🚨 API COMPLETA:", res.data);
-
-            const pratoTeste = res.data.data.find(
-                (i: any) => i.nome === "Prato de teste"
-            );
-
-            console.log("🚨 PRATO TESTE API:", pratoTeste);
-            console.log("🚨 qtdBruta API:", pratoTeste?.qtdBruta);
-            console.log("🚨 qtdLiquida API:", pratoTeste?.qtdLiquida);
-
             setInsumos(
                 Array.isArray(res.data.data)
                     ? res.data.data
@@ -96,7 +87,6 @@ export function Insumos() {
         const fecharPesquisa = () => {
             setInputAberto(null);
         };
-
         document.addEventListener("click", fecharPesquisa);
 
         return () => {
@@ -105,28 +95,8 @@ export function Insumos() {
     }, []);
 
     function abrirModal(insumo: any) {
-
-        console.log("🚨 INSUMO RECEBIDO DO BANCO:", insumo.nome);
-        console.log("🚨 qtdBruta ORIGINAL:", insumo.qtdBruta);
-        console.log("🚨 qtdLiquida ORIGINAL:", insumo.qtdLiquida);
-        console.log("🚨 unidade ORIGINAL:", insumo.unidade);
-
-        console.log("INSUMO COMPLETO:", insumo);
-        console.log("TRANSFORMAÇÃO:", insumo.transformacao);
-        console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
-        console.log("INSUMO ABERTO:", insumo);
-
-        // 👇 ADICIONE ESTES 3 LOGS AQUI
-        console.log("🚨 QTD BRUTA BANCO:", insumo.qtdBruta);
-        console.log("🚨 QTD LIQUIDA BANCO:", insumo.qtdLiquida);
-        console.log("🚨 UNIDADE:", insumo.unidade);
-
         setModoEdicao(false);
         setInsumoSelecionado(insumo);
-
-        console.log("INSUMO ABERTO:", insumo);
-        console.log("TRANSFORMAÇÃO:", insumo.transformacao);
-        console.log("INGREDIENTES:", insumo.transformacao?.ingredientes);
 
         setDadosEditados({
             nome: insumo.nome,
@@ -153,18 +123,23 @@ export function Insumos() {
         setModalAberto(true);
     }
 
-    // Direct helper for adding a completely new raw/complex insumo
     function handleCriarNovoInsumo() {
         setInsumoSelecionado(null);
-        setModoEdicao(true);
+
+        setEtapaCadastro(1);
+
+        setTipoCadastro("");
+
+        setModoEdicao(false);
+
         setDadosEditados({
             nome: "",
-            categoria: "Ingredientes Base",
-            unidade: "kg",
-            qtdBruta: 1,
-            qtdLiquida: 1,
+            categoria: "",
+            unidade: "",
+            qtdBruta: 0,
+            qtdLiquida: 0,
             valorTotal: 0,
-            rendimento: 100,
+            rendimento: 0,
             ingredientes: []
         });
         setModalAberto(true);
@@ -448,10 +423,16 @@ export function Insumos() {
 
                             {/* Modal Badge Tag */}
                             <div>
-                                <span className="modal-header-tag print-hide">Ficha Técnica</span>
+                                {insumoSelecionado && (
+                                    <span className="modal-header-tag print-hide">
+                                        Ficha Técnica
+                                    </span>
+                                )}
 
                                 <h2 className="modal-header-title">
-                                    {modoEdicao ? (
+                                    {!insumoSelecionado ? (
+                                        "Cadastrar Insumo"
+                                    ) : modoEdicao ? (
                                         <input
                                             value={dadosEditados.nome}
                                             onChange={(e) =>
@@ -464,36 +445,269 @@ export function Insumos() {
                                             style={{ fontSize: "24px", fontWeight: "bold" }}
                                         />
                                     ) : (
-                                        insumoSelecionado?.nome || "Novo Insumo"
+                                        insumoSelecionado?.nome
                                     )}
                                 </h2>
 
                                 <p className="modal-header-subtitle no-print">
-                                    Visualização completa dos componentes e rendimento
+                                    {insumoSelecionado
+                                        ? "Visualização completa dos componentes e rendimento"
+                                        : "Informe os dados do insumo base"}
                                 </p>
-                                <div className="modal-header-divider"></div>
+                                {insumoSelecionado && (
+                                    <div className="modal-header-divider"></div>
+                                )}
+
+                                {!insumoSelecionado && etapaCadastro === 1 && (
+                                    <div className="cadastro-insumo-etapa">
+
+                                        <div className="cadastro-card">
+
+                                            <h3 className="cadastro-section-title">
+                                                Informações básicas
+                                            </h3>
+
+                                            <div className="cadastro-grid-2">
+                                                <div className="modal-form-group">
+                                                    <label>Nome do insumo</label>
+                                                    <input
+                                                        type="text"
+                                                        value={dadosEditados.nome}
+                                                        onChange={(e) =>
+                                                            setDadosEditados({
+                                                                ...dadosEditados,
+                                                                nome: e.target.value
+                                                            })
+                                                        }
+                                                        className="modal-form-input"
+                                                        placeholder="Ex: Coca-Cola Lata 350ml"
+                                                    />
+                                                </div>
+
+                                                <div className="modal-form-group">
+                                                    <label>Unidade de medida</label>
+                                                    <select
+                                                        value={dadosEditados.unidade}
+                                                        onChange={(e) =>
+                                                            setDadosEditados({
+                                                                ...dadosEditados,
+                                                                unidade: e.target.value
+                                                            })
+                                                        }
+                                                        className="modal-form-input"
+                                                    >
+                                                        <option value="">Selecione</option>
+                                                        <option value="kg">kg</option>
+                                                        <option value="g">g</option>
+                                                        <option value="L">L</option>
+                                                        <option value="ml">ml</option>
+                                                        <option value="un">un</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div style={{
+                                                display: "grid",
+                                                gap: "16px",
+                                                marginTop: "24px"
+                                            }}>
+                                                <div className="cadastro-grid-3">
+                                                    <div className="modal-form-group">
+                                                        <label>Quantidade Bruta</label>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            value={dadosEditados.qtdBruta}
+                                                            onChange={(e) =>
+                                                                setDadosEditados({
+                                                                    ...dadosEditados,
+                                                                    qtdBruta: Number(e.target.value)
+                                                                })
+                                                            }
+                                                            className="modal-form-input"
+                                                        />
+                                                    </div>
+
+                                                    <div className="modal-form-group">
+                                                        <label>Quantidade Líquida</label>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            value={dadosEditados.qtdLiquida}
+                                                            onChange={(e) =>
+                                                                setDadosEditados({
+                                                                    ...dadosEditados,
+                                                                    qtdLiquida: Number(e.target.value)
+                                                                })
+                                                            }
+                                                            className="modal-form-input"
+                                                        />
+                                                    </div>
+
+
+                                                    <div className="modal-form-group">
+                                                        <label>Valor de compra (R$)</label>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            value={dadosEditados.valorTotal}
+                                                            onChange={(e) =>
+                                                                setDadosEditados({
+                                                                    ...dadosEditados,
+                                                                    valorTotal: Number(e.target.value)
+                                                                })
+                                                            }
+                                                            className="modal-form-input"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h3
+                                            className="resultado-section-title"
+                                            style={{ marginTop: "6px", marginBottom: "6px" }}
+                                        >
+                                            Resultados em tempo real
+                                        </h3>
+
+                                        <div className="resultado-grid">
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    Rendimento
+                                                </span>
+
+                                                <h2 className="resultado-valor sucesso">
+                                                    {dadosEditados.qtdBruta > 0
+                                                        ? (
+                                                            (dadosEditados.qtdLiquida /
+                                                                dadosEditados.qtdBruta) *
+                                                            100
+                                                        ).toFixed(0)
+                                                        : 0}
+                                                    %
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    {dadosEditados.qtdLiquida || 0}
+                                                    {" "}
+                                                    {dadosEditados.unidade || "un"}
+                                                    {" de "}
+                                                    {dadosEditados.qtdBruta || 0}
+                                                    {" "}
+                                                    {dadosEditados.unidade || "un"}
+                                                </p>
+                                            </div>
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    Valor Unitário
+                                                </span>
+
+                                                <h2 className="resultado-valor sucesso">
+                                                    R$
+                                                    {" "}
+                                                    {dadosEditados.qtdLiquida > 0
+                                                        ? (
+                                                            dadosEditados.valorTotal /
+                                                            dadosEditados.qtdLiquida
+                                                        ).toFixed(2)
+                                                        : "0.00"}
+
+                                                    <span className="resultado-unidade">
+                                                        {" / "}
+                                                        {dadosEditados.unidade || "un"}
+                                                    </span>
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    Custo por unidade líquida
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Yield indicators panel row */}
-                            <div className="modal-info-panel-row">
-                                <div>
-                                    <p className="modal-info-block-label">Rendimento</p>
-                                    <span className="modal-info-block-value">
-                                        {formatarQuantidade(
-                                            Number(modoEdicao ? dadosEditados.qtdLiquida : insumoSelecionado?.qtdLiquida),
-                                            modoEdicao ? dadosEditados.unidade : insumoSelecionado?.unidade
-                                        )}
-                                    </span>
-                                </div>
+                            {insumoSelecionado && (
+                                <div className="modal-info-panel-row">
+                                    <div>
+                                        <p className="modal-info-block-label">Rendimento</p>
+                                        <span className="modal-info-block-value">
+                                            {dadosEditados.qtdLiquida > 0
+                                                ? `${dadosEditados.qtdLiquida} ${dadosEditados.unidade}`
+                                                : "0"}
+                                        </span>
+                                    </div>
 
-                                <div style={{ textAlign: "right" }}>
-                                    <p className="modal-info-block-label">Custo Estimado</p>
-                                    <span className="modal-info-block-cost">
-                                        R$ {Number(modoEdicao ? dadosEditados.valorTotal : dadosEditados.valorTotal || insumoSelecionado?.valorTotal || 0).toFixed(2)}
-                                    </span>
+                                    <div style={{ textAlign: "right" }}>
+                                        <p className="modal-info-block-label">Custo Estimado</p>
+                                        <span className="modal-info-block-cost">
+                                            R$ {Number(modoEdicao ? dadosEditados.valorTotal : dadosEditados.valorTotal || insumoSelecionado?.valorTotal || 0).toFixed(2)}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
+                            {/* TIPO DE CADASTRO */}
+                            {!insumoSelecionado && (
+                                <div className="cadastro-tipo">
+                                    <h4>Tipo de cadastro</h4>
+
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            value="insumo"
+                                            checked={tipoCadastro === "insumo"}
+                                            onChange={() => setTipoCadastro("insumo")}
+                                        />
+
+                                        <div>
+                                            <div className="cadastro-opcao-titulo">
+                                                Criar apenas o insumo base
+                                            </div>
+
+                                            <div className="cadastro-opcao-descricao">
+                                                Será criado somente o insumo base no estoque
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            value="insumo-produto"
+                                            checked={tipoCadastro === "insumo-produto"}
+                                            onChange={() => setTipoCadastro("insumo-produto")}
+                                        />
+
+                                        <div style={{ flex: 1 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "10px"
+                                                }}
+                                            >
+                                                <div className="cadastro-opcao-titulo">
+                                                    Criar insumo base + produto para venda
+                                                </div>
+
+                                                <span className="cadastro-badge-recomendado">
+                                                    Recomendado
+                                                </span>
+                                            </div>
+
+                                            <div className="cadastro-opcao-descricao">
+                                                Será criado o insumo base e já um produto para venda
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            )}
 
                             {/* SUB-INGREDIENT DISH COMPOSITION */}
                             {(modoEdicao ||
@@ -532,20 +746,8 @@ export function Insumos() {
                                                     )
                                                 );
 
-                                                console.log("ID INGREDIENTE:", ingrediente.insumo);
-
-                                                console.log(
-                                                    "INSUMO ACHADO:",
-                                                    insumos.find(
-                                                        (i: any) =>
-                                                            String(i._id) === String(ingrediente.insumo)
-                                                    )
-                                                );
                                                 const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
-                                                console.log("INGREDIENTE COMPLETO:", ingredienteCompleto);
-                                                console.log("NOME:", ingredienteCompleto?.nome);
-                                                console.log("PESQUISANDO:", ingrediente.pesquisando);
-                                                console.log("RENDERIZANDO:", ingredienteCompleto);
+
                                                 return (
                                                     <div
                                                         key={`${ingrediente.insumo}-${index}`}
@@ -656,8 +858,6 @@ export function Insumos() {
                                                                                         }
                                                                                         : item
                                                                             );
-                                                                        console.log("NOVOS INGREDIENTES:", novosIngredientes);
-
 
                                                                         setDadosEditados({
                                                                             ...dadosEditados,
@@ -732,176 +932,195 @@ export function Insumos() {
 
                             <div className="modal-divider"></div>
 
-                            {/* Modal action controllers layout footer */}
-                            <div className="modal-footer no-print">
-                                <div className="modal-btn-group-left">
-                                    <button onClick={imprimirFicha} className="modal-footer-btn print">
-                                        <Printer className="w-4 h-4" /> Imprimir
-                                    </button>
-                                    {insumoSelecionado && (
-                                        <button onClick={() => deletarInsumo(insumoSelecionado._id)} className="modal-footer-btn delete">
-                                            <Trash2 className="w-4 h-4" /> Deletar
-                                        </button>
-                                    )}
-                                </div>
+                            {!insumoSelecionado && etapaCadastro === 1 ? (
 
+                                <div className="modal-footer no-print">
 
-
-                                <div>
                                     <button
-                                        onClick={async () => {
-                                            if (!modoEdicao) {
-                                                setModoEdicao(true);
+                                        className="modal-footer-btn delete"
+                                        onClick={() => setModalAberto(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+
+                                    <button
+                                        className="modal-footer-btn save"
+                                        onClick={() => {
+                                            if (!tipoCadastro) {
+                                                alert("Selecione o tipo de cadastro");
                                                 return;
                                             }
-                                            const custoTotal = dadosEditados.ingredientes.reduce(
-                                                (total: number, item: any) => {
-                                                    const insumo = insumos.find(i => i._id === item.insumo);
 
-                                                    if (!insumo) return total;
-
-                                                    const valorUnitario = Number(insumo.valorUnitario || 0);
-                                                    const quantidade = Number(item.qtdLiquida || 0);
-
-                                                    return total + valorUnitario * quantidade;
-                                                },
-                                                0
-                                            );
-
-                                            try {
-                                                if (insumoSelecionado) {
-                                                    console.log("🔥 ENVIANDO UPDATE INSUMO");
-
-                                                    console.log("🚨 dadosEditados COMPLETO:", dadosEditados);
-
-                                                    console.log(
-                                                        "🚨 qtdBruta dadosEditados:",
-                                                        dadosEditados.qtdBruta
-                                                    );
-
-                                                    console.log(
-                                                        "🚨 qtdLiquida dadosEditados:",
-                                                        dadosEditados.qtdLiquida
-                                                    );
-                                                    const linhaIncompleta = (dadosEditados.ingredientes || []).find(
-                                                        (item: any) =>
-                                                            !item.insumo ||
-                                                            !item.qtdLiquida ||
-                                                            Number(item.qtdLiquida) <= 0
-                                                    );
-
-                                                    if (linhaIncompleta) {
-                                                        alert(
-                                                            "Existem ingredientes sem seleção ou sem quantidade."
-                                                        );
-                                                        return;
-                                                    }
-
-                                                    const ingredientesLimpos: {
-                                                        insumo: string;
-                                                        qtdLiquida: number;
-                                                    }[] = (dadosEditados.ingredientes || [])
-                                                        .filter((i: any) => i.insumo)
-                                                        .map((item: any) => ({
-                                                            insumo: item.insumo,
-                                                            qtdLiquida: Number(item.qtdLiquida) || 0,
-                                                        }));
-
-                                                    // 🚨 VALIDAÇÃO
-                                                    const ingredienteSemQuantidade = ingredientesLimpos.find(
-                                                        (item: any) => item.qtdLiquida <= 0
-                                                    );
-
-                                                    if (ingredienteSemQuantidade) {
-                                                        alert(
-                                                            "Todos os ingredientes precisam ter uma quantidade maior que zero."
-                                                        );
-                                                        return;
-                                                    }
-
-                                                    const payload = {
-                                                        nome: dadosEditados.nome,
-                                                        categoria: dadosEditados.categoria,
-                                                        unidade: dadosEditados.unidade,
-
-                                                        qtdBruta: Number(dadosEditados.qtdBruta) || 0,
-                                                        qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
-                                                        valorTotal: Number(custoTotal) || 0,
-
-                                                        transformacao: {
-                                                            ingredientes: ingredientesLimpos,
-                                                        },
-                                                    };
-
-                                                    console.log("🔥 PAYLOAD FINAL:", payload);
-
-                                                    await api.put(
-                                                        `/insumos/${insumoSelecionado._id}`,
-                                                        payload
-                                                    );
-
-                                                    alert("Insumo atualizado com sucesso!");
-                                                } else {
-
-                                                    const ingredientesLimpos = (dadosEditados.ingredientes || [])
-                                                        .filter(
-                                                            (i: any) =>
-                                                                i.insumo &&
-                                                                Number(i.qtdLiquida) > 0
-                                                        )
-                                                        .map((item: any) => ({
-                                                            insumo: item.insumo,
-                                                            qtdLiquida: Number(item.qtdLiquida),
-                                                        }));
-
-                                                    // 🚨 VALIDAÇÃO
-                                                    const ingredienteSemQuantidade = ingredientesLimpos.find(
-                                                        (item: any) => item.qtdLiquida <= 0
-                                                    );
-
-                                                    if (ingredienteSemQuantidade) {
-                                                        alert(
-                                                            "Todos os ingredientes precisam ter uma quantidade maior que zero."
-                                                        );
-                                                        return;
-                                                    }
-
-                                                    await api.post(`/insumos`, {
-                                                        nome: dadosEditados.nome,
-                                                        categoria: dadosEditados.categoria,
-                                                        unidade: dadosEditados.unidade,
-
-                                                        qtdBruta: Number(dadosEditados.qtdBruta) || 0,
-                                                        qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
-                                                        valorTotal: Number(custoTotal) || 0,
-
-                                                        transformacao: {
-                                                            ingredientes: ingredientesLimpos,
-                                                        },
-                                                    });
-
-                                                    alert("Insumo criado com sucesso!");
-                                                }
-
-                                                await carregarInsumos();
-                                                setModoEdicao(false);
-                                                setModalAberto(false);
-
-                                            } catch (error: any) {
-                                                console.error(error);
-
-                                                alert(
-                                                    "Erro ao salvar insumo: " +
-                                                    (error.response?.data?.message || error.message)
-                                                );
-                                            }
-                                        }} className="modal-footer-btn save"
+                                            setEtapaCadastro(2);
+                                        }}
                                     >
-                                        <Save className="w-4 h-4" />
-                                        {modoEdicao ? "Salvar" : "Editar"}
+                                        Próximo
                                     </button>
+
                                 </div>
-                            </div>
+
+                            ) : (
+
+                                <div className="modal-footer no-print">
+
+                                    <div className="modal-btn-group-left">
+                                        <button
+                                            onClick={imprimirFicha}
+                                            className="modal-footer-btn print"
+                                        >
+                                            <Printer className="w-4 h-4" /> Imprimir
+                                        </button>
+
+                                        {insumoSelecionado && (
+                                            <button
+                                                onClick={() => deletarInsumo(insumoSelecionado._id)}
+                                                className="modal-footer-btn delete"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> Deletar
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <button
+                                            onClick={async () => {
+                                                if (!modoEdicao) {
+                                                    setModoEdicao(true);
+                                                    return;
+                                                }
+                                                const custoTotal = dadosEditados.ingredientes.reduce(
+                                                    (total: number, item: any) => {
+                                                        const insumo = insumos.find(i => i._id === item.insumo);
+
+                                                        if (!insumo) return total;
+
+                                                        const valorUnitario = Number(insumo.valorUnitario || 0);
+                                                        const quantidade = Number(item.qtdLiquida || 0);
+
+                                                        return total + valorUnitario * quantidade;
+                                                    },
+                                                    0
+                                                );
+
+                                                try {
+                                                    if (insumoSelecionado) {
+                                                        const linhaIncompleta = (dadosEditados.ingredientes || []).find(
+                                                            (item: any) =>
+                                                                !item.insumo ||
+                                                                !item.qtdLiquida ||
+                                                                Number(item.qtdLiquida) <= 0
+                                                        );
+
+                                                        if (linhaIncompleta) {
+                                                            alert(
+                                                                "Existem ingredientes sem seleção ou sem quantidade."
+                                                            );
+                                                            return;
+                                                        }
+
+                                                        const ingredientesLimpos: {
+                                                            insumo: string;
+                                                            qtdLiquida: number;
+                                                        }[] = (dadosEditados.ingredientes || [])
+                                                            .filter((i: any) => i.insumo)
+                                                            .map((item: any) => ({
+                                                                insumo: item.insumo,
+                                                                qtdLiquida: Number(item.qtdLiquida) || 0,
+                                                            }));
+
+                                                        // 🚨 VALIDAÇÃO
+                                                        const ingredienteSemQuantidade = ingredientesLimpos.find(
+                                                            (item: any) => item.qtdLiquida <= 0
+                                                        );
+
+                                                        if (ingredienteSemQuantidade) {
+                                                            alert(
+                                                                "Todos os ingredientes precisam ter uma quantidade maior que zero."
+                                                            );
+                                                            return;
+                                                        }
+
+                                                        const payload = {
+                                                            nome: dadosEditados.nome,
+                                                            categoria: dadosEditados.categoria,
+                                                            unidade: dadosEditados.unidade,
+
+                                                            qtdBruta: Number(dadosEditados.qtdBruta) || 0,
+                                                            qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
+                                                            valorTotal: Number(custoTotal) || 0,
+
+                                                            transformacao: {
+                                                                ingredientes: ingredientesLimpos,
+                                                            },
+                                                        };
+                                                        await api.put(
+                                                            `/insumos/${insumoSelecionado._id}`,
+                                                            payload
+                                                        );
+
+                                                        alert("Insumo atualizado com sucesso!");
+                                                    } else {
+
+                                                        const ingredientesLimpos = (dadosEditados.ingredientes || [])
+                                                            .filter(
+                                                                (i: any) =>
+                                                                    i.insumo &&
+                                                                    Number(i.qtdLiquida) > 0
+                                                            )
+                                                            .map((item: any) => ({
+                                                                insumo: item.insumo,
+                                                                qtdLiquida: Number(item.qtdLiquida),
+                                                            }));
+
+                                                        // 🚨 VALIDAÇÃO
+                                                        const ingredienteSemQuantidade = ingredientesLimpos.find(
+                                                            (item: any) => item.qtdLiquida <= 0
+                                                        );
+
+                                                        if (ingredienteSemQuantidade) {
+                                                            alert(
+                                                                "Todos os ingredientes precisam ter uma quantidade maior que zero."
+                                                            );
+                                                            return;
+                                                        }
+
+                                                        await api.post(`/insumos`, {
+                                                            nome: dadosEditados.nome,
+                                                            categoria: dadosEditados.categoria,
+                                                            unidade: dadosEditados.unidade,
+
+                                                            qtdBruta: Number(dadosEditados.qtdBruta) || 0,
+                                                            qtdLiquida: Number(dadosEditados.qtdLiquida) || 0,
+                                                            valorTotal: Number(custoTotal) || 0,
+
+                                                            transformacao: {
+                                                                ingredientes: ingredientesLimpos,
+                                                            },
+                                                        });
+
+                                                        alert("Insumo criado com sucesso!");
+                                                    }
+
+                                                    await carregarInsumos();
+                                                    setModoEdicao(false);
+                                                    setModalAberto(false);
+
+                                                } catch (error: any) {
+                                                    console.error(error);
+
+                                                    alert(
+                                                        "Erro ao salvar insumo: " +
+                                                        (error.response?.data?.message || error.message)
+                                                    );
+                                                }
+                                            }} className="modal-footer-btn save"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            {modoEdicao ? "Salvar" : "Editar"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     </div>

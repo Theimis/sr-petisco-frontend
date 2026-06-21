@@ -5,7 +5,6 @@ import {
     Package,
     Beef,
     ClipboardList,
-    CookingPot,
 } from "lucide-react";
 
 import "./sidebar.css";
@@ -31,43 +30,23 @@ export function Sidebar() {
 
             <nav className="sidebar-menu">
 
-                {/* GESTÃO */}
-                <span className="menu-section">
-                    GESTÃO
-                </span>
-
                 <NavLink to="/dashboard" className="menu-link">
-                    <LayoutDashboard size={18} />
+                    <LayoutDashboard size={20} />
                     Dashboard
                 </NavLink>
 
-                {/* ESTOQUE */}
-                <span className="menu-section">
-                    ESTOQUE
-                </span>
-
                 <NavLink to="/produtos" className="menu-link">
-                    <Package size={18} />
+                    <Package size={20} />
                     Produtos
                 </NavLink>
 
                 <NavLink to="/insumos" className="menu-link">
-                    <Beef size={18} />
+                    <Beef size={20} />
                     Insumos
                 </NavLink>
 
-                <NavLink to="/transformados" className="menu-link">
-                    <CookingPot size={18} />
-                    Transformados
-                </NavLink>
-
-                {/* PRODUÇÃO */}
-                <span className="menu-section">
-                    PRODUÇÃO
-                </span>
-
                 <NavLink to="/fichas" className="menu-link">
-                    <ClipboardList size={18} />
+                    <ClipboardList size={20} />
                     Fichas Técnicas
                 </NavLink>
 

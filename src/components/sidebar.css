@@ -5,14 +5,15 @@
 .sidebar {
     width: 270px;
     height: 100vh;
-    background: linear-gradient(180deg, #111827, #0f172a);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: #0C101E;
+    border-right: 1px solid rgba(59, 130, 246, 0.25);
+
 
     position: fixed;
     left: 0;
     top: 0;
 
-    padding: 24px 18px;
+    padding: 15px 10px;
 
     display: flex;
     flex-direction: column;
@@ -26,11 +27,12 @@
 
 /* LOGO */
 .sidebar-logo {
+    padding: 10px 0px 0px 10px;
     display: flex;
     align-items: center;
     gap: 12px;
 
-    margin-bottom: 35px;
+    margin-bottom: 20px;
 }
 
 .logo-circle {
@@ -39,7 +41,7 @@
 
     border-radius: 12px;
 
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
 
     display: flex;
     align-items: center;
@@ -51,28 +53,28 @@
     box-shadow: 0 0 18px rgba(124, 58, 237, 0.35);
 }
 
-
-
 /* MENU BASE */
 .sidebar-menu {
+    position: relative;
+    padding: 24px 1px 1px 1px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    gap: 8px;
 }
-
-
 
 /* BOTÕES */
 .menu-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+
     border-radius: 12px;
     color: #cbd5e1;
     text-decoration: none;
     transition: 0.2s ease;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
 }
 
@@ -83,14 +85,14 @@
 }
 
 .menu-link:hover {
-    background: rgba(124, 58, 237, 0.12);
+    background: rgba(59, 130, 246, 0.12);
     color: white;
 }
 
 .menu-link.active {
-    background: linear-gradient(90deg, #7c3aed, #6d28d9);
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
     color: white;
-    box-shadow: 0 0 18px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.35);
 }
 
 /* SCROLL BONITO */
@@ -119,17 +121,6 @@
     font-size: 12px;
 }
 
-.menu-section {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #71717a;
-    margin-top: 22px;
-    margin-bottom: 10px;
-    padding-left: 14px;
-    text-transform: uppercase;
-}
-
 .logout-button {
     width: 100%;
     border: none;
@@ -140,4 +131,19 @@
     text-align: left;
 
     margin-top: auto;
+}
+
+.sidebar::after {
+    content: "";
+    position: absolute;
+
+    top: 95px;
+    /* vamos ajustar depois se precisar */
+
+    left: 0;
+    right: 0;
+
+    height: 1px;
+
+    background: rgba(59, 130, 246, 0.25);
 }

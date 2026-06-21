@@ -10,9 +10,9 @@
 
 /* Master Card matching the reference screenshot */
 .insumos-card {
-    background: #0f172a;
+    background: #0F1423;
     border-radius: 24px;
-    border: 1px solid #1e293b;
+    border: 1px solid #232F4A;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     overflow: hidden;
 }
@@ -452,17 +452,22 @@
 }
 
 .insumos-modal-card {
-    background: #111827;
+    background: #121828;
     width: 100%;
     max-width: 850px;
+
     border-radius: 24px;
-    border: 1px solid #1f2937;
+    border: 1px solid #232F4A;
+
     box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.7);
+
     overflow: hidden;
     position: relative;
+
     display: flex;
     flex-direction: column;
-    max-height: 90vh;
+
+    max-height: 95vh;
 }
 
 .insumos-modal-accent-top {
@@ -494,7 +499,7 @@
 }
 
 .insumos-modal-body {
-    padding: 30px;
+    padding: 20px;
     overflow-y: auto;
     flex: 1;
 }
@@ -520,7 +525,7 @@
 }
 
 .modal-header-title {
-    margin-top: 14px;
+    margin-top: -5px;
     margin-bottom: 12px;
     font-size: 30px;
     font-weight: 800;
@@ -600,12 +605,15 @@
 
 .modal-form-input {
     width: 100%;
-    background: #0f172a;
-    border: 1px solid #334155;
+    background: #050b18;
+    border: 1px solid #23314f;
     border-radius: 10px;
-    padding: 10px 14px;
+
+    padding: 14px 16px;
+
     color: #fff;
     font-size: 14px;
+
     outline: none;
     transition: all 0.2s ease;
 }
@@ -823,4 +831,194 @@
 .modal-add-ingredient-btn:hover {
     background: rgba(37, 99, 235, 0.08);
     border-color: #3b82f6;
+}
+
+.cadastro-card {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 18px;
+    margin-top: 12px;
+    backdrop-filter: blur(12px);
+}
+
+.cadastro-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 30px;
+    margin-top: -10px;
+}
+
+.resultado-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin: 24px 0 16px;
+}
+
+.cadastro-insumo-etapa {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-section-card {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(51, 65, 85, 0.6);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.modal-section-card .modal-form-group {
+    margin-bottom: 28px;
+}
+
+.modal-section-card .modal-form-group:nth-of-type(2) {
+    margin-bottom: 16px;
+}
+
+.cadastro-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.cadastro-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+
+    .cadastro-grid-2,
+    .cadastro-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.modal-form-group label {
+    display: block;
+    margin-bottom: 8px;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    color: #94a3b8;
+}
+
+.cadastro-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.resultado-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.resultado-card {
+    background: #0F1423;
+    border: 1px solid #232F4A;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.resultado-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.resultado-valor {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1;
+}
+
+.resultado-valor.sucesso {
+    color: #22c55e;
+}
+
+.resultado-info {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.resultado-unidade {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.cadastro-tipo {
+    margin-top: 20px;
+    background: #0F1423;
+    border: 1px solid #232F4A;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.cadastro-tipo h4 {
+    margin: 0 0 14px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.cadastro-tipo label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 6px 0;
+    margin-bottom: 6px;
+
+    background: transparent;
+    border: none;
+}
+
+.cadastro-tipo input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+}
+
+.cadastro-opcao-titulo {
+    color: #e5e7eb;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.cadastro-opcao-descricao {
+    margin-top: 2px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.cadastro-badge-recomendado {
+    background: #7c3aed;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.cadastro-tipo input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
 }

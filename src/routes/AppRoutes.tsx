@@ -8,7 +8,6 @@ import { Login } from "../pages/Login";
 import { Dashboard } from "../pages/Dashboard";
 import { Produtos } from "../pages/Produtos";
 import { Insumos } from "../pages/Insumos";
-import { Transformados } from "../pages/Transformados";
 import { Fichas } from "../pages/Fichas";
 
 export function AppRoutes() {
@@ -50,18 +49,6 @@ export function AppRoutes() {
                     <ProtectedRoute>
                         <Layout>
                             <Insumos />
-                        </Layout>
-                    </ProtectedRoute>
-                }
-            />
-
-            {/* TRANSFORMADOS */}
-            <Route
-                path="/transformados"
-                element={
-                    <ProtectedRoute>
-                        <Layout>
-                            <Transformados />
                         </Layout>
                     </ProtectedRoute>
                 }
