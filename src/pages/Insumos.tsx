@@ -26,9 +26,11 @@ export function Insumos() {
     const [inputAberto, setInputAberto] = useState<number | null>(null);
     const [modoEdicao, setModoEdicao] = useState(false);
     const [dadosEditados, setDadosEditados] = useState<any>({ nome: "", rendimento: 0, valorTotal: 0, ingredientes: [] });
+    const [categoriaProduto, setCategoriaProduto] = useState("");
 
     const [modalAberto, setModalAberto] = useState(false);
     const [insumoSelecionado, setInsumoSelecionado] = useState<any>(null);
+    const [precoVenda, setPrecoVenda] = useState<number | "">(0);
     const [etapaCadastro, setEtapaCadastro] = useState(1);
     const [tipoCadastro, setTipoCadastro] = useState<
         "insumo" | "insumo-produto" | ""
@@ -452,10 +454,13 @@ export function Insumos() {
                                 <p className="modal-header-subtitle no-print">
                                     {insumoSelecionado
                                         ? "Visualização completa dos componentes e rendimento"
-                                        : "Informe os dados do insumo base"}
+                                        : etapaCadastro === 2
+                                            ? "Configure o produto para venda"
+                                            : "Informe os dados do insumo base"}
                                 </p>
-                                {insumoSelecionado && (
-                                    <div className="modal-header-divider"></div>
+
+                                {!insumoSelecionado && etapaCadastro === 2 && (
+                                    <div className="modal-divider"></div>
                                 )}
 
                                 {!insumoSelecionado && etapaCadastro === 1 && (
@@ -521,7 +526,9 @@ export function Insumos() {
                                                             onChange={(e) =>
                                                                 setDadosEditados({
                                                                     ...dadosEditados,
-                                                                    qtdBruta: Number(e.target.value)
+                                                                    qtdBruta: e.target.value === ""
+                                                                        ? ""
+                                                                        : Number(e.target.value)
                                                                 })
                                                             }
                                                             className="modal-form-input"
@@ -537,7 +544,9 @@ export function Insumos() {
                                                             onChange={(e) =>
                                                                 setDadosEditados({
                                                                     ...dadosEditados,
-                                                                    qtdLiquida: Number(e.target.value)
+                                                                    qtdLiquida: e.target.value === ""
+                                                                        ? ""
+                                                                        : Number(e.target.value)
                                                                 })
                                                             }
                                                             className="modal-form-input"
@@ -554,7 +563,9 @@ export function Insumos() {
                                                             onChange={(e) =>
                                                                 setDadosEditados({
                                                                     ...dadosEditados,
-                                                                    valorTotal: Number(e.target.value)
+                                                                    valorTotal: e.target.value === ""
+                                                                        ? ""
+                                                                        : Number(e.target.value)
                                                                 })
                                                             }
                                                             className="modal-form-input"
@@ -630,6 +641,168 @@ export function Insumos() {
 
                                     </div>
                                 )}
+
+                                {!insumoSelecionado && etapaCadastro === 2 && (
+
+                                    <div className="cadastro-produto-etapa">
+
+
+
+                                        <h3 className="cadastro-section-title">
+                                            Informações básicas
+                                        </h3>
+
+                                        <div className="modal-form-group">
+                                            <div className="insumo-base-preview">
+                                                <span>{dadosEditados.nome}</span>
+
+                                                <span className="badge-insumo-base">
+                                                    Insumo base
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="modal-divider"></div>
+
+                                        <h3
+                                            className="cadastro-section-title"
+                                            style={{ marginTop: "20px" }}
+                                        >
+                                            Dados do produto
+                                        </h3>
+
+                                        <div className="dados-produto-section">
+
+                                            <label>Categoria do produto</label>
+
+                                            <input
+                                                type="text"
+                                                placeholder="Ex: Bebidas"
+                                                value={categoriaProduto}
+                                                onChange={(e) =>
+                                                    setCategoriaProduto(e.target.value)
+                                                }
+                                                className="modal-form-input"
+                                            />
+
+                                            <label style={{ marginTop: "16px" }}>
+                                                Preço de venda (R$)
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={precoVenda}
+                                                onChange={(e) =>
+                                                    setPrecoVenda(
+                                                        e.target.value === ""
+                                                            ? ""
+                                                            : Number(e.target.value)
+                                                    )
+                                                }
+                                                className="modal-form-input"
+                                            />
+
+                                        </div>
+
+                                        <h3
+                                            className="resultado-section-title"
+                                            style={{ marginTop: "28px", marginBottom: "16px" }}
+                                        >
+                                            Indicadores em tempo real
+                                        </h3>
+
+                                        <div className="resultado-grid-produto">
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    Custo unitário
+                                                </span>
+
+                                                <h2 className="resultado-valor sucesso">
+                                                    R$ {
+                                                        dadosEditados.qtdLiquida > 0
+                                                            ? (
+                                                                dadosEditados.valorTotal /
+                                                                dadosEditados.qtdLiquida
+                                                            ).toFixed(2)
+                                                            : "0,00"
+                                                    }
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    Custo por unidade
+                                                </p>
+                                            </div>
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    CMV (%)
+                                                </span>
+
+                                                <h2 className="resultado-valor alerta">
+                                                    {
+                                                        Number(precoVenda) > 0
+                                                            ? (
+                                                                (
+                                                                    (dadosEditados.qtdLiquida > 0
+                                                                        ? dadosEditados.valorTotal / dadosEditados.qtdLiquida
+                                                                        : 0
+                                                                    ) / Number(precoVenda)
+                                                                ) * 100
+                                                            ).toFixed(0)
+                                                            : 0
+                                                    }%
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    Custo sobre venda
+                                                </p>
+                                            </div>
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    Margem de contribuição
+                                                </span>
+
+                                                <h2 className="resultado-valor sucesso">
+                                                    R$ {
+                                                        (
+                                                            Number(precoVenda) -
+                                                            (
+                                                                dadosEditados.qtdLiquida > 0
+                                                                    ? dadosEditados.valorTotal /
+                                                                    dadosEditados.qtdLiquida
+                                                                    : 0
+                                                            )
+                                                        ).toFixed(2)
+                                                    }
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    Valor por unidade
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="cadastro-resumo-produto">
+
+                                            <h4>Ao salvar serão criados:</h4>
+
+                                            <div className="cadastro-resumo-item">
+                                                • 1 insumo base: {dadosEditados.nome || "-"}
+                                            </div>
+
+                                            <div className="cadastro-resumo-item">
+                                                • 1 produto para venda: {dadosEditados.nome || "-"}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                )}
                             </div>
 
                             {insumoSelecionado && (
@@ -653,7 +826,7 @@ export function Insumos() {
                             )}
 
                             {/* TIPO DE CADASTRO */}
-                            {!insumoSelecionado && (
+                            {!insumoSelecionado && etapaCadastro === 1 && (
                                 <div className="cadastro-tipo">
                                     <h4>Tipo de cadastro</h4>
 
@@ -955,6 +1128,64 @@ export function Insumos() {
                                         }}
                                     >
                                         Próximo
+                                    </button>
+
+                                </div>
+
+                            ) : !insumoSelecionado && etapaCadastro === 2 ? (
+
+                                <div className="modal-footer no-print">
+
+                                    <button
+                                        className="modal-footer-btn delete"
+                                        onClick={() => setEtapaCadastro(1)}
+                                    >
+                                        Voltar
+                                    </button>
+
+                                    <button
+                                        className="modal-footer-btn save"
+                                        onClick={async () => {
+                                            try {
+                                                // validações básicas
+                                                if (!categoriaProduto) {
+                                                    alert("Informe a categoria do produto");
+                                                    return;
+                                                }
+
+                                                if (!precoVenda || Number(precoVenda) <= 0) {
+                                                    alert("Informe o preço de venda");
+                                                    return;
+                                                }
+
+                                                // chamada API (simples)
+                                                await api.post("/insumos/com-ficha", {
+                                                    nome: dadosEditados.nome,
+                                                    categoria: categoriaProduto,
+                                                    unidade: dadosEditados.unidade,
+                                                    qtdBruta: Number(dadosEditados.qtdBruta),
+                                                    qtdLiquida: Number(dadosEditados.qtdLiquida),
+                                                    valorTotal: Number(dadosEditados.valorTotal),
+                                                    precoVenda: Number(precoVenda),
+                                                });
+
+                                                alert("Produto criado com sucesso!");
+
+                                                await carregarInsumos();
+                                                setModalAberto(false);
+                                                setEtapaCadastro(1);
+
+                                            } catch (error: any) {
+                                                console.error(error);
+
+                                                alert(
+                                                    error.response?.data?.message ||
+                                                    "Erro ao criar produto"
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Salvar
                                     </button>
 
                                 </div>
