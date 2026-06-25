@@ -444,7 +444,7 @@ export function Insumos() {
                                                 })
                                             }
                                             className="modal-form-input"
-                                            style={{ fontSize: "24px", fontWeight: "bold" }}
+                                            style={{ fontSize: "22px", fontWeight: "bold" }}
                                         />
                                     ) : (
                                         insumoSelecionado?.nome
