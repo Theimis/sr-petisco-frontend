@@ -504,7 +504,7 @@ export function Insumos() {
                                                         <option value="">Selecione</option>
                                                         <option value="kg">kg</option>
                                                         <option value="g">g</option>
-                                                        <option value="L">L</option>
+                                                        <option value="l">l</option>
                                                         <option value="ml">ml</option>
                                                         <option value="un">un</option>
                                                     </select>
@@ -664,46 +664,47 @@ export function Insumos() {
 
                                         <div className="modal-divider"></div>
 
-                                        <h3
-                                            className="cadastro-section-title"
-                                            style={{ marginTop: "20px" }}
-                                        >
-                                            Dados do produto
-                                        </h3>
+                                        {tipoCadastro === "insumo-produto" && (
+                                            <>
+                                                <h3 className="cadastro-section-title">
+                                                    Dados do produto
+                                                </h3>
 
-                                        <div className="dados-produto-section">
+                                                <div className="dados-produto-section">
 
-                                            <label>Categoria do produto</label>
+                                                    <label>Categoria do produto</label>
 
-                                            <input
-                                                type="text"
-                                                placeholder="Ex: Bebidas"
-                                                value={categoriaProduto}
-                                                onChange={(e) =>
-                                                    setCategoriaProduto(e.target.value)
-                                                }
-                                                className="modal-form-input"
-                                            />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Ex: Bebidas"
+                                                        value={categoriaProduto}
+                                                        onChange={(e) =>
+                                                            setCategoriaProduto(e.target.value)
+                                                        }
+                                                        className="modal-form-input"
+                                                    />
 
-                                            <label style={{ marginTop: "16px" }}>
-                                                Preço de venda (R$)
-                                            </label>
+                                                    <label style={{ marginTop: "16px" }}>
+                                                        Preço de venda (R$)
+                                                    </label>
 
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={precoVenda}
-                                                onChange={(e) =>
-                                                    setPrecoVenda(
-                                                        e.target.value === ""
-                                                            ? ""
-                                                            : Number(e.target.value)
-                                                    )
-                                                }
-                                                className="modal-form-input"
-                                            />
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        value={precoVenda}
+                                                        onChange={(e) =>
+                                                            setPrecoVenda(
+                                                                e.target.value === ""
+                                                                    ? ""
+                                                                    : Number(e.target.value)
+                                                            )
+                                                        }
+                                                        className="modal-form-input"
+                                                    />
 
-                                        </div>
+                                                </div>
+                                            </>
+                                        )}
 
                                         <h3
                                             className="resultado-section-title"

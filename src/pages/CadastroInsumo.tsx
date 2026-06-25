@@ -54,7 +54,7 @@ export function CadastroInsumo() {
                 <option value="">Selecione unidade</option>
                 <option value="kg">kg</option>
                 <option value="g">g</option>
-                <option value="L">L</option>
+                <option value="l">l</option>
                 <option value="ml">ml</option>
                 <option value="un">un</option>
             </select>
