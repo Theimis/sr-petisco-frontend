@@ -349,7 +349,7 @@ export function Insumos() {
                                                 {/* Valor Unitário */}
                                                 <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
                                                     R$ {(
-                                                        ["kg", "l"].includes(insumo.unidade)
+                                                        ["kg", "ml"].includes(insumo.unidade)
                                                             ? Number(insumo.valorUnitario) * 100
                                                             : Number(insumo.valorUnitario)
                                                     ).toFixed(2).replace(".", ",")}
@@ -664,26 +664,26 @@ export function Insumos() {
 
                                         <div className="modal-divider"></div>
 
-                                        {tipoCadastro === "insumo-produto" && (
-                                            <>
-                                                <h3 className="cadastro-section-title">
-                                                    Dados do produto
-                                                </h3>
+                                        <h3 className="cadastro-section-title">
+                                            Dados do produto
+                                        </h3>
 
-                                                <div className="dados-produto-section">
+                                        <div className="dados-produto-section">
 
-                                                    <label>Categoria do produto</label>
+                                            <label>Categoria do produto</label>
 
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Ex: Bebidas"
-                                                        value={categoriaProduto}
-                                                        onChange={(e) =>
-                                                            setCategoriaProduto(e.target.value)
-                                                        }
-                                                        className="modal-form-input"
-                                                    />
+                                            <input
+                                                type="text"
+                                                placeholder="Ex: Bebidas"
+                                                value={categoriaProduto}
+                                                onChange={(e) =>
+                                                    setCategoriaProduto(e.target.value)
+                                                }
+                                                className="modal-form-input"
+                                            />
 
+                                            {tipoCadastro === "insumo-produto" && (
+                                                <>
                                                     <label style={{ marginTop: "16px" }}>
                                                         Preço de venda (R$)
                                                     </label>
@@ -701,10 +701,10 @@ export function Insumos() {
                                                         }
                                                         className="modal-form-input"
                                                     />
+                                                </>
+                                            )}
 
-                                                </div>
-                                            </>
-                                        )}
+                                        </div>
 
                                         <h3
                                             className="resultado-section-title"
@@ -1120,6 +1120,32 @@ export function Insumos() {
                                     <button
                                         className="modal-footer-btn save"
                                         onClick={() => {
+
+                                            if (!dadosEditados.nome?.trim()) {
+                                                alert("Informe o nome do insumo");
+                                                return;
+                                            }
+
+                                            if (!dadosEditados.unidade) {
+                                                alert("Selecione a unidade de medida");
+                                                return;
+                                            }
+
+                                            if (!dadosEditados.qtdBruta || Number(dadosEditados.qtdBruta) <= 0) {
+                                                alert("Informe a quantidade bruta");
+                                                return;
+                                            }
+
+                                            if (!dadosEditados.qtdLiquida || Number(dadosEditados.qtdLiquida) <= 0) {
+                                                alert("Informe a quantidade líquida");
+                                                return;
+                                            }
+
+                                            if (!dadosEditados.valorTotal || Number(dadosEditados.valorTotal) <= 0) {
+                                                alert("Informe o valor de compra");
+                                                return;
+                                            }
+
                                             if (!tipoCadastro) {
                                                 alert("Selecione o tipo de cadastro");
                                                 return;
@@ -1147,9 +1173,10 @@ export function Insumos() {
                                     <button
                                         className="modal-footer-btn save"
                                         onClick={async () => {
-                                            try {
-                                                // validações básicas
-                                                if (!categoriaProduto) {
+
+                                            if (tipoCadastro === "insumo-produto") {
+
+                                                if (!categoriaProduto?.trim()) {
                                                     alert("Informe a categoria do produto");
                                                     return;
                                                 }
@@ -1158,8 +1185,9 @@ export function Insumos() {
                                                     alert("Informe o preço de venda");
                                                     return;
                                                 }
+                                            }
 
-                                                // chamada API (simples)
+                                            try {
                                                 await api.post("/insumos/com-ficha", {
                                                     nome: dadosEditados.nome,
                                                     categoria: categoriaProduto,
