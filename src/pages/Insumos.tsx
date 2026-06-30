@@ -16,6 +16,7 @@ import {
     X,
     Save
 } from "lucide-react";
+import ModalTransformacao from "../components/Modals/ModalTransformacao";
 
 export function Insumos() {
     const [insumos, setInsumos] = useState<any[]>([]);
@@ -35,6 +36,7 @@ export function Insumos() {
     const [tipoCadastro, setTipoCadastro] = useState<
         "insumo" | "insumo-produto" | ""
     >("");
+    const [modalTransformacao, setModalTransformacao] = useState(false);
 
     const insumosFiltrados = insumos.filter((insumo) => {
         const matchPesquisa =
@@ -189,13 +191,23 @@ export function Insumos() {
                                 Gerencie todos os insumos cadastrados com cálculo em tempo real.
                             </p>
                         </div>
-                        <button
-                            onClick={handleCriarNovoInsumo}
-                            className="insumos-create-btn"
-                        >
-                            <Plus className="w-4.5 h-4.5 font-bold" />
-                            Criar Insumo
-                        </button>
+
+                        <div className="insumos-actions">
+                            <button
+                                onClick={handleCriarNovoInsumo}
+                                className="insumos-create-btn"
+                            >
+                                <Plus className="w-4.5 h-4.5" />
+                                Criar Insumo
+                            </button>
+
+                            <button
+                                onClick={() => setModalTransformacao(true)}
+                                className="insumos-transformacao-btn"
+                            >
+                                🔄 Criar Transformação
+                            </button>
+                        </div>
                     </div>
 
                     {/* STATS MODULE PANEL */}
@@ -1387,6 +1399,10 @@ export function Insumos() {
                 </div>
             )
             }
+            <ModalTransformacao
+                open={modalTransformacao}
+                onClose={() => setModalTransformacao(false)}
+            />
         </div >
     );
 }

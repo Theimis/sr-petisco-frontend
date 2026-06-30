@@ -269,6 +269,34 @@
     pointer-events: none;
 }
 
+.insumos-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.insumos-transformacao-btn {
+    background: #1e5cbc;
+    color: #ffffff;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 12px;
+    border-radius: 12px;
+    border: 1px solid #2B4EFF;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.insumos-transformacao-btn:hover {
+    background: #18213a;
+}
+
 /* Creation Actions Button */
 .insumos-create-btn {
     background: #1e5cbc;
@@ -277,6 +305,8 @@
     font-size: 14px;
     font-weight: 700;
     border-radius: 12px;
+    border-radius: 12px;
+    border: 1px solid #2B4EFF;
     border: none;
     cursor: pointer;
     display: flex;
@@ -287,7 +317,7 @@
 }
 
 .insumos-create-btn:hover {
-    background: #154694;
+    background: #18213a;
 }
 
 .insumos-create-btn:active {
