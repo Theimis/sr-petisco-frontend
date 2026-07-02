@@ -46,6 +46,35 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         return valor;
     }
 
+    function unidadeCompativel(
+        unidadeIngrediente: string,
+        unidadeFinal: string
+    ) {
+
+        if (
+            (unidadeFinal === "kg" || unidadeFinal === "g") &&
+            (unidadeIngrediente === "kg" || unidadeIngrediente === "g")
+        ) {
+            return true;
+        }
+
+        if (
+            (unidadeFinal === "l" || unidadeFinal === "ml") &&
+            (unidadeIngrediente === "l" || unidadeIngrediente === "ml")
+        ) {
+            return true;
+        }
+
+        if (
+            unidadeFinal === "un" &&
+            unidadeIngrediente === "un"
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     function converterQuantidadeParaExibicao(
         quantidade: number,
@@ -80,10 +109,23 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         0
     );
 
+
     const quantidadeTotalInsumos = insumosSelecionados.reduce(
-        (total, item) => total + Number(item.quantidade || 0),
+        (total, item) => {
+
+            if (!unidadeCompativel(
+                item.unidade,
+                dadosTransformacao.unidadeFinal
+            )) {
+                return total;
+            }
+
+            return total + Number(item.quantidade || 0);
+
+        },
         0
     );
+
     const quantidadeProduzidaBase = normalizarProducao();
 
     const rendimento =
@@ -95,6 +137,52 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         quantidadeProduzidaBase > 0
             ? custoTotal / quantidadeProduzidaBase
             : 0;
+
+    async function salvarTransformacao() {
+
+        if (!dadosTransformacao.nome.trim()) {
+            alert("Informe o nome da transformação.");
+            return;
+        }
+
+        if (insumosSelecionados.length === 0) {
+            alert("Adicione pelo menos um ingrediente.");
+            return;
+        }
+
+        const ingredientes = insumosSelecionados.map(item => ({
+            insumo: item.insumoId,
+            qtdLiquida: item.quantidade
+        }));
+
+        const body = {
+            nome: dadosTransformacao.nome,
+            categoria: "Transformados",
+            unidade: dadosTransformacao.unidadeFinal,
+            rendimento: Number(
+                dadosTransformacao.quantidadeProduzida.toString().replace(",", ".")
+            ),
+            ingredientes
+        };
+
+        try {
+
+            await api.post("/transformados", body);
+
+            alert("Transformação salva com sucesso!");
+
+            limparModal();
+
+            onClose();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Erro ao salvar transformação.");
+
+        }
+    }
 
     useEffect(() => {
         async function load() {
@@ -136,10 +224,20 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
                     {/* FORM */}
                     <div className="transformacao-grid">
-
                         <div className="transformacao-field">
                             <label>Nome da transformação</label>
-                            <input className=" transformacao-input" placeholder="Ex.: Recheio de Frango Temperado" />
+
+                            <input
+                                className="transformacao-input"
+                                placeholder="Ex.: Recheio de Frango Temperado"
+                                value={dadosTransformacao.nome}
+                                onChange={(e) =>
+                                    setDadosTransformacao({
+                                        ...dadosTransformacao,
+                                        nome: e.target.value
+                                    })
+                                }
+                            />
                         </div>
 
                         <div className="transformacao-field">
@@ -476,7 +574,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                             Cancelar
                         </button>
 
-                        <button className="modal-footer-btn save">
+                        <button className="modal-footer-btn save" onClick={salvarTransformacao}>
                             Salvar transformação
                         </button>
 
