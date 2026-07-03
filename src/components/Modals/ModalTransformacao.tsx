@@ -2,6 +2,8 @@ import "./ModalTransformacao.css";
 import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { Trash2 } from "lucide-react";
+import { formatarUnidade } from "../../utils/formatarUnidade";
+
 type Props = {
     open: boolean;
     onClose: () => void;
@@ -26,8 +28,39 @@ export default function ModalTransformacao({ open, onClose }: Props) {
     const [dadosTransformacao, setDadosTransformacao] = useState({
         nome: "",
         unidadeFinal: "kg",
-        quantidadeProduzida: 0
+        quantidadeProduzida: ""
     });
+
+    function normalizarProducao() {
+        const valor = Number(
+            (dadosTransformacao.quantidadeProduzida || "0")
+                .toString()
+                .replace(",", ".")
+        );
+
+        const unidade = dadosTransformacao.unidadeFinal;
+
+        if (unidade === "kg") return valor * 1000;
+        if (unidade === "l") return valor * 1000;
+
+        return valor;
+    }
+
+
+    function converterQuantidadeParaExibicao(
+        quantidade: number,
+        unidade: string
+    ) {
+        if (unidade === "kg") {
+            return quantidade / 1000;
+        }
+
+        if (unidade === "l") {
+            return quantidade / 1000;
+        }
+
+        return quantidade;
+    }
 
 
     const limparModal = () => {
@@ -51,15 +84,16 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         (total, item) => total + Number(item.quantidade || 0),
         0
     );
+    const quantidadeProduzidaBase = normalizarProducao();
 
     const rendimento =
         quantidadeTotalInsumos > 0
-            ? (dadosTransformacao.quantidadeProduzida / quantidadeTotalInsumos) * 100
+            ? (quantidadeProduzidaBase / quantidadeTotalInsumos) * 100
             : 0;
 
     const valorUnitario =
-        dadosTransformacao.quantidadeProduzida > 0
-            ? custoTotal / dadosTransformacao.quantidadeProduzida
+        quantidadeProduzidaBase > 0
+            ? custoTotal / quantidadeProduzidaBase
             : 0;
 
     useEffect(() => {
@@ -72,8 +106,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
     }, []);
 
     if (!open) return null;
-
-
 
     return (
         <div className="transformacao-overlay">
@@ -133,14 +165,14 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                         <div className="transformacao-field">
                             <label>Quantidade produzida</label>
                             <input
-                                type="number"
+                                type="text"
                                 className="transformacao-input"
                                 placeholder="0,00"
-                                value={dadosTransformacao.quantidadeProduzida || ""}
+                                value={dadosTransformacao.quantidadeProduzida}
                                 onChange={(e) =>
                                     setDadosTransformacao({
                                         ...dadosTransformacao,
-                                        quantidadeProduzida: Number(e.target.value)
+                                        quantidadeProduzida: e.target.value
                                     })
                                 }
                             />
@@ -163,10 +195,22 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                             </strong>
 
                             <small>
-                                {dadosTransformacao.quantidadeProduzida.toFixed(3).replace(".", ",")}
+                                {converterQuantidadeParaExibicao(
+                                    quantidadeProduzidaBase,
+                                    dadosTransformacao.unidadeFinal
+                                )
+                                    .toFixed(3)
+                                    .replace(".", ",")}
                                 {dadosTransformacao.unidadeFinal}
+
                                 {" de "}
-                                {quantidadeTotalInsumos.toFixed(3).replace(".", ",")}
+
+                                {converterQuantidadeParaExibicao(
+                                    quantidadeTotalInsumos,
+                                    dadosTransformacao.unidadeFinal
+                                )
+                                    .toFixed(3)
+                                    .replace(".", ",")}
                                 {dadosTransformacao.unidadeFinal}
                             </small>
                         </div>
@@ -268,7 +312,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                                                                     }}
                                                                     onClick={() => {
                                                                         const lista = [...insumosSelecionados];
-
                                                                         lista[index] = {
                                                                             ...lista[index],
                                                                             insumoId: insumo._id,
@@ -313,7 +356,9 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
                                                 {/* UNIDADE */}
                                                 <span style={{ textAlign: "center" }}>
-                                                    {item.unidade || "-"}
+                                                    {item.unidade
+                                                        ? formatarUnidade(item.unidade)
+                                                        : "-"}
                                                 </span>
 
                                                 {/* CUSTO */}
@@ -361,7 +406,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                                                 </div>
 
                                                 <span style={{ textAlign: "center" }}>
-                                                    {item.unidade}
+                                                    {formatarUnidade(item.unidade)}
                                                 </span>
 
                                                 <span style={{ textAlign: "center", color: "#10b981", fontWeight: 700 }}>

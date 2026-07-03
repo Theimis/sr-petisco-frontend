@@ -238,12 +238,30 @@ export function Produtos() {
                     <div className="modal-overlay modal-overlay--form">
                         <div className="modal-box modal-box--form">
                             <div className="modal-header">
-                                <div>
-                                    <h2>Instanciar Novo Produto</h2>
+
+                                <div className="modal-header-info">
+
+                                    <span className="modal-tag">
+                                        FICHA TÉCNICA
+                                    </span>
+
+                                    <h2 className="modal-title">
+                                        Prato de teste
+                                    </h2>
+
+                                    <p className="modal-subtitle">
+                                        Edição da ficha técnica do prato
+                                    </p>
+
                                 </div>
-                                <button className="modal-close" onClick={limparFormulario}>
+
+                                <button
+                                    className="modal-close"
+                                    onClick={limparFormulario}
+                                >
                                     ×
                                 </button>
+
                             </div>
 
                             <div className="modal-content">
