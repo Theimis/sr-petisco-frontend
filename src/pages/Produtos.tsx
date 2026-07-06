@@ -267,48 +267,40 @@ export function Produtos() {
                             <div className="modal-content">
                                 <div className="produtos-form">
                                     <div className="produtos-form__fields">
-                                        <label>
-                                            Nome do produto
+
+                                        <div className="produto-field">
+                                            <label>Nome do produto</label>
                                             <input
+                                                className="produto-input"
                                                 placeholder="Ex: X-Bacon Artesanal"
                                                 value={nome}
                                                 onChange={(e) => setNome(e.target.value)}
                                             />
-                                        </label>
+                                        </div>
 
-                                        <label>
-                                            Categoria
+                                        <div className="produto-field">
+                                            <label>Categoria</label>
                                             <input
+                                                className="produto-input"
                                                 placeholder="Ex: Lanches"
                                                 value={categoria}
                                                 onChange={(e) => setCategoria(e.target.value)}
                                             />
-                                        </label>
+                                        </div>
 
-                                        <label>
-                                            Preço de venda (R$)
+                                        <div className="produto-field">
+                                            <label>Preço de venda (R$)</label>
                                             <input
+                                                className="produto-input"
                                                 placeholder="0,00"
                                                 value={preco}
                                                 onChange={(e) => setPreco(e.target.value)}
                                             />
-                                        </label>
+                                        </div>
+
                                     </div>
 
                                     <div className="produto-resumo">
-
-                                        <div className="produto-card">
-
-                                            <span>Preço de Venda (R$)</span>
-
-                                            <input
-                                                placeholder="0,00"
-                                                value={preco}
-                                                onChange={(e) => setPreco(e.target.value)}
-                                            />
-
-                                        </div>
-
                                         <div className="produto-card">
 
                                             <span>Custo Total</span>
@@ -403,6 +395,29 @@ export function Produtos() {
                                             className="btn-adicionar-insumo"
                                         >
                                             + Adicionar mais insumos
+                                        </button>
+
+                                    </div>
+
+                                    <div className="produtos-form__actions">
+
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={limparFormulario}
+                                        >
+                                            Cancelar
+                                        </button>
+
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={editandoId ? atualizarProduto : cadastrarProduto}
+                                            disabled={loading}
+                                        >
+                                            {loading
+                                                ? "Salvando..."
+                                                : editandoId
+                                                    ? "Atualizar Produto"
+                                                    : "Salvar Produto"}
                                         </button>
 
                                     </div>
