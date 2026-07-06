@@ -110,28 +110,26 @@ export default function ModalTransformacao({ open, onClose }: Props) {
     );
 
 
-    const quantidadeTotalInsumos = insumosSelecionados.reduce(
-        (total, item) => {
+    const quantidadeTotalInsumos = insumosSelecionados.reduce((total, item) => {
 
-            if (!unidadeCompativel(
-                item.unidade,
-                dadosTransformacao.unidadeFinal
-            )) {
-                return total;
-            }
+        if (!unidadeCompativel(item.unidade, dadosTransformacao.unidadeFinal)) {
+            return total;
+        }
 
-            return total + Number(item.quantidade || 0);
+        return total + Number(item.quantidade || 0);
 
-        },
-        0
-    );
+    }, 0);
+
+    console.log(insumosSelecionados);
 
     const quantidadeProduzidaBase = normalizarProducao();
 
-    const rendimento =
-        quantidadeTotalInsumos > 0
-            ? (quantidadeProduzidaBase / quantidadeTotalInsumos) * 100
-            : 0;
+    const quantidadeProduzidaExibicao = converterQuantidadeParaExibicao(
+        quantidadeTotalInsumos,
+        dadosTransformacao.unidadeFinal
+    );
+
+    const rendimento = 100;
 
     const valorUnitario =
         quantidadeProduzidaBase > 0
@@ -264,15 +262,14 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                             <label>Quantidade produzida</label>
                             <input
                                 type="text"
-                                className="transformacao-input"
-                                placeholder="0,00"
-                                value={dadosTransformacao.quantidadeProduzida}
-                                onChange={(e) =>
-                                    setDadosTransformacao({
-                                        ...dadosTransformacao,
-                                        quantidadeProduzida: e.target.value
-                                    })
-                                }
+                                className={`transformacao-input transformacao-input-readonly ${quantidadeTotalInsumos > 0
+                                    ? "transformacao-input-filled"
+                                    : "transformacao-input-empty"
+                                    }`}
+                                value={`${quantidadeProduzidaExibicao
+                                    .toFixed(3)
+                                    .replace(".", ",")} ${dadosTransformacao.unidadeFinal}`}
+                                readOnly
                             />
                         </div>
 

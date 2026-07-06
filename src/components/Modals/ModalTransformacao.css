@@ -319,3 +319,26 @@
 
     padding-top: 8px;
 }
+
+.transformacao-input-readonly {
+    cursor: default;
+}
+
+.transformacao-input-readonly:focus {
+    border-color: #232F4A;
+    box-shadow: none;
+    outline: none;
+}
+
+.transformacao-input-readonly:hover {
+    border-color: #232F4A;
+}
+
+.transformacao-input-empty {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.transformacao-input-filled {
+    color: #FFFFFF;
+    font-weight: 500;
+}

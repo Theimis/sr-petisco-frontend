@@ -295,32 +295,116 @@ export function Produtos() {
                                         </label>
                                     </div>
 
-                                    <div className="produtos-form__projection">
-                                        <div>
-                                            <span>Custo estimado</span>
-                                            <strong>{formatCurrency(calcularCusto(precoValorFormatado))}</strong>
+                                    <div className="produto-resumo">
+
+                                        <div className="produto-card">
+
+                                            <span>Preço de Venda (R$)</span>
+
+                                            <input
+                                                placeholder="0,00"
+                                                value={preco}
+                                                onChange={(e) => setPreco(e.target.value)}
+                                            />
+
                                         </div>
-                                        <div>
-                                            <span>Margem estimada</span>
-                                            <strong>{formatCurrency(calcularMargem(precoValorFormatado))}</strong>
+
+                                        <div className="produto-card">
+
+                                            <span>Custo Total</span>
+
+                                            <strong className="text-green">
+                                                {formatCurrency(calcularCusto(precoValorFormatado))}
+                                            </strong>
+
                                         </div>
+
+                                        <div className="produto-card">
+
+                                            <span>CMV (%)</span>
+
+                                            <strong className="text-yellow">
+                                                {cmvPadrao.toFixed(1)}%
+                                            </strong>
+
+                                        </div>
+
+                                        <div className="produto-card">
+
+                                            <span>Margem de Contribuição (R$)</span>
+
+                                            <strong className="text-green">
+                                                {formatCurrency(calcularMargem(precoValorFormatado))}
+                                            </strong>
+
+                                        </div>
+
                                     </div>
 
-                                    <div className="produtos-form__actions">
+                                    <div className="produto-ingredientes">
+
+                                        <table className="produto-ingredientes-table">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Ingrediente</th>
+                                                    <th>Quantidade</th>
+                                                    <th>Unidade</th>
+                                                    <th>Custo</th>
+                                                    <th>Ação</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+
+                                                <tr>
+
+                                                    <td>
+
+                                                        <input
+                                                            className="ingrediente-input"
+                                                            placeholder="Pesquisar ingrediente..."
+                                                        />
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <input
+                                                            className="quantidade-input"
+                                                            placeholder="0"
+                                                        />
+
+                                                    </td>
+
+                                                    <td>g</td>
+
+                                                    <td className="custo-cell">
+                                                        R$ 0,00
+                                                    </td>
+
+                                                    <td>
+
+                                                        <button
+                                                            className="btn-remover"
+                                                        >
+                                                            Remover
+                                                        </button>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            </tbody>
+
+                                        </table>
+
                                         <button
-                                            className="btn btn-primary"
-                                            onClick={editandoId ? atualizarProduto : cadastrarProduto}
-                                            disabled={loading}
+                                            className="btn-adicionar-insumo"
                                         >
-                                            {loading
-                                                ? "Salvando..."
-                                                : editandoId
-                                                    ? "Atualizar produto"
-                                                    : "Cadastrar Produto"}
+                                            + Adicionar mais insumos
                                         </button>
-                                        <button className="btn btn-secondary" onClick={limparFormulario}>
-                                            Cancelar
-                                        </button>
+
                                     </div>
                                 </div>
                             </div>
