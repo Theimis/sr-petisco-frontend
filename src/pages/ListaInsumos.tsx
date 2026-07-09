@@ -38,13 +38,7 @@ export function ListaInsumos() {
     }
 
     function formatar(i: any) {
-        if (i.unidade === "ml")
-            return i.qtdLiquida * 1000 + " ml";
-
-        if (i.unidade === "g")
-            return i.qtdLiquida * 1000 + " g";
-
-        return i.qtdLiquida + " " + i.unidade;
+        return `${i.qtdLiquida} ${i.unidade}`;
     }
 
     return (

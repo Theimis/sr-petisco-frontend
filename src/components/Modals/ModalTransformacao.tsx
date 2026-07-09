@@ -31,36 +31,21 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         quantidadeProduzida: ""
     });
 
-    function normalizarProducao() {
-        const valor = Number(
-            (dadosTransformacao.quantidadeProduzida || "0")
-                .toString()
-                .replace(",", ".")
-        );
-
-        const unidade = dadosTransformacao.unidadeFinal;
-
-        if (unidade === "kg") return valor * 1000;
-        if (unidade === "l") return valor * 1000;
-
-        return valor;
-    }
-
     function unidadeCompativel(
         unidadeIngrediente: string,
         unidadeFinal: string
     ) {
 
         if (
-            (unidadeFinal === "kg" || unidadeFinal === "g") &&
-            (unidadeIngrediente === "kg" || unidadeIngrediente === "g")
+            unidadeFinal === "kg" &&
+            unidadeIngrediente === "kg"
         ) {
             return true;
         }
 
         if (
-            (unidadeFinal === "l" || unidadeFinal === "ml") &&
-            (unidadeIngrediente === "l" || unidadeIngrediente === "ml")
+            unidadeFinal === "l" &&
+            unidadeIngrediente === "l"
         ) {
             return true;
         }
@@ -74,23 +59,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
         return false;
     }
-
-
-    function converterQuantidadeParaExibicao(
-        quantidade: number,
-        unidade: string
-    ) {
-        if (unidade === "kg") {
-            return quantidade / 1000;
-        }
-
-        if (unidade === "l") {
-            return quantidade / 1000;
-        }
-
-        return quantidade;
-    }
-
 
     const limparModal = () => {
         setInsumosSelecionados([]);
@@ -122,13 +90,12 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
     console.log(insumosSelecionados);
 
-    const quantidadeProduzidaBase = normalizarProducao();
-
-    const quantidadeProduzidaExibicao = converterQuantidadeParaExibicao(
-        quantidadeTotalInsumos,
-        dadosTransformacao.unidadeFinal
+    const quantidadeProduzidaBase = Number(
+        (dadosTransformacao.quantidadeProduzida || "0")
+            .toString()
+            .replace(",", ".")
     );
-
+    const quantidadeProduzidaExibicao = quantidadeTotalInsumos;
     const rendimento = 100;
 
     const valorUnitario =
@@ -251,9 +218,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                                 }
                             >
                                 <option value="kg">kg</option>
-                                <option value="g">g</option>
                                 <option value="l">l</option>
-                                <option value="ml">ml</option>
                                 <option value="un">un</option>
                             </select>
                         </div>
@@ -290,20 +255,14 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                             </strong>
 
                             <small>
-                                {converterQuantidadeParaExibicao(
-                                    quantidadeProduzidaBase,
-                                    dadosTransformacao.unidadeFinal
-                                )
+                                {quantidadeProduzidaBase
                                     .toFixed(3)
                                     .replace(".", ",")}
                                 {dadosTransformacao.unidadeFinal}
 
                                 {" de "}
 
-                                {converterQuantidadeParaExibicao(
-                                    quantidadeTotalInsumos,
-                                    dadosTransformacao.unidadeFinal
-                                )
+                                {quantidadeTotalInsumos
                                     .toFixed(3)
                                     .replace(".", ",")}
                                 {dadosTransformacao.unidadeFinal}

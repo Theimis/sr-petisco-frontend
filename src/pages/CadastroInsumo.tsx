@@ -10,6 +10,9 @@ export function CadastroInsumo() {
     const [qtdLiquida, setQtdLiquida] = useState("");
     const [valorTotal, setValorTotal] = useState("");
 
+    const [pesoUnitario, setPesoUnitario] = useState("");
+    const [unidadePesoUnitario, setUnidadePesoUnitario] = useState("kg");
+
     async function salvar() {
         try {
             await api.post("/insumos", {
@@ -17,6 +20,10 @@ export function CadastroInsumo() {
                 categoria,
                 fornecedor,
                 unidade,
+
+                pesoUnitario: Number(pesoUnitario) || null,
+                unidadePesoUnitario,
+
                 qtdBruta: Number(qtdBruta),
                 qtdLiquida: Number(qtdLiquida) || Number(qtdBruta),
                 valorTotal: Number(valorTotal),
@@ -31,6 +38,9 @@ export function CadastroInsumo() {
             setQtdBruta("");
             setQtdLiquida("");
             setValorTotal("");
+
+            setPesoUnitario("");
+            setUnidadePesoUnitario("kg");
 
         } catch (err: any) {
             console.error(err.response?.data || err);
@@ -53,10 +63,26 @@ export function CadastroInsumo() {
             <select value={unidade} onChange={e => setUnidade(e.target.value)}>
                 <option value="">Selecione unidade</option>
                 <option value="kg">kg</option>
-                <option value="g">g</option>
                 <option value="l">l</option>
-                <option value="ml">ml</option>
                 <option value="un">un</option>
+            </select>
+
+
+            <input
+                placeholder="Peso Unitário"
+                type="number"
+                value={pesoUnitario}
+                onChange={e => setPesoUnitario(e.target.value)}
+            />
+
+            <br /><br />
+
+            <select
+                value={unidadePesoUnitario}
+                onChange={e => setUnidadePesoUnitario(e.target.value)}
+            >
+                <option value="kg">kg</option>
+                <option value="l">l</option>
             </select>
 
             <br /><br />
