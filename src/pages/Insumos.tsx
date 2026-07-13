@@ -72,6 +72,8 @@ export function Insumos() {
         try {
             const res = await api.get("/insumos");
 
+
+
             setInsumos(
                 Array.isArray(res.data.data)
                     ? res.data.data
@@ -106,19 +108,14 @@ export function Insumos() {
             nome: insumo.nome,
             categoria: insumo.categoria,
             unidade: insumo.unidade,
-            qtdBruta:
-                insumo.unidade === "kg" ||
-                    insumo.unidade === "l"
-                    ? insumo.qtdBruta / 1000
-                    : insumo.qtdBruta,
 
-            qtdLiquida:
-                insumo.unidade === "kg" ||
-                    insumo.unidade === "l"
-                    ? insumo.qtdLiquida / 1000
-                    : insumo.qtdLiquida,
+            qtdBruta: insumo.qtdBruta,
+
+            qtdLiquida: insumo.qtdLiquida,
+
             valorTotal: insumo.valorTotal,
             rendimento: insumo.rendimento,
+
             ingredientes: insumo.transformacao?.ingredientes
                 ? JSON.parse(JSON.stringify(insumo.transformacao.ingredientes))
                 : [],
@@ -360,11 +357,9 @@ export function Insumos() {
 
                                                 {/* Valor Unitário */}
                                                 <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
-                                                    R$ {(
-                                                        ["kg", "ml"].includes(insumo.unidade)
-                                                            ? Number(insumo.valorUnitario) * 100
-                                                            : Number(insumo.valorUnitario)
-                                                    ).toFixed(2).replace(".", ",")}
+                                                    R$ {Number(insumo.valorUnitario)
+                                                        .toFixed(2)
+                                                        .replace(".", ",")}
                                                 </td>
 
                                                 {/* Compact Action Controls */}
@@ -931,7 +926,6 @@ export function Insumos() {
                                                         (pesquisasIngredientes[index] || "").toLowerCase()
                                                     )
                                                 );
-
                                                 const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
 
                                                 return (
