@@ -257,6 +257,12 @@
     transition: all 0.2s ease-in-out;
 }
 
+.produto-ingredientes-scroll {
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .search-input:hover {
     border-color: #354972;
 }
@@ -707,7 +713,7 @@
 .produto-ingredientes-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    overflow: visible;
 }
 
 .produto-ingredientes-table th {
@@ -727,6 +733,8 @@
     padding: 16px;
     text-align: center;
     border-bottom: 1px solid #232F4A;
+    overflow: visible;
+    position: relative;
 }
 
 .produto-ingredientes-table th:nth-child(1),

@@ -59,13 +59,7 @@ export function Produtos() {
         return nomeMatch && categoriaMatch;
     });
 
-    const [ingredientesProduto, setIngredientesProduto] = useState([
-        {
-            insumo: "",
-            qtdLiquida: 0,
-            pesquisando: true,
-        },
-    ]);
+    const [ingredientesProduto, setIngredientesProduto] = useState<any[]>([]);
 
     const [insumos, setInsumos] = useState<any[]>([]);
 
@@ -92,6 +86,15 @@ export function Produtos() {
         return precoValue - calcularCusto(precoValue);
     }
 
+    function calcularCMV() {
+
+        if (!precoValorFormatado) {
+            return 0;
+        }
+
+        return (custoTotal / precoValorFormatado) * 100;
+    }
+
     async function carregarProdutos() {
         try {
             setLoading(true);
@@ -108,6 +111,8 @@ export function Produtos() {
     async function carregarInsumos() {
         try {
             const res = await api.get("/insumos");
+            console.log("INSUMOS:", res.data.data);
+
 
             setInsumos(
                 Array.isArray(res.data.data)
@@ -129,45 +134,77 @@ export function Produtos() {
         setNome("");
         setCategoria("");
         setPreco("");
+
         setEditandoId(null);
         setMostrarFormulario(false);
+
+        // Limpa completamente a ficha técnica
+        setIngredientesProduto([]);
+
+        setPesquisasIngredientes({});
+
+        setInputAberto(null);
     }
 
     async function cadastrarProduto() {
         const precoValor = parsePrecoInput(preco);
 
+        const ingredientesFicha = ingredientesProduto.map((ingrediente) => ({
+            insumo: ingrediente.insumo,
+            quantidade: ingrediente.qtdLiquida,
+        }));
+
         if (!nome.trim()) {
             toast.error("Por favor, preencha o nome do produto.");
             return;
         }
+
         if (!categoria.trim()) {
             toast.error("Por favor, preencha a categoria.");
             return;
         }
+
         if (!preco || precoValor <= 0 || Number.isNaN(precoValor)) {
             toast.error("Por favor, insira um preço válido maior que zero.");
             return;
         }
 
+        if (ingredientesFicha.length === 0) {
+            toast.error("Adicione pelo menos um ingrediente.");
+            return;
+        }
+
         try {
             setLoading(true);
-            await api.post("/produtos", {
+
+            console.log("ENVIANDO FICHA:", {
                 nome,
                 categoria,
                 preco: precoValor,
-                estoque: 0,
+                ingredientes: ingredientesFicha,
+            });
+
+            await api.post("/fichas", {
+                nome,
+                categoria,
+                preco: precoValor,
+                ingredientes: ingredientesFicha,
             });
 
             toast.success("Produto cadastrado com sucesso!");
+
             limparFormulario();
             await carregarProdutos();
+
         } catch (error) {
             console.error(error);
             toast.error("Erro ao cadastrar produto!");
+
         } finally {
             setLoading(false);
         }
     }
+
 
     async function atualizarProduto() {
         if (!editandoId) {
@@ -244,6 +281,18 @@ export function Produtos() {
 
     const precoValorParaCalculo = parsePrecoInput(preco);
     const precoValorFormatado = Number.isNaN(precoValorParaCalculo) ? 0 : precoValorParaCalculo;
+
+    const custoTotal = ingredientesProduto.reduce((total, ingrediente) => {
+
+        const insumo = insumos.find(
+            (i: any) => i._id === ingrediente.insumo
+        );
+
+        if (!insumo) return total;
+
+        return total + (insumo.valorUnitario * ingrediente.qtdLiquida);
+
+    }, 0);
 
     return (
         <div className="page-container produtos-page">
@@ -338,7 +387,7 @@ export function Produtos() {
                                             <span>Custo Total</span>
 
                                             <strong className="text-green">
-                                                {formatCurrency(calcularCusto(precoValorFormatado))}
+                                                {formatCurrency(custoTotal)}
                                             </strong>
 
                                         </div>
@@ -348,7 +397,7 @@ export function Produtos() {
                                             <span>CMV (%)</span>
 
                                             <strong className="text-yellow">
-                                                {cmvPadrao.toFixed(1)}%
+                                                {calcularCMV().toFixed(1)}%
                                             </strong>
 
                                         </div>
@@ -358,7 +407,7 @@ export function Produtos() {
                                             <span>Margem de Contribuição (R$)</span>
 
                                             <strong className="text-green">
-                                                {formatCurrency(calcularMargem(precoValorFormatado))}
+                                                {formatCurrency(precoValorFormatado - custoTotal)}
                                             </strong>
 
                                         </div>
@@ -366,42 +415,41 @@ export function Produtos() {
                                     </div>
 
                                     <div className="produto-ingredientes">
+                                        <div className="produto-ingredientes-scroll">
+                                            <table className="produto-ingredientes-table">
 
-                                        <table className="produto-ingredientes-table">
 
+                                                <thead>
+                                                    <tr>
+                                                        <th>Ingrediente</th>
+                                                        <th>Quantidade</th>
+                                                        <th>Unidade</th>
+                                                        <th>Custo</th>
+                                                        <th>Ação</th>
+                                                    </tr>
+                                                </thead>
 
-                                            <thead>
-                                                <tr>
-                                                    <th>Ingrediente</th>
-                                                    <th>Quantidade</th>
-                                                    <th>Unidade</th>
-                                                    <th>Custo</th>
-                                                    <th>Ação</th>
-                                                </tr>
-                                            </thead>
+                                                <tbody>
 
-                                            <tbody>
+                                                    {ingredientesProduto.map((ingrediente, index) => {
 
-                                                {ingredientesProduto.map((ingrediente, index) => {
+                                                        const insumosPesquisa = insumos.filter((ins: any) =>
+                                                            ins.nome
+                                                                ?.toLowerCase()
+                                                                .includes((pesquisasIngredientes[index] || "").toLowerCase())
+                                                        );
+                                                        const insumoSelecionado = insumos.find(
+                                                            (ins: any) => ins._id === ingrediente.insumo
+                                                        );
+                                                        const custoLinha =
+                                                            (insumoSelecionado?.valorUnitario || 0) *
+                                                            (ingrediente.qtdLiquida || 0);
+                                                        console.log(insumoSelecionado);
+                                                        return (
 
-                                                    const insumosPesquisa = insumos.filter((ins: any) =>
-                                                        ins.nome
-                                                            ?.toLowerCase()
-                                                            .includes((pesquisasIngredientes[index] || "").toLowerCase())
-                                                    );
+                                                            <tr key={index}>
 
-                                                    const ingredienteCompleto =
-                                                        insumos.find(
-                                                            (i: any) => String(i._id) === String(ingrediente.insumo)
-                                                        ) || ingrediente;
-
-                                                    return (
-
-                                                        <tr key={index}>
-
-                                                            <td>
-
-                                                                {ingrediente.pesquisando ? (
+                                                                <td>
 
                                                                     <div
                                                                         style={{ position: "relative", width: "100%" }}
@@ -463,96 +511,106 @@ export function Produtos() {
 
                                                                     </div>
 
-                                                                ) : (
+                                                                </td>
 
-                                                                    <span
-                                                                        style={{
-                                                                            color: "#F8FAFC",
-                                                                            fontWeight: 600,
+                                                                <td>
+
+                                                                    <input
+                                                                        className="quantidade-input"
+                                                                        placeholder="0"
+                                                                        value={ingrediente.qtdLiquida}
+                                                                        onChange={(e) => {
+
+                                                                            const novosIngredientes = [...ingredientesProduto];
+
+                                                                            const valor = e.target.value.replace(",", ".");
+
+                                                                            novosIngredientes[index].qtdLiquida =
+                                                                                valor === "" ? 0 : Number(valor);
+
+                                                                            setIngredientesProduto(novosIngredientes);
+
+                                                                        }}
+                                                                    />
+
+                                                                </td>
+
+                                                                <td>
+                                                                    {insumoSelecionado?.unidade || "-"}
+                                                                </td>
+
+                                                                <td className="custo-cell">
+                                                                    {formatCurrency(custoLinha)}
+                                                                </td>
+
+                                                                <td>
+
+                                                                    <button
+                                                                        className="insumo-action-btn delete"
+                                                                        onClick={() => {
+
+                                                                            const novosIngredientes = ingredientesProduto.filter(
+                                                                                (_, idx) => idx !== index
+                                                                            );
+
+                                                                            setIngredientesProduto(novosIngredientes);
+
+                                                                            setPesquisasIngredientes((anterior) => {
+                                                                                const reindexado = Object.entries(anterior).reduce<Record<number, string>>(
+                                                                                    (acc, [chave, valor]) => {
+                                                                                        const chaveNumero = Number(chave);
+
+                                                                                        if (chaveNumero === index) {
+                                                                                            return acc;
+                                                                                        }
+
+                                                                                        acc[chaveNumero > index ? chaveNumero - 1 : chaveNumero] = valor;
+                                                                                        return acc;
+                                                                                    },
+                                                                                    {}
+                                                                                );
+
+                                                                                return reindexado;
+                                                                            });
+
+                                                                            setInputAberto(null);
+
                                                                         }}
                                                                     >
-                                                                        {ingredienteCompleto?.nome || "SEM NOME"}
-                                                                    </span>
+                                                                        <Trash2 size={16} />
+                                                                    </button>
 
-                                                                )}
+                                                                </td>
 
-                                                            </td>
+                                                            </tr>
 
-                                                            <td>
+                                                        );
 
-                                                                <input
-                                                                    className="quantidade-input"
-                                                                    placeholder="0"
-                                                                    value={ingrediente.qtdLiquida}
-                                                                    onChange={(e) => {
-
-                                                                        const novosIngredientes = [...ingredientesProduto];
-
-                                                                        novosIngredientes[index].qtdLiquida = Number(e.target.value);
-
-                                                                        setIngredientesProduto(novosIngredientes);
-
-                                                                    }}
-                                                                />
-
-                                                            </td>
-
-                                                            <td>g</td>
-
-                                                            <td className="custo-cell">
-                                                                R$ 0,00
-                                                            </td>
-
-                                                            <td>
-
-                                                                <button
-                                                                    className="insumo-action-btn delete"
-                                                                    onClick={() => {
-
-                                                                        const novosIngredientes = ingredientesProduto.filter(
-                                                                            (_, idx) => idx !== index
-                                                                        );
-
-                                                                        setIngredientesProduto(novosIngredientes);
-
-                                                                        setInputAberto(null);
-
-                                                                    }}
-                                                                >
-                                                                    <Trash2 size={16} />
-                                                                </button>
-
-                                                            </td>
-
-                                                        </tr>
-
-                                                    );
-
-                                                })}
+                                                    })}
 
 
 
-                                            </tbody>
+                                                </tbody>
 
-                                        </table>
+                                            </table>
 
 
-                                        <button
-                                            className="btn-adicionar-insumo"
-                                            onClick={() =>
-                                                setIngredientesProduto([
-                                                    ...ingredientesProduto,
-                                                    {
-                                                        insumo: "",
-                                                        qtdLiquida: 0,
-                                                        pesquisando: true,
-                                                    },
-                                                ])
-                                            }
-                                        >
-                                            + Adicionar mais insumos
-                                        </button>
+                                            <button
+                                                className="btn-adicionar-insumo"
+                                                onClick={() =>
+                                                    setIngredientesProduto((anterior) => [
+                                                        ...anterior,
+                                                        {
+                                                            insumo: "",
+                                                            qtdLiquida: 0,
+                                                        },
+                                                    ])
+                                                }
+                                            >
+                                                + Adicionar mais insumos
+                                            </button>
 
+                                        </div>
                                     </div>
 
                                     <div className="produtos-form__actions">
