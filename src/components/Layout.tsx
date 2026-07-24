@@ -18,7 +18,7 @@ export function Layout({ children }: Props) {
                 style={{
                     flex: 1,
                     padding: 20,
-                    background: "#0b0b0b",
+                    background: "#0C101E",
                     minHeight: "100vh",
                     marginLeft: 270,
                 }}

@@ -3,7 +3,6 @@ import { api } from "../services/api";
 import { formatarUnidade } from "../utils/formatarUnidade";
 import "./Insumos.css";
 import {
-    Plus,
     Search,
     Filter,
     Layers,
@@ -62,6 +61,12 @@ export function Insumos() {
         new Set(insumos.map((insumo) => insumo.categoria).filter(Boolean))
     );
 
+    const custoReal =
+        dadosEditados.qtdLiquida > 0
+            ? (Number(dadosEditados.valorTotal) / Number(dadosEditados.qtdLiquida)) *
+            Number(dadosEditados.qtdBruta)
+            : 0;
+
     // Dynamic stats trackers
     const totalInsumosCount = insumos.length;
     const baseInsumosCount = insumos.filter(i => !i.tipo || i.tipo === "base").length;
@@ -71,9 +76,6 @@ export function Insumos() {
     async function carregarInsumos() {
         try {
             const res = await api.get("/insumos");
-
-
-
             setInsumos(
                 Array.isArray(res.data.data)
                     ? res.data.data
@@ -108,11 +110,8 @@ export function Insumos() {
             nome: insumo.nome,
             categoria: insumo.categoria,
             unidade: insumo.unidade,
-
             qtdBruta: insumo.qtdBruta,
-
             qtdLiquida: insumo.qtdLiquida,
-
             valorTotal: insumo.valorTotal,
             rendimento: insumo.rendimento,
 
@@ -168,250 +167,257 @@ export function Insumos() {
 
     return (
         <div className="insumos-container">
-            <div className="insumos-card">
 
-                {/* 1. HEADER BANNER */}
-                <div className="insumos-header-banner" id="insumos-header-banner">
-                    <div className="insumos-header-icon-wrapper">
-                        <Layers className="insumos-header-icon" />
-                    </div>
-                    <h1 className="insumos-header-title">TELA DE INSUMOS</h1>
-                </div>
 
-                {/* 2. MAIN CONTENT BODY */}
-                <div className="insumos-content">
+            <div className="insumos-header">
 
-                    {/* Introductory subtitle and action bar */}
-                    <div className="insumos-intro-row">
-                        <div>
-                            <p className="insumos-subtitle">
-                                Gerencie todos os insumos cadastrados com cálculo em tempo real.
-                            </p>
-                        </div>
+                <div className="insumos-title">
 
-                        <div className="insumos-actions">
-                            <button
-                                onClick={handleCriarNovoInsumo}
-                                className="insumos-create-btn"
-                            >
-                                <Plus className="w-4.5 h-4.5" />
-                                Criar Insumo
-                            </button>
+                    <h1>
+                        <Layers size={30} />
+                        <span>Tela De Insumos</span>
+                    </h1>
 
-                            <button
-                                onClick={() => setModalTransformacao(true)}
-                                className="insumos-transformacao-btn"
-                            >
-                                🔄 Criar Transformação
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* STATS MODULE PANEL */}
-                    <div className="insumos-stats-grid">
-                        <div className="insumos-stat-card">
-                            <div>
-                                <span className="insumos-stat-label">Total Insumos</span>
-                                <span className="insumos-stat-value">{totalInsumosCount}</span>
-                            </div>
-                            <div className="insumos-stat-icon-container blue">
-                                <Layers className="w-5 h-5" />
-                            </div>
-                        </div>
-
-                        <div className="insumos-stat-card">
-                            <div>
-                                <span className="insumos-stat-label">Insumos Base</span>
-                                <span className="insumos-stat-value accent-blue">{baseInsumosCount}</span>
-                            </div>
-                            <div className="insumos-stat-icon-container slate">
-                                <SlidersHorizontal className="w-5 h-5" />
-                            </div>
-                        </div>
-
-                        <div className="insumos-stat-card">
-                            <div>
-                                <span className="insumos-stat-label">Transformados</span>
-                                <span className="insumos-stat-value">{transformadosCount}</span>
-                            </div>
-                            <div className="insumos-stat-icon-container amber">
-                                <ChefHat className="w-5 h-5" />
-                            </div>
-                        </div>
-
-                        <div className="insumos-stat-card">
-                            <div>
-                                <span className="insumos-stat-label">Categorias</span>
-                                <span className="insumos-stat-value accent-emerald">{categoriasCount}</span>
-                            </div>
-                            <div className="insumos-stat-icon-container emerald">
-                                <Filter className="w-5 h-5" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* SEARCHBAR AND DROPDOWN FILTERS */}
-                    <div className="insumos-controls-row">
-                        <div className="insumos-search-wrapper">
-                            <Search className="insumos-search-icon" />
-                            <input
-                                placeholder="Barra de pesquisa"
-                                value={pesquisa}
-                                onChange={(e) => setPesquisa(e.target.value)}
-                                className="insumos-search-input"
-                            />
-                        </div>
-
-                        <div className="insumos-select-wrapper">
-                            <Filter className="insumos-select-icon" />
-                            <select
-                                value={filtroTipo}
-                                onChange={(e) => setFiltroTipo(e.target.value)}
-                                className="insumos-select"
-                            >
-                                <option value="todos">Todos os Tipos</option>
-                                <option value="base">Base</option>
-                                <option value="transformado">Transformado</option>
-                            </select>
-                            <span className="insumos-select-arrow">▼</span>
-                        </div>
-
-                        <div className="insumos-select-wrapper">
-                            <Filter className="insumos-select-icon" />
-                            <select
-                                value={filtroCategoria}
-                                onChange={(e) => setFiltroCategoria(e.target.value)}
-                                className="insumos-select"
-                            >
-                                <option value="todas">Filtro por categoria</option>
-                                {categorias.map((categoria) => (
-                                    <option key={categoria} value={categoria}>
-                                        {categoria}
-                                    </option>
-                                ))}
-                            </select>
-                            <span className="insumos-select-arrow">▼</span>
-                        </div>
-                    </div>
-
-                    {/* MULTI-COLUMN COMPACT TABLE */}
-                    <div className="insumos-table-wrapper">
-                        <div className="insumos-table-scroll">
-                            <table className="insumos-table">
-                                <thead>
-                                    <tr>
-                                        <th>Insumo</th>
-                                        <th>Tipo</th>
-                                        <th>Categoria</th>
-                                        <th>Fornecedor</th>
-                                        <th>Rendimento</th>
-                                        <th>Fichas</th>
-                                        <th>Unidade</th>
-                                        <th>Valor Unitário</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {insumosFiltrados.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={9} style={{ textAlign: "center", color: "#64748b" }}>
-                                                Nenhum insumo encontrado para este filtro de busca.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        insumosFiltrados.map((insumo) => (
-                                            <tr key={insumo._id}>
-
-                                                {/* Nome */}
-                                                <td>{insumo.nome}</td>
-
-                                                {/* Tipo (Base / Transformado) */}
-                                                <td>
-                                                    <span className={`insumo-badge ${insumo.tipo === "transformado" ? "transformado" : "base"}`}>
-                                                        {insumo.tipo || "base"}
-                                                    </span>
-                                                </td>
-
-                                                {/* Categoria */}
-                                                <td>
-                                                    <span className="insumo-category-label">
-                                                        {insumo.categoria}
-                                                    </span>
-                                                </td>
-
-                                                {/* Fornecedor */}
-                                                <td>{insumo.fornecedor || "-"}</td>
-
-                                                {/* Rendimento */}
-                                                <td style={{ fontFamily: "monospace" }}>
-                                                    {Number(insumo.rendimentoPercentual || 0).toFixed(0)}%
-                                                </td>
-
-                                                {/* Fichas */}
-                                                <td style={{ fontFamily: "monospace", color: "#64748b" }}>
-                                                    {insumo.fichas || 0}
-                                                </td>
-
-                                                {/* Unidade */}
-                                                <td>{formatarUnidade(insumo.unidade)}</td>
-
-                                                {/* Valor Unitário */}
-                                                <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
-                                                    R$ {Number(insumo.valorUnitario)
-                                                        .toFixed(2)
-                                                        .replace(".", ",")}
-                                                </td>
-
-                                                {/* Compact Action Controls */}
-                                                <td>
-                                                    <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                                                        <button
-                                                            onClick={() => abrirModal(insumo)}
-                                                            className="insumo-action-btn view"
-                                                            title="Ver Detalhes"
-                                                        >
-                                                            <Eye className="w-4 h-4" />
-                                                        </button>
-                                                        {insumo.tipo === "transformado" && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    abrirModal(insumo);
-                                                                    setModoEdicao(true);
-                                                                }}
-                                                                className="insumo-action-btn edit"
-                                                            >
-                                                                <Pencil className="w-4 h-4" />
-                                                            </button>
-                                                        )}
-                                                        <button
-                                                            onClick={() => deletarInsumo(insumo._id)}
-                                                            className="insumo-action-btn delete"
-                                                            title="Deletar Insumo"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Integration dynamic status description footer */}
-                        <div className="insumos-footer-row">
-                            <span>Exibindo {insumosFiltrados.length} de {insumos.length} registros ativos.</span>
-                            <div className="insumos-footer-status">
-                                <div className="insumos-footer-dot"></div>
-                                Banco de insumos integrado às receitas SR de forma automatizada
-                            </div>
-                        </div>
-                    </div>
+                    <p>
+                        Gerencie todos os insumos cadastrados com cálculo em tempo real.
+                    </p>
 
                 </div>
+
+                <div className="insumos-header-actions">
+
+                    {/* Botões permanecem aqui */}
+                </div>
+
             </div>
+
+            {/* 2. MAIN CONTENT BODY */}
+            <div className="insumos-content">
+                {/* STATS MODULE PANEL */}
+                <div className="insumos-stats-grid">
+                    <div className="insumos-stat-card">
+                        <div>
+                            <span className="insumos-stat-label">Total Insumos</span>
+                            <span className="insumos-stat-value">{totalInsumosCount}</span>
+                        </div>
+                        <div className="insumos-stat-icon-container blue">
+                            <Layers className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div className="insumos-stat-card">
+                        <div>
+                            <span className="insumos-stat-label">Insumos Base</span>
+                            <span className="insumos-stat-value accent-blue">{baseInsumosCount}</span>
+                        </div>
+                        <div className="insumos-stat-icon-container slate">
+                            <SlidersHorizontal className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div className="insumos-stat-card">
+                        <div>
+                            <span className="insumos-stat-label">Transformados</span>
+                            <span className="insumos-stat-value">{transformadosCount}</span>
+                        </div>
+                        <div className="insumos-stat-icon-container amber">
+                            <ChefHat className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div className="insumos-stat-card">
+                        <div>
+                            <span className="insumos-stat-label">Categorias</span>
+                            <span className="insumos-stat-value accent-emerald">{categoriasCount}</span>
+                        </div>
+                        <div className="insumos-stat-icon-container emerald">
+                            <Filter className="w-5 h-5" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* SEARCHBAR AND DROPDOWN FILTERS */}
+                <div className="insumos-controls-row">
+                    <div className="insumos-search-wrapper">
+                        <Search className="insumos-search-icon" />
+                        <input
+                            placeholder="Barra de pesquisa"
+                            value={pesquisa}
+                            onChange={(e) => setPesquisa(e.target.value)}
+                            className="insumos-search-input"
+                        />
+                    </div>
+
+                    <div className="insumos-select-wrapper">
+                        <Filter className="insumos-select-icon" />
+                        <select
+                            value={filtroTipo}
+                            onChange={(e) => setFiltroTipo(e.target.value)}
+                            className="insumos-select"
+                        >
+                            <option value="todos">Todos os Tipos</option>
+                            <option value="base">Base</option>
+                            <option value="transformado">Transformado</option>
+                        </select>
+                        <span className="insumos-select-arrow">▼</span>
+                    </div>
+
+                    <div className="insumos-select-wrapper">
+                        <Filter className="insumos-select-icon" />
+                        <select
+                            value={filtroCategoria}
+                            onChange={(e) => setFiltroCategoria(e.target.value)}
+                            className="insumos-select"
+                        >
+                            <option value="todas">Filtro por categoria</option>
+                            {categorias.map((categoria) => (
+                                <option key={categoria} value={categoria}>
+                                    {categoria}
+                                </option>
+                            ))}
+                        </select>
+                        <span className="insumos-select-arrow">▼</span>
+                    </div>
+
+                    <div className="insumos-actions">
+                        <button
+                            onClick={handleCriarNovoInsumo}
+                            className="insumos-create-btn"
+                        >
+                            Criar Insumo
+                        </button>
+
+                        <button
+                            onClick={() => setModalTransformacao(true)}
+                            className="insumos-transformacao-btn"
+                        >
+                            Criar Transformação
+                        </button>
+                    </div>
+
+                </div>
+
+                {/* MULTI-COLUMN COMPACT TABLE */}
+                <div className="insumos-table-wrapper">
+                    <div className="insumos-table-scroll">
+                        <table className="insumos-table">
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Tipo</th>
+                                    <th>Categoria</th>
+                                    <th>Fornecedor</th>
+                                    <th>Rendimento</th>
+                                    <th>Fichas</th>
+                                    <th>Unidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {insumosFiltrados.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={9} style={{ textAlign: "center", color: "#64748b" }}>
+                                            Nenhum insumo encontrado para este filtro de busca.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    insumosFiltrados.map((insumo) => (
+                                        <tr key={insumo._id}>
+
+                                            {/* Nome */}
+                                            <td>{insumo.nome}</td>
+
+                                            {/* Tipo (Base / Transformado) */}
+                                            <td>
+                                                <span className={`insumo-badge ${insumo.tipo === "transformado" ? "transformado" : "base"}`}>
+                                                    {insumo.tipo || "base"}
+                                                </span>
+                                            </td>
+
+                                            {/* Categoria */}
+                                            <td>
+                                                <span className="insumo-category-label">
+                                                    {insumo.categoria}
+                                                </span>
+                                            </td>
+
+                                            {/* Fornecedor */}
+                                            <td>{insumo.fornecedor || "-"}</td>
+
+                                            {/* Rendimento */}
+                                            <td style={{ fontFamily: "monospace" }}>
+                                                {Number(insumo.rendimentoPercentual || 0).toFixed(0)}%
+                                            </td>
+
+                                            {/* Fichas */}
+                                            <td style={{ fontFamily: "monospace", color: "#64748b" }}>
+                                                {insumo.fichas || 0}
+                                            </td>
+
+                                            {/* Unidade */}
+                                            <td>{formatarUnidade(insumo.unidade)}</td>
+
+                                            {/* Valor Unitário */}
+                                            <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                                                R$ {(
+                                                    Number(insumo.valorTotal) /
+                                                    Number(insumo.qtdLiquida)
+                                                )
+                                                    .toFixed(2)
+                                                    .replace(".", ",")}
+                                            </td>
+
+                                            {/* Compact Action Controls */}
+                                            <td>
+                                                <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                                                    <button
+                                                        onClick={() => abrirModal(insumo)}
+                                                        className="insumo-action-btn view"
+                                                        title="Ver Detalhes"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                    {insumo.tipo === "transformado" && (
+                                                        <button
+                                                            onClick={() => {
+                                                                abrirModal(insumo);
+                                                                setModoEdicao(true);
+                                                            }}
+                                                            className="insumo-action-btn edit"
+                                                        >
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => deletarInsumo(insumo._id)}
+                                                        className="insumo-action-btn delete"
+                                                        title="Deletar Insumo"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Integration dynamic status description footer */}
+                    <div className="insumos-footer-row">
+                        <span>Exibindo {insumosFiltrados.length} de {insumos.length} registros ativos.</span>
+                        <div className="insumos-footer-status">
+                            <div className="insumos-footer-dot"></div>
+                            Banco de insumos integrado às receitas SR de forma automatizada
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
 
             {/* HIGH FIDELITY TECHNICAL SHEET DETAIL MODAL */}
             {modalAberto && (
@@ -641,6 +647,20 @@ export function Insumos() {
 
                                                 <p className="resultado-info">
                                                     Custo por unidade líquida
+                                                </p>
+                                            </div>
+
+                                            <div className="resultado-card">
+                                                <span className="resultado-label">
+                                                    Valor Total
+                                                </span>
+
+                                                <h2 className="resultado-valor sucesso">
+                                                    R$ {custoReal.toFixed(2)}
+                                                </h2>
+
+                                                <p className="resultado-info">
+                                                    Custo considerando o rendimento
                                                 </p>
                                             </div>
 

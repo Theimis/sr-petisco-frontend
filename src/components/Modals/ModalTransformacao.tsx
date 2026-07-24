@@ -68,8 +68,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         setQuantidade(0);
 
         setInsumoSelecionado(null);
-
-        // Depois vamos adicionar os outros campos aqui
     };
 
     const custoTotal = insumosSelecionados.reduce(
@@ -87,8 +85,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
         return total + Number(item.quantidade || 0);
 
     }, 0);
-
-    console.log(insumosSelecionados);
 
     const quantidadeProduzidaBase = Number(
         (dadosTransformacao.quantidadeProduzida || "0")

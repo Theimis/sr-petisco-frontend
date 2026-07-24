@@ -1,541 +1,182 @@
-
-import { KPICard } from ".././components/KPICard/KPICard";
-import { SalesChart } from ".././components/Charts/SalesChart";
+import React from "react";
 import { Topbar } from "../components/Topbar/Topbar";
-import React, { useState } from "react";
-import { motion } from "framer-motion";
 import "./dashboard.css";
-import { useEffect } from "react";
-
-
-
 import {
-    DollarSign,
-    ShoppingCart,
-    TrendingUp,
-    Banknote,
+    CalendarDays,
     Package,
-    Users,
-    CreditCard,
-    Globe,
-    Store,
-    Layers,
-    Award,
-    Zap,
+    Boxes,
+    RefreshCw,
+    Factory,
 } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
-    const [periodo, setPeriodo] = useState("Hoje");
-
-    const periodos = [
-        "Hoje",
-        "Ontem",
-        "Semana atual",
-        "1 semana",
-        "Mês atual",
-        "1 mês",
-        "Ano atual",
-        "1 ano",
-        "Todos",
-    ];
-
-    useEffect(() => {
-        console.log("Período selecionado:", periodo);
-
-        // aqui depois vai vir API
-        // por enquanto só simulação
-
-    }, [periodo]);
-
-
-
-    // 🔥 DADOS CENTRALIZADOS (PRONTO PRA API)
-    const dashboardData = {
-        totalVendas: "R$ 0,00",
-        quantidadeVendas: "0",
-        ticketMedio: "R$ 0,00",
-        estornos: "R$ 0,00",
-
-        recebimentos: [
-            {
-                name: "Dinheiro",
-                percentage: "0%",
-                value: "R$ 0,00",
-                icon: DollarSign,
-                color: "#10b981",
-            },
-            {
-                name: "PIX",
-                percentage: "0%",
-                value: "R$ 0,00",
-                icon: Zap,
-                color: "#f59e0b",
-            },
-            {
-                name: "Crédito",
-                percentage: "0%",
-                value: "R$ 0,00",
-                icon: CreditCard,
-                color: "#7c3aed",
-            },
-            {
-                name: "Débito",
-                percentage: "0%",
-                value: "R$ 0,00",
-                icon: CreditCard,
-                color: "#3b82f6",
-            },
-            {
-                name: "Recebimento on-line",
-                percentage: "0%",
-                value: "R$ 0,00",
-                icon: Globe,
-                color: "#ef4444",
-            },
-        ],
-
-        stats: [
-            {
-                label: "Produtos/Serviços",
-                value: "0",
-                icon: Package,
-                color: "rgba(16, 185, 129, 0.1)",
-                iconColor: "#10b981",
-            },
-            {
-                label: "Clientes",
-                value: "0",
-                icon: Users,
-                color: "rgba(245, 158, 11, 0.1)",
-                iconColor: "#f59e0b",
-            },
-            {
-                label: "Integrações",
-                value: "0",
-                icon: Layers,
-                color: "rgba(59, 130, 246, 0.1)",
-                iconColor: "#3b82f6",
-            },
-            {
-                label: "Estabelecimentos",
-                value: "0",
-                icon: Store,
-                color: "rgba(124, 58, 237, 0.1)",
-                iconColor: "#7c3aed",
-            },
-        ],
-    };
-
-    // 🔥 KPIs DINÂMICOS
-    const kpis = [
-        {
-            title: "Valor das Vendas",
-            value: dashboardData.totalVendas,
-            change: "0,0%",
-            icon: DollarSign,
-            color: "#10b981",
-            bg: "rgba(16, 185, 129, 0.1)",
-        },
-        {
-            title: "Quantidade de Vendas",
-            value: dashboardData.quantidadeVendas,
-            change: "0,0%",
-            icon: ShoppingCart,
-            color: "#3b82f6",
-            bg: "rgba(59, 130, 246, 0.1)",
-        },
-        {
-            title: "Ticket Médio",
-            value: dashboardData.ticketMedio,
-            change: "0,0%",
-            icon: TrendingUp,
-            color: "#f59e0b",
-            bg: "rgba(245, 158, 11, 0.1)",
-        },
-        {
-            title: "Estornos",
-            value: dashboardData.estornos,
-            change: "0,0%",
-            icon: Banknote,
-            color: "#ef4444",
-            bg: "rgba(239, 68, 68, 0.1)",
-        },
-    ];
-
-
-
     return (
         <div className="dashboard-container">
-
             <Topbar />
 
-            <header className="dashboard-header">
-                <div className="filters-group">
-                    {periodos.map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPeriodo(p)}
-                            className="filter-btn"
-                        >
-                            {p}
-                        </button>
-                    ))}
+            <div className="dashboard-header">
 
-                    <button className="filter-btn">
-                        Intervalo <span>★</span>
-                    </button>
+                <div className="dashboard-title">
+                    <h1>Olá, Admin! 👋</h1>
+                    <p>Aqui está o resumo geral da sua operação</p>
                 </div>
 
-                <div className="establishment-group">
-                    <select className="establishment-select">
-                        <option>Todos os estabelecimentos</option>
-                    </select>
-                </div>
-            </header>
+                <div className="dashboard-actions">
 
-            <section className="hero-row">
+                    <div className="period-card">
+                        <CalendarDays size={18} />
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="welcome-card"
-                >
-                    <div className="welcome-icon-bg">
-                        <Award size={32} color="#fff" />
+                        <span>
+                            20/05/2025 - 20/06/2025
+                        </span>
                     </div>
 
-                    <h1>
-                        Estamos contentes em ter você conosco,
-                        Administrador
-                    </h1>
+                    <div className="user-card">
 
-                    <p>
-                        As métricas e objetivos podem ser alterados
-                        <strong> apenas por administradores</strong>
-                    </p>
-                </motion.div>
-
-                {kpis.slice(0, 2).map((kpi, idx) => (
-                    <KPICard
-                        key={idx}
-                        title={kpi.title}
-                        value={kpi.value}
-                        change={kpi.change}
-                        icon={kpi.icon}
-                        color={kpi.color}
-                        bg={kpi.bg}
-                    />
-                ))}
-
-            </section>
-
-            <section className="content-row">
-
-                <motion.div className="data-panel">
-                    <div className="panel-header">
-                        <h3>Pedidos on-line</h3>
-                        <span>Integrações</span>
-                    </div>
-
-                    <div className="stats-grid">
-
-                        <div className="modern-stat-box">
-                            <h4>0</h4>
-                            <p>Solicitados</p>
+                        <div className="user-avatar">
+                            A
                         </div>
 
-                        <div className="modern-stat-box">
-                            <h4>R$ 0,00</h4>
-                            <p>Valor das solicitações</p>
+                        <div className="user-info">
+                            <strong>Admin</strong>
+                            <span>Administrador</span>
                         </div>
 
                     </div>
-                </motion.div>
 
-                <motion.div className="data-panel">
-                    <div className="panel-header">
-                        <h3>Acompanhamento das metas</h3>
-                    </div>
+                </div>
 
-                    <div className="goals-container">
+            </div>
 
-                        <div className="progress-circle">
-                            <svg className="circle-svg" viewBox="0 0 200 200">
-                                <circle cx="100" cy="100" r="90" className="circle-bg" />
-                                <circle cx="100" cy="100" r="90" className="circle-progress" />
-                            </svg>
+            {/* Área onde ficarão todos os cards do dashboard */}
+            <div className="dashboard-cards">
 
-                            <div className="progress-text">
-                                <span className="label">Objetivo</span>
-                                <span className="value">0%</span>
+                <div className="dashboard-card">
+
+                    <div className="card-content">
+
+                        <div className="card-icon">
+                            <Package size={45} color="#2F80ED" strokeWidth={1.8} />
+                        </div>
+
+                        <div className="card-info">
+
+                            <div className="card-header">
+                                <span>Total de Insumos</span>
                             </div>
-                        </div>
 
-                    </div>
-                </motion.div>
-
-            </section>
-
-            {/* CHARTS */}
-            <section className="charts-row">
-
-                {/* RADAR - Vendas por Estabelecimento */}
-                <div className="data-panel">
-                    <div className="panel-header">
-                        <h3>Vendas por Estabelecimento</h3>
-                    </div>
-
-                    <div className="radar-wrapper">
-
-                        <div className="radar-mock">
-
-                            {[100, 80, 60, 40, 20].map((size, idx) => (
-                                <div
-                                    key={idx}
-                                    className="radar-ring"
-                                    style={{
-                                        width: `${size}%`,
-                                        height: `${size}%`,
-                                    }}
-                                />
-                            ))}
-
-                            <svg className="radar-shape" viewBox="0 0 300 300">
-                                <polygon
-                                    points="150,50 235,110 205,220 95,220 65,110"
-                                    className="radar-data"
-                                />
-                            </svg>
-
-                            <div className="radar-center-glow"></div>
-
-                        </div>
-                        <div className="radar-sales">
-                            <span className="dot"></span>
-                            <span>Vendas</span>
-                        </div>
-
-                    </div>
-                </div>
-                {/* TRIÂNGULO - Operações */}
-                <div className="data-panel">
-                    <div className="panel-header">
-                        <h3>Operações</h3>
-                    </div>
-
-                    {/* LEGENDA */}
-                    <div className="operations-legend">
-
-                        <div className="legend-item">
-                            <span className="legend-dot sales"></span>
-                            <p>Vendas</p>
-                        </div>
-
-                        <div className="legend-item">
-                            <span className="legend-dot purchases"></span>
-                            <p>Compras</p>
-                        </div>
-
-                    </div>
-
-                    <div className="radar-wrapper">
-
-                        <div className="triangle-chart">
-
-                            {/* LABELS DO TRIÂNGULO */}
-                            <div className="triangle-label top">Manhã</div>
-                            <div className="triangle-label left">Tarde</div>
-                            <div className="triangle-label right">Noite</div>
-
-                            <svg viewBox="0 0 300 260" className="triangle-svg">
-
-                                <polygon
-                                    points="150,20 280,220 20,220"
-                                    className="triangle-bg"
-                                />
-
-                                <polygon
-                                    points="150,60 240,200 60,200"
-                                    className="triangle-middle"
-                                />
-
-                                <polygon
-                                    points="150,100 200,180 100,180"
-                                    className="triangle-data"
-                                />
-
-                            </svg>
-
-                        </div>
-
-                    </div>
-                </div>
-
-
-                <div className="data-panel">
-                    <div className="panel-header">
-                        <h3>Recebimentos</h3>
-                    </div>
-
-                    <div className="receipts-list">
-
-                        {dashboardData.recebimentos.map((item, i) => (
-                            <div key={i} className="receipt-item">
-                                <div className="receipt-left">
-                                    <div className="receipt-icon">
-                                        <item.icon size={16} color={item.color} />
-                                    </div>
-
-                                    <div className="receipt-info">
-                                        <h6>{item.name}</h6>
-                                        <span>{item.percentage}</span>
-                                    </div>
-                                </div>
-
-                                <div className="receipt-right">
-                                    <span style={{ color: item.color }}>
-                                        {item.value}
-                                    </span>
-                                </div>
+                            <div className="card-value">
+                                0
                             </div>
-                        ))}
 
-                    </div>
+                            <div className="card-footer">
+                                <span className="card-trend">+12%</span>
+                                <span className="card-period">
+                                    vs perido anterior
+                                </span>
+                            </div>
 
-                </div>
-
-            </section>
-
-            <section className="stats-bar">
-
-                {dashboardData.stats.map((s, i) => (
-                    <div key={i} className="stat-card">
-
-                        <div
-                            className="stat-icon-circ"
-                            style={{ background: s.color }}
-                        >
-                            <s.icon size={20} color={s.iconColor} />
-                        </div>
-
-                        <div className="stat-text">
-                            <h4>{s.value}</h4>
-                            <p>{s.label}</p>
                         </div>
 
                     </div>
-                ))}
 
+                </div>
 
-            </section>
+                <div className="dashboard-card">
 
-            <SalesChart />
+                    <div className="card-content">
 
+                        <div className="card-icon green">
+                            <Boxes size={45} color="#22C55E" strokeWidth={1.8} />
+                        </div>
 
-            {/* TABELAS */}
-            <section className="tables-section">
+                        <div className="card-info">
 
-                <div className="table-wrapper">
+                            <div className="card-header">
+                                <span>Total de Produtos</span>
+                            </div>
 
-                    <div className="table-header">
-                        <h3>
-                            Os 10 itens com o maior faturamento
-                        </h3>
+                            <div className="card-value">
+                                0
+                            </div>
 
-                        <span>Vendidos no período</span>
-                    </div>
+                            <div className="card-footer">
+                                <span className="card-trend">+8%</span>
+                                <span className="card-period">
+                                    vs perido anterior
+                                </span>
+                            </div>
 
-                    <div className="table-content">
+                        </div>
 
-                        <table>
-
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Categoria</th>
-                                    <th style={{ textAlign: "right" }}>
-                                        Quantidade
-                                    </th>
-                                    <th style={{ textAlign: "right" }}>
-                                        Valor
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr>
-                                    <td
-                                        colSpan={4}
-                                        className="empty-state"
-                                    >
-                                        Nenhum item vendido no período
-                                        selecionado.
-                                    </td>
-                                </tr>
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div className="table-footer">
-                        Total: 0 itens faturados
                     </div>
 
                 </div>
 
-                <div className="table-wrapper">
+                <div className="dashboard-card">
 
-                    <div className="table-header">
-                        <h3>Usuários</h3>
-                        <span>Ativos no sistema</span>
-                    </div>
+                    <div className="card-content">
 
-                    <div className="table-content">
+                        <div className="card-icon orange">
+                            <RefreshCw size={45} color="#F59E0B" strokeWidth={1.8} />
+                        </div>
 
-                        <table>
+                        <div className="card-info">
 
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
+                            <div className="card-header">
+                                <span>Total de Transformações</span>
+                            </div>
 
-                                    <th style={{ textAlign: "right" }}>
-                                        Acessos
-                                    </th>
+                            <div className="card-value">
+                                0
+                            </div>
 
-                                    <th style={{ textAlign: "right" }}>
-                                        Última Conexão
-                                    </th>
-                                </tr>
-                            </thead>
+                            <div className="card-footer">
+                                <span className="card-trend">+5%</span>
+                                <span className="card-period">
+                                    vs perido anterior
+                                </span>
+                            </div>
 
-                            <tbody>
-                                <tr>
-                                    <td
-                                        colSpan={3}
-                                        className="empty-state"
-                                    >
-                                        Nenhum usuário conectado hoje.
-                                    </td>
-                                </tr>
-                            </tbody>
+                        </div>
 
-                        </table>
-
-                    </div>
-
-                    <div
-                        className="table-footer"
-                        style={{ color: "#71717a" }}
-                    >
-                        Total: 0 usuários
                     </div>
 
                 </div>
 
-            </section>
+                <div className="dashboard-card">
+
+                    <div className="card-content">
+
+                        <div className="card-icon purple">
+                            <Factory size={45} color="#A855F7" strokeWidth={1.8} />
+                        </div>
+
+                        <div className="card-info">
+
+                            <div className="card-header">
+                                <span>Produções Realizadas</span>
+                            </div>
+
+                            <div className="card-value">
+                                0
+                            </div>
+
+                            <div className="card-footer">
+                                <span className="card-trend">+5%</span>
+                                <span className="card-period">
+                                    vs perido anterior
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
-
     );
 };

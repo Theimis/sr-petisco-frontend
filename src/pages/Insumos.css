@@ -8,15 +8,6 @@
     color: #fff;
 }
 
-/* Master Card matching the reference screenshot */
-.insumos-card {
-    background: #0F1423;
-    border-radius: 24px;
-    border: 1px solid #232F4A;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-}
-
 /* Header Banner - Exact replica of the reference picture */
 .insumos-header-banner {
     background: #1e5cbc;
@@ -54,24 +45,10 @@
 
 /* Main Content Area */
 .insumos-content {
-    padding: 30px;
+    padding: 5px;
 }
 
-/* Introduction block */
-.insumos-intro-row {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 24px;
-}
 
-@media (min-width: 640px) {
-    .insumos-intro-row {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-}
 
 .insumos-subtitle {
     color: #94a3b8;
@@ -102,6 +79,7 @@
 
 .insumos-stat-card {
     background: #121828;
+    margin-top: 15px;
     padding: 16px 20px;
     border-radius: 16px;
     border: 1px solid rgba(35, 47, 74, 0.7);
@@ -276,15 +254,13 @@
 }
 
 .insumos-transformacao-btn {
-    background: #1e5cbc;
-    color: #ffffff;
-    padding: 12px 24px;
+    background: #111827;
+    color: #599ef7;
+    padding: 12px 20px;
     font-size: 14px;
     font-weight: 700;
     border-radius: 12px;
-    border-radius: 12px;
-    border: 1px solid #2B4EFF;
-    border: none;
+    border: 1px solid #1f2937;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -299,15 +275,13 @@
 
 /* Creation Actions Button */
 .insumos-create-btn {
-    background: #1e5cbc;
-    color: #ffffff;
+    background: #111827;
+    color: #599ef7;
     padding: 12px 24px;
     font-size: 14px;
     font-weight: 700;
     border-radius: 12px;
-    border-radius: 12px;
-    border: 1px solid #2B4EFF;
-    border: none;
+    border: 1px solid #1f2937;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -532,12 +506,7 @@
     padding: 20px;
     overflow-y: auto;
     flex: 1;
-}
-
-.insumos-modal-body {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    background: #0F1423;
 }
 
 /* Modal Headers */
@@ -951,7 +920,7 @@
 
 .resultado-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
 }
 
@@ -959,22 +928,22 @@
     background: #0F1423;
     border: 1px solid #232F4A;
     border-radius: 14px;
-    padding: 20px;
+    padding: 16px;
 }
 
 .resultado-label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .resultado-valor {
     margin: 0;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     color: #f8fafc;
     line-height: 1;
@@ -985,8 +954,8 @@
 }
 
 .resultado-info {
-    margin-top: 12px;
-    font-size: 13px;
+    margin-top: 8px;
+    font-size: 12px;
     color: #94a3b8;
 }
 
@@ -1122,4 +1091,16 @@
     color: #CBD5E1;
     font-size: 14px;
     font-weight: 500;
+}
+
+.insumos-title h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.insumos-title p {
+    color: #94A3B8;
+    font-size: 14px;
+    margin-top: 5px;
 }
