@@ -554,9 +554,9 @@
 }
 
 .modal-info-block-label {
-    color: #94a3b8;
+    color: #FFFFFF;
     margin: 0 0 3px 0;
-    font-size: 13px;
+    font-size: 17px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
@@ -567,6 +567,35 @@
     font-size: 22px;
     font-weight: 700;
     display: block;
+}
+
+.rendimento-detalhado {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.modal-info-values {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.modal-info-values>div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.modal-info-values-right {
+    justify-content: flex-end;
+}
+
+.modal-info-sub-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
 }
 
 .modal-info-block-cost {

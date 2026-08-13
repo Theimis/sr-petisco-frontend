@@ -892,23 +892,78 @@ export function Insumos() {
                             {insumoSelecionado && (
                                 <div className="modal-info-panel-row">
                                     <div>
-                                        <p className="modal-info-block-label">Rendimento</p>
-                                        <span className="modal-info-block-value">
-                                            {dadosEditados.qtdLiquida > 0
-                                                ? `${dadosEditados.qtdLiquida} ${dadosEditados.unidade}`
-                                                : "0"}
-                                        </span>
+                                        <p className="modal-info-block-label">
+                                            Quantidade
+                                        </p>
+
+                                        <div className="modal-info-values">
+                                            <div>
+                                                <span className="modal-info-sub-label">
+                                                    Bruta
+                                                </span>
+
+                                                <span className="modal-info-block-value">
+                                                    {dadosEditados.qtdBruta} {dadosEditados.unidade}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="modal-info-sub-label">
+                                                    Líquida
+                                                </span>
+
+                                                <span className="modal-info-block-value">
+                                                    {dadosEditados.qtdLiquida} {dadosEditados.unidade}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="modal-info-sub-label">
+                                                    Rendimento
+                                                </span>
+
+                                                <span className="modal-info-block-value">
+                                                    {dadosEditados.qtdBruta > 0
+                                                        ? (
+                                                            (Number(dadosEditados.qtdLiquida) /
+                                                                Number(dadosEditados.qtdBruta)) *
+                                                            100
+                                                        ).toFixed(0)
+                                                        : 0}%
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div style={{ textAlign: "right" }}>
-                                        <p className="modal-info-block-label">Custo Estimado</p>
-                                        <span className="modal-info-block-cost">
-                                            R$ {Number(modoEdicao ? dadosEditados.valorTotal : dadosEditados.valorTotal || insumoSelecionado?.valorTotal || 0).toFixed(2)}
-                                        </span>
+                                        <p className="modal-info-block-label">
+                                            Custos
+                                        </p>
+
+                                        <div className="modal-info-values modal-info-values-right">
+                                            <div>
+                                                <span className="modal-info-sub-label">
+                                                    Valor de compra
+                                                </span>
+
+                                                <span className="modal-info-block-cost">
+                                                    R$ {Number(dadosEditados.valorTotal).toFixed(2)}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="modal-info-sub-label">
+                                                    Custo real
+                                                </span>
+
+                                                <span className="modal-info-block-cost">
+                                                    R$ {custoReal.toFixed(2)}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
-
                             {/* TIPO DE CADASTRO */}
                             {!insumoSelecionado && etapaCadastro === 1 && (
                                 <div className="cadastro-tipo">
