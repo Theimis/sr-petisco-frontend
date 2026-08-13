@@ -106,6 +106,7 @@ export function Insumos() {
         setModoEdicao(false);
         setInsumoSelecionado(insumo);
 
+
         setDadosEditados({
             nome: insumo.nome,
             categoria: insumo.categoria,
@@ -118,9 +119,13 @@ export function Insumos() {
             ingredientes: insumo.transformacao?.ingredientes
                 ? JSON.parse(JSON.stringify(insumo.transformacao.ingredientes))
                 : [],
+            pesoUnitario: insumo.pesoUnitario || 0,
+            unidadePesoUnitario: insumo.unidadePesoUnitario || "g",
         });
 
+
         setModalAberto(true);
+
     }
 
     function handleCriarNovoInsumo() {
@@ -140,6 +145,8 @@ export function Insumos() {
             qtdLiquida: 0,
             valorTotal: 0,
             rendimento: 0,
+            pesoUnitario: 0,
+            unidadePesoUnitario: "g",
             ingredientes: []
         });
         setModalAberto(true);
@@ -522,6 +529,55 @@ export function Insumos() {
                                                         <option value="un">un</option>
                                                     </select>
                                                 </div>
+                                                {dadosEditados.unidade === "un" && (
+                                                    <div
+                                                        className="cadastro-grid-2"
+                                                        style={{
+                                                            marginTop: "16px"
+                                                        }}
+                                                    >
+
+                                                        <div className="modal-form-group">
+                                                            <label>Peso por unidade</label>
+
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                value={dadosEditados.pesoUnitario}
+                                                                onChange={(e) =>
+                                                                    setDadosEditados({
+                                                                        ...dadosEditados,
+                                                                        pesoUnitario:
+                                                                            e.target.value === ""
+                                                                                ? ""
+                                                                                : Number(e.target.value)
+                                                                    })
+                                                                }
+                                                                className="modal-form-input"
+                                                                placeholder="Ex: 350"
+                                                            />
+                                                        </div>
+
+                                                        <div className="modal-form-group">
+                                                            <label>Unidade do peso</label>
+
+                                                            <select
+                                                                value={dadosEditados.unidadePesoUnitario}
+                                                                onChange={(e) =>
+                                                                    setDadosEditados({
+                                                                        ...dadosEditados,
+                                                                        unidadePesoUnitario: e.target.value
+                                                                    })
+                                                                }
+                                                                className="modal-form-input"
+                                                            >
+                                                                <option value="g">g</option>
+                                                                <option value="ml">ml</option>
+                                                            </select>
+                                                        </div>
+
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div style={{
@@ -1162,11 +1218,6 @@ export function Insumos() {
                                                 return;
                                             }
 
-                                            if (!dadosEditados.qtdLiquida || Number(dadosEditados.qtdLiquida) <= 0) {
-                                                alert("Informe a quantidade líquida");
-                                                return;
-                                            }
-
                                             if (!dadosEditados.valorTotal || Number(dadosEditados.valorTotal) <= 0) {
                                                 alert("Informe o valor de compra");
                                                 return;
@@ -1214,16 +1265,31 @@ export function Insumos() {
                                             }
 
                                             try {
-                                                await api.post("/insumos/com-ficha", {
-                                                    nome: dadosEditados.nome,
-                                                    categoria: categoriaProduto,
-                                                    unidade: dadosEditados.unidade,
-                                                    qtdBruta: Number(dadosEditados.qtdBruta),
-                                                    qtdLiquida: Number(dadosEditados.qtdLiquida),
-                                                    valorTotal: Number(dadosEditados.valorTotal),
-                                                    precoVenda: Number(precoVenda),
-                                                });
-
+                                                await api.post(
+                                                    tipoCadastro === "insumo-produto"
+                                                        ? "/insumos/com-ficha"
+                                                        : "/insumos",
+                                                    {
+                                                        nome: dadosEditados.nome,
+                                                        categoria: categoriaProduto,
+                                                        unidade: dadosEditados.unidade,
+                                                        qtdBruta: Number(dadosEditados.qtdBruta),
+                                                        qtdLiquida:
+                                                            dadosEditados.qtdLiquida === ""
+                                                                ? null
+                                                                : Number(dadosEditados.qtdLiquida),
+                                                        valorTotal: Number(dadosEditados.valorTotal),
+                                                        pesoUnitario:
+                                                            dadosEditados.unidade === "un"
+                                                                ? Number(dadosEditados.pesoUnitario)
+                                                                : null,
+                                                        unidadePesoUnitario:
+                                                            dadosEditados.unidade === "un"
+                                                                ? dadosEditados.unidadePesoUnitario
+                                                                : null,
+                                                        precoVenda: Number(precoVenda),
+                                                    }
+                                                );
                                                 alert("Produto criado com sucesso!");
 
                                                 await carregarInsumos();

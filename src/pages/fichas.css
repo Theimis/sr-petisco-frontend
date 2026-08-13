@@ -141,6 +141,13 @@
     border-radius: 16px;
 
     overflow: hidden;
+
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.fichas-table-scroll {
+    overflow-x: auto;
+    width: 100%;
 }
 
 .fichas-ingredientes .fichas-table-wrapper {
@@ -160,25 +167,45 @@
 
 .fichas-table {
     width: 100%;
+    min-width: 950px;
     border-collapse: collapse;
 }
 
 .fichas-table thead th {
-    border-bottom: 1px solid #253352;
+    background: #182033;
+    padding: 16px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #94A3B8;
+    text-transform: uppercase;
+    text-align: center;
+
+    border: 1px solid #232F4A;
+}
+
+.fichas-table thead th:first-child {
+    text-align: left;
+    padding-left: 24px;
 }
 
 .fichas-table tbody td {
-    border-bottom: 1px solid #232F4A;
-}
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: #CBD5E1;
 
-.fichas-table tbody td {
-    padding: 14px 18px;
+    border-left: 1px solid #232F4A;
+    border-right: 1px solid #232F4A;
+    border-top: none;
     border-bottom: 1px solid #232F4A;
+
+    text-align: center;
     vertical-align: middle;
 }
 
-.fichas-table tbody tr:last-child td {
-    border-bottom: none;
+.fichas-table tbody td:first-child {
+    text-align: left;
+    padding-left: 24px;
 }
 
 .fichas-table tbody tr:hover {
@@ -188,16 +215,22 @@
 .fichas-cell-main {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    gap: 2px;
 }
 
 .fichas-cell-main strong {
-    color: #F8FAFC;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .fichas-cell-main span {
     color: #94A3B8;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.1;
+    margin: 0;
 }
 
 .fichas-actions {
@@ -206,20 +239,36 @@
     gap: 8px;
 }
 
-.fichas-action-btn {
-    width: 36px;
-    height: 36px;
-    border: 1px solid #232F4A;
-    border-radius: 10px;
-    background: #121828;
-    color: #F8FAFC;
-    display: grid;
-    place-items: center;
+.fichas-btn {
+    background: #111827;
+    color: #599ef7;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
 }
 
-.fichas-action-btn-danger {
-    color: #f87171;
+.fichas-btn:hover {
+    background: rgba(255, 255, 255, .08);
+}
+
+.fichas-edit {
+    color: #3B82F6;
+}
+
+.fichas-delete {
+    color: #FF0000;
+}
+
+.fichas-delete:hover {
+    background: rgba(248, 113, 113, .10);
 }
 
 .fichas-empty {

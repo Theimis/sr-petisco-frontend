@@ -17,6 +17,7 @@ export function Fichas() {
         pesquisa: string;
         insumo: any;
         quantidade: number;
+        quantidadeTexto: string;
         unidade: string;
         custo: number;
         dropdownAberto: boolean;
@@ -65,6 +66,7 @@ export function Fichas() {
                 pesquisa: "",
                 insumo: null,
                 quantidade: 0,
+                quantidadeTexto: "",
                 unidade: "-",
                 custo: 0,
                 dropdownAberto: false,
@@ -169,28 +171,6 @@ export function Fichas() {
         }
     }
 
-    function calcularCusto(ficha: any) {
-        return (ficha.ingredientes || []).reduce((total: number, item: any) => {
-            const insumoEncontrado = insumos.find((i: any) => String(i._id) === String(item.insumo));
-
-            if (!insumoEncontrado) return total;
-
-            const quantidade = Number(item.quantidade || item.qtdLiquida || 0);
-            const valorUnitario = Number(insumoEncontrado.valorUnitario || 0);
-
-            return total + valorUnitario * quantidade;
-        }, 0);
-    }
-
-    function calcularMargem(ficha: any) {
-        const preco = Number(ficha.preco || 0);
-        const custo = calcularCusto(ficha);
-
-        if (!preco) return 0;
-
-        return ((preco - custo) / preco) * 100;
-    }
-
     function calcularCustoModal() {
         return ingredientes.reduce((total, item) => {
             return total + item.custo;
@@ -264,98 +244,105 @@ export function Fichas() {
 
                 <div className="fichas-table-wrapper">
 
-                    <table className="fichas-table">
+                    <div className="fichas-table-scroll">
 
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Categoria</th>
-                                <th>Preço</th>
-                                <th>Ingredientes</th>
-                                <th>Custo</th>
-                                <th>Margem</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
+                        <table className="fichas-table">
 
-                        <tbody>
-
-                            {fichas.length === 0 ? (
-
+                            <thead>
                                 <tr>
-                                    <td
-                                        colSpan={7}
-                                        className="fichas-empty"
-                                    >
-                                        Nenhuma ficha cadastrada no momento.
-                                    </td>
+                                    <th>Produto</th>
+                                    <th>Categoria</th>
+                                    <th>Preço</th>
+                                    <th>Ingredientes</th>
+                                    <th>Custo</th>
+                                    <th>Margem</th>
+                                    <th>Ações</th>
                                 </tr>
+                            </thead>
 
-                            ) : (
+                            <tbody>
 
-                                fichas.map((ficha: any, index: number) => (
+                                {fichas.length === 0 ? (
 
-                                    <tr key={ficha._id || index}>
-
-                                        <td className="fichas-cell-main">
-                                            <strong>{ficha.nome || "Sem nome"}</strong>
-                                            <span>Ficha técnica</span>
+                                    <tr>
+                                        <td
+                                            colSpan={7}
+                                            className="fichas-empty"
+                                        >
+                                            Nenhuma ficha cadastrada no momento.
                                         </td>
-
-                                        <td>{ficha.categoria || "—"}</td>
-
-                                        <td>
-                                            R$ {Number(ficha.preco || 0)
-                                                .toFixed(2)
-                                                .replace(".", ",")}
-                                        </td>
-
-                                        <td>
-                                            {(ficha.ingredientes || []).length}
-                                        </td>
-
-                                        <td>
-                                            R$ {calcularCusto(ficha)
-                                                .toFixed(2)
-                                                .replace(".", ",")}
-                                        </td>
-
-                                        <td>
-                                            {calcularMargem(ficha).toFixed(0)}%
-                                        </td>
-
-                                        <td>
-
-                                            <div className="fichas-actions">
-
-                                                <button
-                                                    className="fichas-action-btn"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil size={16} />
-                                                </button>
-
-                                                <button
-                                                    className="fichas-action-btn fichas-action-btn-danger"
-                                                    title="Excluir"
-                                                    onClick={() => abrirModalDelete(ficha._id)}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-
-                                            </div>
-
-                                        </td>
-
                                     </tr>
 
-                                ))
+                                ) : (
 
-                            )}
+                                    fichas.map((ficha: any, index: number) => (
 
-                        </tbody>
+                                        <tr key={ficha._id || index}>
 
-                    </table>
+                                            <td className="fichas-cell-main">
+                                                <strong>{ficha.produto || "Sem nome"}</strong>
+                                                <span>Ficha técnica</span>
+                                            </td>
+
+                                            <td>{ficha.categoria || "—"}</td>
+
+                                            <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                                                R$ {Number(ficha.precoVenda || 0)
+                                                    .toFixed(2)
+                                                    .replace(".", ",")}
+                                            </td>
+
+                                            <td style={{ fontFamily: "monospace", color: "#64748B" }}>
+                                                {(ficha.ingredientes || []).length}
+                                            </td>
+
+                                            <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                                                R$ {Number(ficha.custoTotal || 0)
+                                                    .toFixed(2)
+                                                    .replace(".", ",")}
+                                            </td>
+
+                                            <td style={{ fontFamily: "monospace" }}>
+                                                {Number(ficha.margem || 0).toFixed(0)}%
+                                            </td>
+
+                                            <td>
+                                                <div
+                                                    className="fichas-actions"
+                                                    style={{
+                                                        justifyContent: "center"
+                                                    }}
+                                                >
+                                                    <button
+                                                        className="fichas-btn fichas-edit"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </button>
+
+                                                    <button
+                                                        className="fichas-btn fichas-delete"
+                                                        title="Excluir"
+                                                        onClick={() => abrirModalDelete(ficha._id)}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    ))
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
                 <div className="fichas-table-footer">
 
@@ -573,30 +560,30 @@ export function Fichas() {
 
                                                         <input
                                                             type="text"
-                                                            value={item.quantidade === 0 ? "" : item.quantidade}
+                                                            value={item.quantidadeTexto}
                                                             className="fichas-input-quantidade"
                                                             onChange={(e) => {
 
                                                                 const texto = e.target.value;
 
-                                                                // Permite apenas números, ponto e vírgula
                                                                 if (!/^\d*([,.]?\d*)?$/.test(texto)) {
                                                                     return;
                                                                 }
 
-                                                                const quantidade = Number(texto.replace(",", ".")) || 0;
+                                                                const quantidade =
+                                                                    Number(texto.replace(",", ".")) || 0;
 
                                                                 setIngredientes((lista) =>
                                                                     lista.map((ingrediente) => {
 
                                                                         if (ingrediente.id !== item.id) return ingrediente;
 
-                                                                        const valorUnitario = Number(
-                                                                            ingrediente.insumo?.valorUnitario || 0
-                                                                        );
+                                                                        const valorUnitario =
+                                                                            Number(ingrediente.insumo?.valorUnitario || 0);
 
                                                                         return {
                                                                             ...ingrediente,
+                                                                            quantidadeTexto: texto,
                                                                             quantidade,
                                                                             custo: quantidade * valorUnitario,
                                                                         };
