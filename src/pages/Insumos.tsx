@@ -1049,8 +1049,27 @@ export function Insumos() {
                                                 const ingredienteCompleto =
                                                     insumos.find(
                                                         (i: any) =>
-                                                            String(i._id) === String(ingrediente.insumo)
+                                                            String(i._id) ===
+                                                            String(
+                                                                ingrediente.insumo?._id ||
+                                                                ingrediente.insumo
+                                                            )
                                                     ) || ingrediente;
+
+                                                const quantidadeIngredienteExibicao =
+                                                    ingredienteCompleto?.unidade === "g" ||
+                                                        ingredienteCompleto?.unidade === "ml"
+                                                        ? Number(
+                                                            (Number(ingrediente.qtdLiquida || 0) / 1000).toFixed(3)
+                                                        )
+                                                        : Number(ingrediente.qtdLiquida || 0);
+
+                                                const unidadeIngredienteExibicao =
+                                                    ingredienteCompleto?.unidade === "g"
+                                                        ? "kg"
+                                                        : ingredienteCompleto?.unidade === "ml"
+                                                            ? "l"
+                                                            : ingredienteCompleto?.unidade || "";
 
                                                 const insumosPesquisa = insumos.filter((ins: any) =>
                                                     ins.nome?.toLowerCase().includes(
@@ -1179,12 +1198,14 @@ export function Insumos() {
                                                                     style={{ textAlign: "center", width: "80px" }}
                                                                 />
                                                             ) : (
-                                                                <span>{ingrediente.qtdLiquida}</span>
+                                                                <span>{quantidadeIngredienteExibicao}</span>
                                                             )}
                                                         </div>
 
                                                         {/* Unidade */}
-                                                        <span style={{ textAlign: "center" }}>{formatarUnidade(ingredienteCompleto?.unidade)}</span>
+                                                        <span style={{ textAlign: "center" }}>
+                                                            {unidadeIngredienteExibicao}
+                                                        </span>
 
                                                         {/* Custo */}
                                                         <span style={{ textAlign: "center", color: "#10b981", fontWeight: "bold" }}>

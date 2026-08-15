@@ -86,11 +86,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
     }, 0);
 
-    const quantidadeProduzidaBase = Number(
-        (dadosTransformacao.quantidadeProduzida || "0")
-            .toString()
-            .replace(",", ".")
-    );
+    const quantidadeProduzidaBase = Number(quantidadeTotalInsumos || 0);
     const quantidadeProduzidaExibicao = quantidadeTotalInsumos;
     const rendimento = 100;
 
@@ -120,9 +116,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
             nome: dadosTransformacao.nome,
             categoria: "Transformados",
             unidade: dadosTransformacao.unidadeFinal,
-            rendimento: Number(
-                dadosTransformacao.quantidadeProduzida.toString().replace(",", ".")
-            ),
+            rendimento: Number((quantidadeTotalInsumos || 0).toString().replace(",", ".")),
             ingredientes
         };
 
