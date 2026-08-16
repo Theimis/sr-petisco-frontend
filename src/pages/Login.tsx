@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
-import loginImg from "../assets/login.svg";
+import loginImg from "../assets/login.png";
 import "./login.css";
 import toast from "react-hot-toast";
 
@@ -56,11 +56,6 @@ export function Login() {
 
             {/* ESQUERDA */}
             <div className="login-left">
-
-                <div className="login-logo">
-                    ✨ SR Petisco
-                </div>
-
                 <div className="login-image-wrapper">
                     <img src={loginImg} alt="Login" className="login-image" />
                 </div>
@@ -73,7 +68,11 @@ export function Login() {
                 <div className="login-card">
 
                     <h1>
-                        Bem-vindo ao SR Petisco 👋
+                        Bem-vindo ao{" "}
+                        <span className="login-brand-name">
+                            C&T Softwares
+                        </span>{" "}
+                        👋
                     </h1>
 
                     <p className="login-subtitle">

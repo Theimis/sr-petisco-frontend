@@ -348,9 +348,11 @@ botao-create:active {
 
 .produtos-table thead th {
     background: #182033;
-    color: #E2E8F0;
+    font-size: 13px;
+    color: #94a3b8;
     font-weight: 600;
     white-space: nowrap;
+    border-bottom: 1px solid #232F4A;
 }
 
 .produtos-table tbody tr {
@@ -360,6 +362,22 @@ botao-create:active {
 .produtos-table th:not(:last-child),
 .produtos-table td:not(:last-child) {
     border-right: 1px solid #232F4A;
+}
+
+.produtos-table th:nth-child(5),
+.produtos-table td:nth-child(5) {
+    width: 209px;
+}
+
+.produtos-table th:first-child {
+    text-align: left;
+    padding-left: 24px;
+}
+
+.produtos-table td:first-child {
+    text-align: left;
+    padding-left: 24px;
+    color: #FFFFFF;
 }
 
 .produtos-table td {
@@ -419,12 +437,12 @@ botao-create:active {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 11px 14px;
+    padding: 11px 12px;
     background: rgba(4, 120, 87, 0.10);
     color: #34D399;
     font-weight: 600;
     border-radius: 14px;
-    min-width: 120px;
+    min-width: 90px;
     white-space: nowrap;
 }
 
@@ -433,7 +451,12 @@ botao-create:active {
 }
 
 .produtos-table__actions {
+    text-align: center
+}
+
+.produtos-table__actions-inner {
     display: flex;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -480,7 +503,7 @@ botao-create:active {
     justify-content: space-between;
     gap: 12px;
     margin: 0px 0 0;
-    background: #0F1423;
+    background: #141a2e;
     border-top: 1px solid #232F4A;
     padding: 20px 24px;
     border-radius: 0 0 22px 22px;

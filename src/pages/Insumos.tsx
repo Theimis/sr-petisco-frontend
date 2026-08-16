@@ -1058,7 +1058,9 @@ export function Insumos() {
 
                                                 const quantidadeIngredienteExibicao =
                                                     ingredienteCompleto?.unidade === "g" ||
-                                                        ingredienteCompleto?.unidade === "ml"
+                                                        ingredienteCompleto?.unidade === "ml" ||
+                                                        ingredienteCompleto?.unidade === "kg" ||
+                                                        ingredienteCompleto?.unidade === "l"
                                                         ? Number(
                                                             (Number(ingrediente.qtdLiquida || 0) / 1000).toFixed(3)
                                                         )

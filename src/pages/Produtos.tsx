@@ -812,18 +812,20 @@ export function Produtos() {
                                         {cmv.toFixed(2)}%
                                     </td>
                                     <td className="produtos-table__actions">
-                                        <button
-                                            className="icon-button icon-button--edit"
-                                            onClick={() => editarProduto(produto)}
-                                        >
-                                            <Edit3 size={16} />
-                                        </button>
-                                        <button
-                                            className="icon-button icon-button--delete"
-                                            onClick={() => abrirModalDelete(produto._id)}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
+                                        <div className="produtos-table__actions-inner">
+                                            <button
+                                                className="icon-button icon-button--edit"
+                                                onClick={() => editarProduto(produto)}
+                                            >
+                                                <Edit3 size={16} />
+                                            </button>
+                                            <button
+                                                className="icon-button icon-button--delete"
+                                                onClick={() => abrirModalDelete(produto._id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );
