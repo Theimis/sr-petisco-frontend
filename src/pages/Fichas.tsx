@@ -280,10 +280,11 @@ export function Fichas() {
                                         <tr key={ficha._id || index}>
 
                                             <td className="fichas-cell-main">
-                                                <strong>{ficha.produto || "Sem nome"}</strong>
-                                                <span>Ficha técnica</span>
+                                                <div className="fichas-cell-main-content">
+                                                    <strong>{ficha.produto || "Sem nome"}</strong>
+                                                    <span>Ficha técnica</span>
+                                                </div>
                                             </td>
-
                                             <td>{ficha.categoria || "—"}</td>
 
                                             <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>

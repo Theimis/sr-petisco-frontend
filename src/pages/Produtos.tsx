@@ -18,25 +18,21 @@ interface Produto {
     categoria: string;
     preco: number;
     estoque?: number;
+    custo?: number;
 }
 
 export function Produtos() {
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [mostraFormulario, setMostrarFormulario] = useState(false);
     const [editandoId, setEditandoId] = useState<string | null>(null);
-
     const [modalDelete, setModalDelete] = useState(false);
     const [produtoSelecionado, setProdutoSelecionado] = useState<string | null>(null);
-
     const [busca, setBusca] = useState("");
     const [categoriaFiltro, setCategoriaFiltro] = useState("");
-
     const [nome, setNome] = useState("");
     const [categoria, setCategoria] = useState("");
     const [preco, setPreco] = useState("");
-
     const [loading, setLoading] = useState(false);
-    const cmvPadrao = 60;
 
     const categorias = useMemo(() => {
         const lista = produtos
@@ -79,14 +75,6 @@ export function Produtos() {
 
     function formatCurrency(value: number) {
         return `R$ ${value.toFixed(2).replace(".", ",")}`;
-    }
-
-    function calcularCusto(precoValue: number) {
-        return precoValue * (cmvPadrao / 100);
-    }
-
-    function calcularMargem(precoValue: number) {
-        return precoValue - calcularCusto(precoValue);
     }
 
     function calcularCMV() {
@@ -201,32 +189,79 @@ export function Produtos() {
 
 
     async function atualizarProduto() {
+        const precoValor = parsePrecoInput(preco);
+
         if (!editandoId) {
-            toast.error("Nenhum produto selecionado para editar.");
             return;
         }
 
-        const precoValor = parsePrecoInput(preco);
+        if (!nome.trim()) {
+            toast.error("Por favor, preencha o nome do produto.");
+            return;
+        }
 
-        if (!nome.trim() || !categoria.trim() || !preco || precoValor <= 0 || Number.isNaN(precoValor)) {
-            toast.error("Todos os campos devem ser preenchidos corretamente.");
+        if (!categoria.trim()) {
+            toast.error("Por favor, preencha a categoria.");
+            return;
+        }
+
+        if (
+            !preco ||
+            precoValor <= 0 ||
+            Number.isNaN(precoValor)
+        ) {
+            toast.error(
+                "Por favor, insira um preço válido maior que zero."
+            );
+            return;
+        }
+
+        if (ingredientesProduto.length === 0) {
+            toast.error(
+                "Adicione pelo menos um ingrediente."
+            );
             return;
         }
 
         try {
             setLoading(true);
-            await api.put(`/produtos/${editandoId}`, {
-                nome,
-                categoria,
-                preco: precoValor,
-            });
 
-            toast.success("Produto atualizado com sucesso!");
+            const ingredientesFicha =
+                ingredientesProduto.map(
+                    (ingrediente) => ({
+                        insumo: ingrediente.insumo,
+                        quantidade: Number(
+                            ingrediente.qtdLiquida
+                        ),
+                    })
+                );
+
+            await api.put(
+                `/produtos/${editandoId}`,
+                {
+                    nome,
+                    categoria,
+                    preco: precoValor,
+                    ingredientes:
+                        ingredientesFicha,
+                }
+            );
+
+            toast.success(
+                "Produto atualizado com sucesso!"
+            );
+
             limparFormulario();
+
             await carregarProdutos();
+
         } catch (error) {
             console.error(error);
-            toast.error("Erro ao atualizar produto.");
+
+            toast.error(
+                "Erro ao atualizar produto!"
+            );
+
         } finally {
             setLoading(false);
         }
@@ -257,12 +292,62 @@ export function Produtos() {
         }
     }
 
-    function editarProduto(produto: Produto) {
+    async function editarProduto(produto: Produto) {
         setEditandoId(produto._id);
         setNome(produto.nome);
         setCategoria(produto.categoria);
         setPreco(produto.preco.toString().replace(".", ","));
-        setMostrarFormulario(true);
+
+        try {
+            const res = await api.get(
+                `/fichas/produto/${produto._id}`
+            );
+
+            const ficha = res.data?.data;
+
+            const ingredientes =
+                Array.isArray(ficha?.ingredientes)
+                    ? ficha.ingredientes
+                    : [];
+
+            const ingredientesEditados =
+                ingredientes.map((item: any) => ({
+                    insumo:
+                        typeof item.insumo === "object"
+                            ? item.insumo?._id
+                            : item.insumo,
+
+                    qtdLiquida:
+                        Number(item.quantidade || 0),
+                }));
+
+            const pesquisas =
+                ingredientes.map((item: any) =>
+                    typeof item.insumo === "object"
+                        ? item.insumo?.nome || ""
+                        : ""
+                );
+
+            setIngredientesProduto(
+                ingredientesEditados
+            );
+
+            setPesquisasIngredientes(
+                pesquisas
+            );
+
+            setMostrarFormulario(true);
+
+        } catch (error) {
+            console.error(
+                "Erro ao carregar ficha técnica do produto:",
+                error
+            );
+
+            toast.error(
+                "Não foi possível carregar os ingredientes do produto."
+            );
+        }
     }
 
     function abrirFormulario() {
@@ -700,21 +785,32 @@ export function Produtos() {
                     <tbody>
                         {produtosFiltrados.map((produto) => {
                             const precoValor = Number(produto.preco);
-                            const custo = calcularCusto(precoValor);
-                            const margem = calcularMargem(precoValor);
+                            const custo = Number(produto.custo || 0);
+                            const lucro = precoValor - custo;
+                            const margem = lucro;
+                            const cmv =
+                                precoValor > 0
+                                    ? (custo / precoValor) * 100
+                                    : 0;
 
                             return (
                                 <tr key={produto._id}>
                                     <td className="table-cell table-cell--produto">{produto.nome}</td>
                                     <td className="table-cell table-cell--categoria">{produto.categoria}</td>
                                     <td className="table-cell table-cell--preco">{formatCurrency(precoValor)}</td>
-                                    <td className="table-cell table-cell--custo">{formatCurrency(custo)}</td>
+                                    <td className="table-cell table-cell--custo">
+                                        {formatCurrency(custo)}
+                                    </td>
+
                                     <td className="table-cell table-cell--margin">
                                         <div className="margin-chip">
                                             <ArrowDownRight size={14} /> {formatCurrency(margem)}
                                         </div>
                                     </td>
-                                    <td className="table-cell table-cell--cmv">{cmvPadrao}%</td>
+
+                                    <td className="table-cell table-cell--cmv">
+                                        {cmv.toFixed(2)}%
+                                    </td>
                                     <td className="produtos-table__actions">
                                         <button
                                             className="icon-button icon-button--edit"
@@ -746,7 +842,7 @@ export function Produtos() {
                         Exibindo {produtosFiltrados.length} de {produtos.length} produtos.
                     </span>
                     <span className="produtos-footer__note">
-                        Calculando margens automaticamente à taxa de CMV padrão de 60%.
+                        Margens e CMV calculados com base no custo real de cada produto.
                     </span>
                 </div>
             </div>
