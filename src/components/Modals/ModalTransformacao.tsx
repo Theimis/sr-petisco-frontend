@@ -9,21 +9,73 @@ type Props = {
     onClose: () => void;
 };
 
+type InsumoApi = {
+    _id: string;
+    nome: string;
+    unidade: string;
+    valorUnitario: number;
+    pesoUnitario?: number | null;
+    unidadePesoUnitario?: string | null;
+};
+
+type InsumoSelecionado = {
+    tempId: number;
+    insumoId: string;
+    nome: string;
+    unidade: string;
+    unidadeCadastro?: string;
+    pesoUnitario?: number | null;
+    unidadePesoUnitario?: string | null;
+    valorUnitario: number;
+    quantidade: number;
+    custo: number;
+    pesquisando: boolean;
+};
+
+function obterUnidadeDeUso(insumo: InsumoApi) {
+    if (
+        insumo.unidade === "un" &&
+        Number(insumo.pesoUnitario) > 0 &&
+        insumo.unidadePesoUnitario
+    ) {
+        return insumo.unidadePesoUnitario;
+    }
+
+    return insumo.unidade;
+}
+
+function obterQuantidadeInicial(insumo: InsumoApi) {
+    if (insumo.unidade === "un" && Number(insumo.pesoUnitario) > 0) {
+        return Number(insumo.pesoUnitario);
+    }
+
+    return 0;
+}
+
+function obterValorUnitarioDeUso(insumo: InsumoApi) {
+    const valorUnitario = Number(insumo.valorUnitario || 0);
+
+    // O backend armazena o custo do insumo "un" por g/ml, mas o mapper
+    // devolve pesoUnitario em kg/l. Portanto, convertemos o custo para kg/l.
+    if (
+        insumo.unidade === "un" &&
+        Number(insumo.pesoUnitario) > 0 &&
+        ["kg", "l"].includes(insumo.unidadePesoUnitario || "")
+    ) {
+        return valorUnitario * 1000;
+    }
+
+    return valorUnitario;
+}
+
 export default function ModalTransformacao({ open, onClose }: Props) {
 
     // ======================
     // STATES
     // ======================
-    const [insumosDisponiveis, setInsumosDisponiveis] = useState<any[]>([]);
-    const [insumosSelecionados, setInsumosSelecionados] = useState<any[]>([]);
+    const [insumosDisponiveis, setInsumosDisponiveis] = useState<InsumoApi[]>([]);
+    const [insumosSelecionados, setInsumosSelecionados] = useState<InsumoSelecionado[]>([]);
     const [pesquisasTabela, setPesquisasTabela] = useState<Record<number, string>>({});
-
-
-    const [modalInsumo, setModalInsumo] = useState(false);
-    const [insumoSelecionado, setInsumoSelecionado] = useState<any>(null);
-
-    const [quantidade, setQuantidade] = useState<number>(0);
-    const [busca, setBusca] = useState("");
 
     const [dadosTransformacao, setDadosTransformacao] = useState({
         nome: "",
@@ -63,11 +115,11 @@ export default function ModalTransformacao({ open, onClose }: Props) {
     const limparModal = () => {
         setInsumosSelecionados([]);
         setPesquisasTabela({});
-
-        setBusca("");
-        setQuantidade(0);
-
-        setInsumoSelecionado(null);
+        setDadosTransformacao({
+            nome: "",
+            unidadeFinal: "kg",
+            quantidadeProduzida: ""
+        });
     };
 
     const custoTotal = insumosSelecionados.reduce(
@@ -107,6 +159,30 @@ export default function ModalTransformacao({ open, onClose }: Props) {
             return;
         }
 
+        if (insumosSelecionados.some(item => !item.insumoId)) {
+            alert("Selecione todos os ingredientes adicionados.");
+            return;
+        }
+
+        if (insumosSelecionados.some(item => Number(item.quantidade) <= 0)) {
+            alert("A quantidade dos ingredientes deve ser maior que zero.");
+            return;
+        }
+
+        if (
+            insumosSelecionados.some(item =>
+                !unidadeCompativel(item.unidade, dadosTransformacao.unidadeFinal)
+            )
+        ) {
+            alert("Todos os ingredientes devem possuir unidade compatível com a unidade final.");
+            return;
+        }
+
+        if (quantidadeTotalInsumos <= 0) {
+            alert("A quantidade produzida deve ser maior que zero.");
+            return;
+        }
+
         const ingredientes = insumosSelecionados.map(item => ({
             insumo: item.insumoId,
             qtdLiquida: item.quantidade
@@ -116,7 +192,7 @@ export default function ModalTransformacao({ open, onClose }: Props) {
             nome: dadosTransformacao.nome,
             categoria: "Transformados",
             unidade: dadosTransformacao.unidadeFinal,
-            rendimento: Number((quantidadeTotalInsumos || 0).toString().replace(",", ".")),
+            rendimento: Number(quantidadeTotalInsumos),
             ingredientes
         };
 
@@ -130,11 +206,18 @@ export default function ModalTransformacao({ open, onClose }: Props) {
 
             onClose();
 
-        } catch (error) {
+        } catch (error: any) {
 
-            console.error(error);
+            console.error(
+                "Erro ao salvar transformação:",
+                error.response?.data || error
+            );
 
-            alert("Erro ao salvar transformação.");
+            alert(
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                "Erro ao salvar transformação."
+            );
 
         }
     }
@@ -356,12 +439,22 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                                                                     }}
                                                                     onClick={() => {
                                                                         const lista = [...insumosSelecionados];
+
+                                                                        const unidadeDeUso = obterUnidadeDeUso(insumo);
+                                                                        const quantidadeInicial = obterQuantidadeInicial(insumo);
+                                                                        const valorUnitarioDeUso = obterValorUnitarioDeUso(insumo);
+
                                                                         lista[index] = {
                                                                             ...lista[index],
                                                                             insumoId: insumo._id,
                                                                             nome: insumo.nome,
-                                                                            unidade: insumo.unidade,
-                                                                            valorUnitario: insumo.valorUnitario,
+                                                                            unidadeCadastro: insumo.unidade,
+                                                                            unidade: unidadeDeUso,
+                                                                            pesoUnitario: insumo.pesoUnitario,
+                                                                            unidadePesoUnitario: insumo.unidadePesoUnitario,
+                                                                            quantidade: quantidadeInicial,
+                                                                            valorUnitario: valorUnitarioDeUso,
+                                                                            custo: quantidadeInicial * valorUnitarioDeUso,
                                                                             pesquisando: false
                                                                         };
 
@@ -525,72 +618,6 @@ export default function ModalTransformacao({ open, onClose }: Props) {
                         </button>
 
                     </div>
-
-                    {modalInsumo && (
-                        <div className="modal-overlay">
-                            <div className="modal-box">
-
-                                <h3>Selecionar insumo</h3>
-
-                                {/* 🔎 BUSCA */}
-                                <input
-                                    placeholder="Digite para buscar..."
-                                    value={busca}
-                                    onChange={(e) => setBusca(e.target.value)}
-                                />
-
-                                {/* 📃 RESULTADOS FILTRADOS */}
-                                <div style={{ marginTop: 10 }}>
-                                    {insumosDisponiveis
-                                        .filter((insumo) =>
-                                            insumo.nome
-                                                .toLowerCase()
-                                                .includes(busca.toLowerCase())
-                                        )
-                                        .slice(0, 8) // opcional: limita resultados
-                                        .map((insumo) => (
-                                            <div
-                                                key={insumo._id}
-                                                onClick={() => setInsumoSelecionado(insumo)}
-                                                style={{
-                                                    padding: "10px",
-                                                    cursor: "pointer",
-                                                    borderBottom: "1px solid #1f2937",
-                                                    background:
-                                                        insumoSelecionado?._id === insumo._id
-                                                            ? "#1e293b"
-                                                            : "transparent",
-                                                }}
-                                            >
-                                                {insumo.nome}
-                                            </div>
-                                        ))}
-                                </div>
-
-                                {/* QUANTIDADE */}
-                                <input
-                                    style={{ marginTop: 10 }}
-                                    type="number"
-                                    placeholder="Quantidade"
-                                    value={quantidade}
-                                    onChange={(e) =>
-                                        setQuantidade(Number(e.target.value))
-                                    }
-                                />
-
-                                {/* BOTÕES */}
-                                <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-
-                                    <button onClick={() => setModalInsumo(false)}>
-                                        Cancelar
-                                    </button>
-
-
-                                </div>
-
-                            </div>
-                        </div>
-                    )}
 
                 </div>
             </div>

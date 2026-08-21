@@ -17,6 +17,61 @@ import {
 } from "lucide-react";
 import ModalTransformacao from "../components/Modals/ModalTransformacao";
 
+function obterIdInsumo(ingrediente: any) {
+    return String(ingrediente?.insumo?._id || ingrediente?.insumo || "");
+}
+
+function obterUnidadeUso(insumo: any) {
+    if (
+        insumo?.unidade === "un" &&
+        Number(insumo?.pesoUnitario) > 0 &&
+        insumo?.unidadePesoUnitario
+    ) {
+        return insumo.unidadePesoUnitario;
+    }
+
+    return insumo?.unidade || "";
+}
+
+function converterQuantidadeParaExibicao(quantidadeInterna: any, insumo: any) {
+    const quantidade = Number(quantidadeInterna || 0);
+    const unidadeUso = obterUnidadeUso(insumo);
+
+    // O backend armazena kg/l internamente como g/ml.
+    if (unidadeUso === "kg" || unidadeUso === "l") {
+        return Number((quantidade / 1000).toFixed(3));
+    }
+
+    return quantidade;
+}
+
+function converterQuantidadeParaBackend(quantidadeExibicao: any, insumo: any) {
+    const quantidade = Number(quantidadeExibicao || 0);
+    const unidadeUso = obterUnidadeUso(insumo);
+
+    if (unidadeUso === "kg" || unidadeUso === "l") {
+        return quantidade * 1000;
+    }
+
+    return quantidade;
+}
+
+function obterValorUnitarioUso(insumo: any) {
+    const valorUnitario = Number(insumo?.valorUnitario || 0);
+
+    // Em insumos "un" com peso, o valor recebido continua sendo por g/ml.
+    // Como a tela usa kg/l, convertemos também o valor unitário exibido.
+    if (
+        insumo?.unidade === "un" &&
+        Number(insumo?.pesoUnitario) > 0 &&
+        ["kg", "l"].includes(insumo?.unidadePesoUnitario)
+    ) {
+        return valorUnitario * 1000;
+    }
+
+    return valorUnitario;
+}
+
 export function Insumos() {
     const [insumos, setInsumos] = useState<any[]>([]);
     const [pesquisa, setPesquisa] = useState("");
@@ -107,6 +162,26 @@ export function Insumos() {
         setInsumoSelecionado(insumo);
 
 
+        const ingredientesNormalizados = (insumo.transformacao?.ingredientes || []).map(
+            (ingrediente: any) => {
+                const ingredienteId = obterIdInsumo(ingrediente);
+                const ingredienteCompleto = insumos.find(
+                    (item: any) => String(item._id) === ingredienteId
+                );
+
+                return {
+                    ...ingrediente,
+                    insumo: ingredienteId,
+                    qtdLiquida: converterQuantidadeParaExibicao(
+                        ingrediente.qtdLiquida,
+                        ingredienteCompleto
+                    ),
+                    pesquisando: false
+                };
+            }
+        );
+
+
         setDadosEditados({
             nome: insumo.nome,
             categoria: insumo.categoria,
@@ -116,9 +191,7 @@ export function Insumos() {
             valorTotal: insumo.valorTotal,
             rendimento: insumo.rendimento,
 
-            ingredientes: insumo.transformacao?.ingredientes
-                ? JSON.parse(JSON.stringify(insumo.transformacao.ingredientes))
-                : [],
+            ingredientes: ingredientesNormalizados,
             pesoUnitario: insumo.pesoUnitario || 0,
             unidadePesoUnitario: insumo.unidadePesoUnitario || "g",
         });
@@ -1045,7 +1118,7 @@ export function Insumos() {
                                         </div>
                                         {/* Área com scroll */}
                                         <div className="modal-ingredients-scroll">
-                                            {(modoEdicao ? dadosEditados.ingredientes : insumoSelecionado?.transformacao?.ingredientes)?.map((ingrediente: any, index: number) => {
+                                            {dadosEditados.ingredientes?.map((ingrediente: any, index: number) => {
                                                 const ingredienteCompleto =
                                                     insumos.find(
                                                         (i: any) =>
@@ -1057,28 +1130,20 @@ export function Insumos() {
                                                     ) || ingrediente;
 
                                                 const quantidadeIngredienteExibicao =
-                                                    ingredienteCompleto?.unidade === "g" ||
-                                                        ingredienteCompleto?.unidade === "ml" ||
-                                                        ingredienteCompleto?.unidade === "kg" ||
-                                                        ingredienteCompleto?.unidade === "l"
-                                                        ? Number(
-                                                            (Number(ingrediente.qtdLiquida || 0) / 1000).toFixed(3)
-                                                        )
-                                                        : Number(ingrediente.qtdLiquida || 0);
+                                                    Number(ingrediente.qtdLiquida || 0);
 
                                                 const unidadeIngredienteExibicao =
-                                                    ingredienteCompleto?.unidade === "g"
-                                                        ? "kg"
-                                                        : ingredienteCompleto?.unidade === "ml"
-                                                            ? "l"
-                                                            : ingredienteCompleto?.unidade || "";
+                                                    obterUnidadeUso(ingredienteCompleto);
 
                                                 const insumosPesquisa = insumos.filter((ins: any) =>
                                                     ins.nome?.toLowerCase().includes(
                                                         (pesquisasIngredientes[index] || "").toLowerCase()
                                                     )
                                                 );
-                                                const custoIngrediente = (Number(ingredienteCompleto?.valorUnitario || 0) * Number(ingrediente.qtdLiquida || 0)).toFixed(2);
+                                                const custoIngrediente = (
+                                                    obterValorUnitarioUso(ingredienteCompleto) *
+                                                    quantidadeIngredienteExibicao
+                                                ).toFixed(2);
 
                                                 return (
                                                     <div
@@ -1144,6 +1209,10 @@ export function Insumos() {
                                                                                                         ? {
                                                                                                             ...item,
                                                                                                             insumo: ins._id,
+                                                                                                            qtdLiquida:
+                                                                                                                ins.unidade === "un" && Number(ins.pesoUnitario) > 0
+                                                                                                                    ? Number(ins.pesoUnitario)
+                                                                                                                    : 0,
                                                                                                             pesquisando: false
                                                                                                         }
                                                                                                         : item
@@ -1420,11 +1489,13 @@ export function Insumos() {
                                                 }
                                                 const custoTotal = dadosEditados.ingredientes.reduce(
                                                     (total: number, item: any) => {
-                                                        const insumo = insumos.find(i => i._id === item.insumo);
+                                                        const insumo = insumos.find(
+                                                            i => String(i._id) === obterIdInsumo(item)
+                                                        );
 
                                                         if (!insumo) return total;
 
-                                                        const valorUnitario = Number(insumo.valorUnitario || 0);
+                                                        const valorUnitario = obterValorUnitarioUso(insumo);
                                                         const quantidade = Number(item.qtdLiquida || 0);
 
                                                         return total + valorUnitario * quantidade;
@@ -1454,8 +1525,14 @@ export function Insumos() {
                                                         }[] = (dadosEditados.ingredientes || [])
                                                             .filter((i: any) => i.insumo)
                                                             .map((item: any) => ({
-                                                                insumo: item.insumo,
-                                                                qtdLiquida: Number(item.qtdLiquida) || 0,
+                                                                insumo: obterIdInsumo(item),
+                                                                qtdLiquida: converterQuantidadeParaBackend(
+                                                                    item.qtdLiquida,
+                                                                    insumos.find(
+                                                                        (insumo: any) =>
+                                                                            String(insumo._id) === obterIdInsumo(item)
+                                                                    )
+                                                                ),
                                                             }));
 
                                                         // 🚨 VALIDAÇÃO

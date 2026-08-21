@@ -1,74 +1,123 @@
 .kpi-card {
-    background: linear-gradient(145deg, #18181b, #111111);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 24px;
-    padding: 20px;
-    min-height: 220px;
+    background: #0F1423;
+    border: 1px solid #232F4A;
+    border-radius: 16px;
+    padding: 18px;
+
+    min-height: 150px;
+
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.3s ease;
+    align-items: center;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+
     position: relative;
     overflow: hidden;
 }
 
 .kpi-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(139, 92, 246, 0.4);
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+    transform: translateY(-3px);
+    border-color: #1E5CBC;
+    box-shadow:
+        0 10px 25px rgba(30, 92, 188, 0.12);
 }
 
-.kpi-header {
+.kpi-content {
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 22px;
+    padding-top: 8px;
 }
 
 .kpi-icon-box {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    flex: 0 0 58px;
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 14px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.kpi-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 9px;
+    padding-top: 4px;
+}
+
+.kpi-title {
+    margin: 0;
+
+    color: #94A3B8;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    line-height: 1.2;
+}
+
+.kpi-value {
+    margin: 0;
+
+    color: #FFFFFF;
+
+    font-size: 30px;
+    font-weight: 700;
+
+    line-height: 1.1;
 }
 
 .kpi-trend {
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.kpi-value-group {
-    margin-top: 24px;
-}
-
-.kpi-value-group p {
-    color: #a1a1aa;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-.kpi-value-group h2 {
-    color: #fff;
-    font-size: 38px;
-    font-weight: 700;
-}
-
-.kpi-chart-mini {
     display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 60px;
-    margin-top: 20px;
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    line-height: 1.2;
 }
 
-.chart-bar {
-    flex: 1;
-    border-radius: 6px 6px 0 0;
-    opacity: 0.8;
-    transition: 0.3s;
+.kpi-trend-arrow {
+    font-size: 14px;
+    font-weight: 700;
 }
 
-.kpi-card:hover .chart-bar {
-    opacity: 1;
+.kpi-period {
+    color: #64748B;
+    font-weight: 400;
+}
+
+@media (max-width: 1100px) {
+    .kpi-card {
+        min-height: 140px;
+    }
+
+    .kpi-content {
+        gap: 14px;
+    }
+
+    .kpi-icon-box {
+        flex-basis: 44px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .kpi-value {
+        font-size: 27px;
+    }
 }

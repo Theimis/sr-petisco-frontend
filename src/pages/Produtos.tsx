@@ -21,6 +21,34 @@ interface Produto {
     custo?: number;
 }
 
+function obterUnidadeUso(insumo: any) {
+    if (
+        insumo?.unidade === "un" &&
+        Number(insumo?.pesoUnitario) > 0 &&
+        insumo?.unidadePesoUnitario
+    ) {
+        return insumo.unidadePesoUnitario;
+    }
+
+    return insumo?.unidade || "";
+}
+
+function obterValorUnitarioUso(insumo: any) {
+    const valorUnitario = Number(insumo?.valorUnitario || 0);
+
+    // Para insumo "un" com peso, o backend mantém o valor por g/ml,
+    // enquanto a ficha trabalha com kg/l.
+    if (
+        insumo?.unidade === "un" &&
+        Number(insumo?.pesoUnitario) > 0 &&
+        ["kg", "l"].includes(insumo?.unidadePesoUnitario)
+    ) {
+        return valorUnitario * 1000;
+    }
+
+    return valorUnitario;
+}
+
 export function Produtos() {
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [mostraFormulario, setMostrarFormulario] = useState(false);
@@ -131,6 +159,7 @@ export function Produtos() {
         setIngredientesProduto([]);
 
         setPesquisasIngredientes({});
+        setQuantidadesIngredientes({});
 
         setInputAberto(null);
     }
@@ -160,6 +189,17 @@ export function Produtos() {
 
         if (ingredientesFicha.length === 0) {
             toast.error("Adicione pelo menos um ingrediente.");
+            return;
+        }
+
+        if (
+            ingredientesFicha.some(
+                ingrediente =>
+                    !ingrediente.insumo ||
+                    Number(ingrediente.quantidade) <= 0
+            )
+        ) {
+            toast.error("Selecione todos os ingredientes e informe quantidades maiores que zero.");
             return;
         }
 
@@ -220,6 +260,18 @@ export function Produtos() {
             toast.error(
                 "Adicione pelo menos um ingrediente."
             );
+            return;
+        }
+
+
+        if (
+            ingredientesProduto.some(
+                ingrediente =>
+                    !ingrediente.insumo ||
+                    Number(ingrediente.qtdLiquida) <= 0
+            )
+        ) {
+            toast.error("Selecione todos os ingredientes e informe quantidades maiores que zero.");
             return;
         }
 
@@ -305,28 +357,31 @@ export function Produtos() {
 
             const ficha = res.data?.data;
 
-            const ingredientes =
-                Array.isArray(ficha?.ingredientes)
-                    ? ficha.ingredientes
-                    : [];
+            const ingredientes = Array.isArray(
+                ficha?.ingredientes
+            )
+                ? ficha.ingredientes
+                : [];
 
-            const ingredientesEditados =
-                ingredientes.map((item: any) => ({
-                    insumo:
-                        typeof item.insumo === "object"
-                            ? item.insumo?._id
-                            : item.insumo,
+            const ingredientesEditados: {
+                insumo: string;
+                qtdLiquida: number;
+            }[] = ingredientes.map((item: any) => ({
+                insumo:
+                    typeof item.insumo === "object"
+                        ? String(item.insumo?._id ?? "")
+                        : String(item.insumo ?? ""),
 
-                    qtdLiquida:
-                        Number(item.quantidade || 0),
-                }));
+                qtdLiquida:
+                    Number(item.quantidade || 0),
+            }));
 
-            const pesquisas =
-                ingredientes.map((item: any) =>
+            const pesquisas = ingredientes.map(
+                (item: any) =>
                     typeof item.insumo === "object"
                         ? item.insumo?.nome || ""
                         : ""
-                );
+            );
 
             setIngredientesProduto(
                 ingredientesEditados
@@ -334,6 +389,29 @@ export function Produtos() {
 
             setPesquisasIngredientes(
                 pesquisas
+            );
+
+            setQuantidadesIngredientes(
+                ingredientesEditados.reduce<
+                    Record<number, string>
+                >(
+                    (
+                        acc,
+                        item,
+                        index
+                    ) => {
+                        acc[index] =
+                            String(
+                                item.qtdLiquida
+                            ).replace(
+                                ".",
+                                ","
+                            );
+
+                        return acc;
+                    },
+                    {}
+                )
             );
 
             setMostrarFormulario(true);
@@ -369,7 +447,10 @@ export function Produtos() {
 
         if (!insumo) return total;
 
-        return total + (insumo.valorUnitario * ingrediente.qtdLiquida);
+        return total + (
+            obterValorUnitarioUso(insumo) *
+            Number(ingrediente.qtdLiquida || 0)
+        );
 
     }, 0);
 
@@ -516,8 +597,8 @@ export function Produtos() {
                                                         (ins: any) => ins._id === ingrediente.insumo
                                                     );
                                                     const custoLinha =
-                                                        (insumoSelecionado?.valorUnitario || 0) *
-                                                        (ingrediente.qtdLiquida || 0);
+                                                        obterValorUnitarioUso(insumoSelecionado) *
+                                                        Number(ingrediente.qtdLiquida || 0);
                                                     return (
 
                                                         <tr key={index}>
@@ -559,6 +640,10 @@ export function Produtos() {
                                                                                             novosIngredientes[index] = {
                                                                                                 ...novosIngredientes[index],
                                                                                                 insumo: ins._id,
+                                                                                                qtdLiquida:
+                                                                                                    ins.unidade === "un" && Number(ins.pesoUnitario) > 0
+                                                                                                        ? Number(ins.pesoUnitario)
+                                                                                                        : 0,
                                                                                                 pesquisando: false,
                                                                                             };
 
@@ -567,6 +652,14 @@ export function Produtos() {
                                                                                             setPesquisasIngredientes({
                                                                                                 ...pesquisasIngredientes,
                                                                                                 [index]: ins.nome,
+                                                                                            });
+
+                                                                                            setQuantidadesIngredientes({
+                                                                                                ...quantidadesIngredientes,
+                                                                                                [index]:
+                                                                                                    ins.unidade === "un" && Number(ins.pesoUnitario) > 0
+                                                                                                        ? String(ins.pesoUnitario).replace(".", ",")
+                                                                                                        : "",
                                                                                             });
 
                                                                                             setInputAberto(null);
@@ -623,7 +716,7 @@ export function Produtos() {
                                                             </td>
 
                                                             <td>
-                                                                {insumoSelecionado?.unidade || "-"}
+                                                                {obterUnidadeUso(insumoSelecionado) || "-"}
                                                             </td>
 
                                                             <td className="custo-cell">

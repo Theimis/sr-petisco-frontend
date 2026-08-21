@@ -24,38 +24,52 @@ export const KPICard = ({
             animate={{ opacity: 1, y: 0 }}
             className="kpi-card"
         >
-            <div className="kpi-header">
+            <div className="kpi-content">
+
                 <div
                     className="kpi-icon-box"
-                    style={{ background: bg }}
+                    style={{
+                        background: bg,
+                    }}
                 >
-                    <Icon size={22} color={color} />
-                </div>
-
-                <div
-                    className="kpi-trend"
-                    style={{ color }}
-                >
-                    {change}
-                </div>
-            </div>
-
-            <div className="kpi-value-group">
-                <p>{title}</p>
-                <h2>{value}</h2>
-            </div>
-
-            <div className="kpi-chart-mini">
-                {[20, 35, 25, 40, 30, 45, 28, 38].map((h, i) => (
-                    <div
-                        key={i}
-                        className="chart-bar"
-                        style={{
-                            height: `${h}%`,
-                            backgroundColor: color,
-                        }}
+                    <Icon
+                        size={30}
+                        color={color}
+                        strokeWidth={1.8}
                     />
-                ))}
+                </div>
+
+                <div className="kpi-info">
+
+                    <p className="kpi-title">
+                        {title}
+                    </p>
+
+                    <h2 className="kpi-value">
+                        {value}
+                    </h2>
+
+                    <div
+                        className="kpi-trend"
+                        style={{
+                            color,
+                        }}
+                    >
+                        <span className="kpi-trend-arrow">
+                            ↑
+                        </span>
+
+                        <span>
+                            {change}
+                        </span>
+
+                        <span className="kpi-period">
+                            vs período anterior
+                        </span>
+                    </div>
+
+                </div>
+
             </div>
         </motion.div>
     );
